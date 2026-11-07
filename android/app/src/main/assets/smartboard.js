@@ -1,0 +1,62 @@
+// Keep the classroom activities available behind a compact menu.
+const iconPaths={
+ pen:'M13.7 5.3l5 5M4 20l4.4-.8L20 7.6a2.1 2.1 0 000-3l-.6-.6a2.1 2.1 0 00-3 0L4.8 15.6 4 20z',
+ eraser:'M3.7 15.3l9-9a2 2 0 012.8 0l4.2 4.2a2 2 0 010 2.8l-6.4 6.4H8.1l-4.4-4.4z M8 11l7 7 M13.5 19.7H21',
+ undo:'M9 7L4 12l5 5 M4 12h10a5 5 0 010 10',
+ redo:'M15 7l5 5-5 5 M20 12H10a5 5 0 000 10',
+ clear:'M4 7h16 M9 7V4h6v3 M6 7l.8 12a2 2 0 002 1.8h6.4a2 2 0 002-1.8L18 7 M10 11v6 M14 11v6',
+ save:'M5 3h12l4 4v12a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z M7 3v6h9V3 M7 21v-7h10v7',
+ settings:'M4 6h16 M4 12h16 M4 18h16 M8 4v4 M16 10v4 M10 16v4',
+ menu:'M4 6h16 M4 12h16 M4 18h16',
+ letters:'M5 4h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1z M8 16l4-8 4 8 M9.5 13h5',
+ previous:'M15 5l-7 7 7 7',
+ next:'M9 5l7 7-7 7',
+ add:'M12 5v14 M5 12h14'
+};
+function toolIcon(button,name,label){
+ button.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+iconPaths[name]+'"/></svg>';
+ button.setAttribute('aria-label',label);button.title=label;
+}
+for(const [id,label] of [['pen','Pen & colors'],['eraser','Eraser'],['undo','Undo'],['redo','Redo'],['clear','Clear board'],['save','Save image']])toolIcon($('#'+id),id,label);
+const dock=$('.tools');
+const options=document.createElement('div');options.id='penOptions';options.className='floating-panel hidden';options.setAttribute('aria-label','Pen settings');
+options.append($('.colors'),$('#size').parentElement,$('#paper').parentElement);document.body.append(options);
+const settings=document.createElement('button');settings.id='settings';toolIcon(settings,'settings','Pen settings');dock.insertBefore(settings,$('#clear'));
+const letterToggle=document.createElement('button');letterToggle.id='letterToggle';toolIcon(letterToggle,'letters','Odia letter practice');dock.insertBefore(letterToggle,$('#undo'));
+function closePanels(){options.classList.add('hidden');$('.practice-strip').classList.remove('open');settings.setAttribute('aria-expanded','false');letterToggle.setAttribute('aria-expanded','false');$('#pen').setAttribute('aria-expanded','false')}
+function toggleOptions(){const open=options.classList.contains('hidden');closePanels();options.classList.toggle('hidden',!open);settings.setAttribute('aria-expanded',String(open));$('#pen').setAttribute('aria-expanded',String(open))}
+settings.onclick=toggleOptions;
+const selectPen=$('#pen').onclick;
+$('#pen').onclick=e=>{selectPen();if(e.isTrusted)toggleOptions()};
+const selectEraser=$('#eraser').onclick;$('#eraser').onclick=()=>{selectEraser();closePanels()};
+letterToggle.onclick=()=>{const open=!$('.practice-strip').classList.contains('open');closePanels();$('.practice-strip').classList.toggle('open',open);letterToggle.setAttribute('aria-expanded',String(open))};
+canvas.addEventListener('pointerdown',closePanels);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closePanels();$('nav').classList.remove('open')}});
+$('#paper').value='dots';canvas.dataset.paper='dots';
+const brand=document.createElement('div');brand.className='board-brand';brand.textContent='Odia Smart Lab';document.body.append(brand);
+const menu=document.createElement('button');menu.id='activityMenu';toolIcon(menu,'menu','Learning activities');menu.setAttribute('aria-expanded','false');document.body.append(menu);
+menu.onclick=()=>{const open=$('nav').classList.toggle('open');menu.setAttribute('aria-expanded',String(open));closePanels()};
+document.querySelectorAll('[data-tab]').forEach(button=>button.addEventListener('click',()=>{$('nav').classList.remove('open');menu.setAttribute('aria-expanded','false');closePanels()}));
+$('#quickLetters').addEventListener('click',closePanels);$('#freewrite').addEventListener('click',closePanels);
+
+// Each page retains its drawing and undo/redo stack independently.
+let pages, pageIndex=0;
+try {
+ const data=JSON.parse(localStorage.getItem('odia-board-pages')||'null');
+ if(data && Array.isArray(data.pages) && data.pages.length){pages=data.pages;pageIndex=Math.max(0,Math.min(data.index||0,pages.length-1))}
+} catch {}
+if(!pages)pages=[{strokes,redo,guide}];
+function loadPage(){const p=pages[pageIndex];strokes=p.strokes||[];redo=p.redo||[];guide=p.guide||'';updateHistory();pageLabel.textContent=(pageIndex+1)+' / '+pages.length;prev.disabled=pageIndex===0;next.disabled=pageIndex===pages.length-1;render()}
+persist=function(){
+ pages[pageIndex]={strokes,redo,guide};
+ updateHistory();
+ try{localStorage.setItem('odia-board-pages',JSON.stringify({pages,index:pageIndex}));$('#status').textContent='Saved on device';}
+ catch(e){$('#status').textContent='Could not save on device';}
+};
+const pageControls=document.createElement('div');pageControls.className='page-controls';pageControls.setAttribute('aria-label','Page controls');
+function pageButton(label,text){const b=document.createElement('button');b.textContent=text;b.title=label;b.setAttribute('aria-label',label);pageControls.append(b);return b}
+const prev=pageButton('Previous page','‹');toolIcon(prev,'previous','Previous page');const pageLabel=document.createElement('span');pageControls.append(pageLabel);const next=pageButton('Next page','›');toolIcon(next,'next','Next page');const add=pageButton('New page','+');toolIcon(add,'add','New page');const bottomBar=document.createElement('div');bottomBar.className='bottom-bar';dock.parentNode.insertBefore(bottomBar,dock);bottomBar.append(dock,pageControls);
+function changePage(index){if(drawing)return;persist();pageIndex=index;loadPage();persist();closePanels()}
+prev.onclick=()=>changePage(pageIndex-1);next.onclick=()=>changePage(pageIndex+1);
+add.onclick=()=>{if(drawing)return;persist();pages.push({strokes:[],redo:[],guide:''});pageIndex=pages.length-1;loadPage();persist();closePanels()};
+loadPage();
