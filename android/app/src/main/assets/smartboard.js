@@ -8,7 +8,7 @@ const iconPaths={
  clear:'M4 7h16 M9 7V4h6v3 M6 7l.8 12a2 2 0 002 1.8h6.4a2 2 0 002-1.8L18 7 M10 11v6 M14 11v6',
  save:'M5 3h12l4 4v12a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z M7 3v6h9V3 M7 21v-7h10v7',
  settings:'M4 6h16 M4 12h16 M4 18h16 M8 4v4 M16 10v4 M10 16v4',
- menu:'M4 6h16 M4 12h16 M4 18h16',
+ menu:'M2 9l10-5 10 5-10 5-10-5z M6 11v5c3 3 9 3 12 0v-5 M22 9v6',
  letters:'M5 4h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1z M8 16l4-8 4 8 M9.5 13h5',
  previous:'M15 5l-7 7 7 7',
  next:'M9 5l7 7-7 7',
@@ -46,6 +46,10 @@ $('#paper').value='dots';canvas.dataset.paper='dots';
 const menuTitle=document.createElement('strong');menuTitle.className='saathi-title';menuTitle.textContent='ସାଥୀ';$('nav').prepend(menuTitle);$('nav').id='saathiMenu';$('nav').setAttribute('aria-label','ସାଥୀ menu');
 const lang=document.createElement('button');lang.textContent='ଓ / EN';lang.setAttribute('aria-label','Change language');lang.onclick=()=>$('#language').click();$('nav').append(lang);
 const full=document.createElement('button');full.textContent='⛶ Full screen';full.onclick=()=>$('#fullscreen').click();$('nav').append(full);
+// Icon-only Saathi tiles keep the same actions and accessible names.
+const saathiIcons={whiteboard:'M4 4h16v12H4z M8 20l4-4 4 4 M8 11l2-2 3 3 3-3',alphabet:'M12 4c-4 0-6 3-6 5 0 1 1 2 2 2 2 0 2-2 4-2 3 0 4 2 4 4v6 M5 19h14',lessons:'M4 4h12a3 3 0 013 3v13H7a3 3 0 01-3-3z M7 17h12 M8 8h7 M8 11h7',quiz:'M9 4h6l1 2h3v15H5V6h3z M8 10l1 1 2-2 M13 10h3 M8 15l1 1 2-2 M13 15h3',language:'M12 3a9 9 0 100 18 9 9 0 000-18z M3 12h18 M12 3c4 4 4 14 0 18 M12 3c-4 4-4 14 0 18',fullscreen:'M4 9V4h5 M15 4h5v5 M20 15v5h-5 M9 20H4v-5'};
+function renderSaathi(){const labels={whiteboard:'Whiteboard',alphabet:'Odia alphabet',lessons:'Lessons',quiz:'Quiz'};document.querySelectorAll('#saathiMenu [data-tab]').forEach(b=>{const label=labels[b.dataset.tab];b.setAttribute('aria-label',label);b.title=label;b.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+saathiIcons[b.dataset.tab]+'"/></svg>'});for(const [b,key,label] of [[lang,'language','Change language'],[full,'fullscreen','Full screen']]){b.setAttribute('aria-label',label);b.title=label;b.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+saathiIcons[key]+'"/></svg>'}}
+lang.onclick=()=>{$('#language').click();renderSaathi()};renderSaathi();
 const brand=document.createElement('div');brand.className='board-brand';brand.textContent='ଓଡ଼ିଆ Smart Lab';document.body.append(brand);
 const menu=document.createElement('button');menu.id='activityMenu';toolIcon(menu,'menu','ସାଥୀ — ଅଧିକ ବିକଳ୍ପ');menu.setAttribute('aria-controls','saathiMenu');menu.setAttribute('aria-haspopup','true');menu.setAttribute('aria-expanded','false');
 menu.onclick=()=>{const open=$('nav').classList.toggle('open');menu.setAttribute('aria-expanded',String(open));closePanels()};

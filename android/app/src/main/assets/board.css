@@ -89,3 +89,6 @@ nav button{text-align:left}
  #penOptions,.board-settings,.practice-strip,.more-tools-panel{bottom:calc(68px + env(safe-area-inset-bottom, 0px));max-height:calc(100dvh - 80px);overflow:auto}
  .board-brand{display:block;bottom:calc(10px + env(safe-area-inset-bottom, 0px));left:8px;font-size:11px;opacity:.8}
 }
+
+/* Saathi task menu follows the approved compact 3-by-2 icon layout. */
+#saathiMenu{width:min(300px,calc(100vw - 16px));padding:10px;gap:6px;border-radius:22px}#saathiMenu.open{display:grid;grid-template-columns:repeat(3,minmax(48px,1fr));gap:6px}#saathiMenu .saathi-title{grid-column:1/-1;text-align:center;padding:2px 6px;font-size:16px}#saathiMenu button{display:grid;place-items:center;min-width:48px;min-height:52px;padding:10px;border:1px solid #e5e9e6;border-radius:14px;background:#fff;color:#125137;box-shadow:0 2px 5px #16342812}#saathiMenu button.active{background:#fff8df;color:#125137;border:2px solid #f2b12e}#saathiMenu svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}@media(max-height:500px) and (pointer:coarse){#saathiMenu{width:min(300px,calc(100vw - 16px))}#saathiMenu button{min-height:48px;padding:7px}}
