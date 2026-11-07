@@ -66,3 +66,16 @@ nav button{text-align:left}
 
 /* ସାଥୀ: compact classroom activity menu, anchored within reach. */
 #saathiMenu{bottom:92px;left:max(8px,calc(50% - 380px));width:min(260px,calc(100vw - 16px));max-height:min(60vh,520px);overflow:auto;padding:12px}#saathiMenu .saathi-title{padding:7px 10px 10px;font-size:18px;color:#0b5738}#saathiMenu button{width:100%;min-height:48px;margin:0;text-align:left;border-color:transparent;background:#f5f8f5}#saathiMenu button.active{background:#155c50;color:#fff}#activityMenu[aria-expanded=true]{background:#e7f1e9}
+
+/* Phone layout: six reachable controls, with secondary tools in a separate panel. */
+.more-tools-panel{position:fixed;z-index:8;bottom:calc(82px + env(safe-area-inset-bottom, 0px));right:8px;width:min(280px,calc(100vw - 16px));padding:10px;display:grid;grid-template-columns:repeat(4,minmax(48px,1fr));gap:4px;background:#fff;border:1px solid #e0e5e1;border-radius:20px;box-shadow:0 6px 20px #16342826}
+.more-tools-panel>button{display:grid;place-items:center;width:100%;min-height:48px;padding:10px;border:0;background:#f5f8f5;color:#123f2e}.more-tools-panel svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.more-tools-panel .page-controls{grid-column:1/-1;justify-content:center;border:0;border-top:1px solid #e0e5e1;padding-top:4px}.more-tools-panel .page-controls button{min-width:48px}
+#moreTools{display:none}
+@media(max-width:650px){
+ .bottom-bar{left:50%;right:auto;bottom:calc(8px + env(safe-area-inset-bottom, 0px));transform:translateX(-50%);width:max-content;max-width:calc(100vw - 12px);padding:4px;overflow:visible;border-radius:22px}
+ .bottom-bar:after{display:none}.tools{padding:0;gap:0}.tools>button,#activityMenu{width:48px;height:48px;min-width:48px;min-height:48px;padding:10px}#moreTools{display:grid}
+ #penOptions{left:max(8px,calc(50% - 150px));bottom:calc(74px + env(safe-area-inset-bottom, 0px));max-width:calc(100vw - 16px)}
+ #saathiMenu{left:8px;bottom:calc(74px + env(safe-area-inset-bottom, 0px));width:min(344px,calc(100vw - 16px));max-height:calc(100dvh - 100px);padding:10px}
+ #saathiMenu.open{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}#saathiMenu .saathi-title{grid-column:1/-1;font-size:16px;padding:2px 6px}#saathiMenu button{min-width:0;min-height:48px;padding:8px;text-align:center;font-size:13px;line-height:1.25}
+ .board-settings,.practice-strip{bottom:calc(74px + env(safe-area-inset-bottom, 0px))}.board-brand{display:block;bottom:calc(70px + env(safe-area-inset-bottom, 0px));left:12px;font-size:12px;opacity:.8}
+}
