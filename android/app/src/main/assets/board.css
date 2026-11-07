@@ -12,8 +12,8 @@ canvas[data-paper="dots"]{background-image:radial-gradient(#d8dfdc 1px,transpare
 canvas[data-paper="ruled"]{background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 39px,#dce5df 39px,#dce5df 40px);background-size:auto 40px}
 canvas[data-paper="plain"]{background-image:none}
 .board-brand{position:fixed;top:30px;left:22px;z-index:3;font-size:16px;font-weight:700;pointer-events:none}
-.bottom-bar{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:5;display:flex;align-items:center;gap:8px;max-width:calc(100% - 16px)}
-.tools{position:relative;display:flex;align-items:center;gap:4px;flex-wrap:nowrap;padding:6px 8px;border:1px solid #e3e7e4;border-radius:50px;background:#fffffff5;box-shadow:0 6px 20px #16342824;overflow:visible;flex-shrink:0}
+.bottom-bar{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:5;display:flex;align-items:center;gap:0;max-width:calc(100% - 16px);padding:6px 8px;border:1px solid #e3e7e4;border-radius:50px;background:#fffffff5;box-shadow:0 6px 20px #16342824;overflow-x:auto;scrollbar-width:none}
+.tools{position:relative;display:flex;align-items:center;gap:2px;flex-wrap:nowrap;padding:0;border:0;background:transparent;overflow:visible;flex-shrink:0}
 .tools>button{display:grid;place-items:center;width:48px;height:48px;min-height:48px;flex-shrink:0;margin:0;padding:10px;border:0;border-radius:13px;background:transparent;color:#123f2e}
 .tools>button:hover{background:#edf4ef}
 .tools>button.active{background:#00603b;color:white}
@@ -36,13 +36,13 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid 
 #quickLetters{display:flex;gap:6px;overflow-x:auto;flex:1;min-width:0}
 #quickLetters button{font-size:26px;min-width:48px;padding:4px 8px;flex-shrink:0}
 #freewrite{font-size:12px;padding:6px;flex-shrink:0}
-#activityMenu{position:fixed;top:25px;right:20px;z-index:8;display:grid;place-items:center;width:48px;padding:10px;border-radius:50%;background:#ffffffee;border-color:#e3e7e4}
-nav{display:none;position:fixed;top:82px;right:20px;z-index:7;flex-direction:column;gap:6px;margin:0;padding:12px;border:1px solid #e0e5e1;border-radius:20px;background:white;box-shadow:0 5px 20px #16342820}
+#activityMenu{display:grid;place-items:center;flex-shrink:0;width:48px;height:48px;min-height:48px;padding:10px;border:0;border-radius:13px;background:transparent;color:#123f2e}
+nav{display:none;position:fixed;bottom:90px;left:16px;z-index:7;flex-direction:column;gap:6px;margin:0;padding:12px;border:1px solid #e0e5e1;border-radius:20px;background:white;box-shadow:0 5px 20px #16342820}
 nav.open{display:flex}
 nav button{text-align:left}
 #status:empty{display:none}
 #status{position:fixed;top:32px;left:200px;font-size:12px;z-index:4;pointer-events:none}
-.page-controls{display:flex;align-items:center;flex-shrink:0;background:white;border:1px solid #e3e7e4;border-radius:28px;box-shadow:0 6px 20px #16342824}
+.page-controls{display:flex;align-items:center;flex-shrink:0;background:transparent;border-left:1px solid #dbe1dc}
 .page-controls button{display:grid;place-items:center;width:48px;height:48px;min-height:48px;padding:0;border:0;border-radius:50%;background:transparent;color:#123f2e}
 .page-controls button:hover{background:#edf4ef}
 .page-controls span{min-width:48px;text-align:center;font-size:14px}

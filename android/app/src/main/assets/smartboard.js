@@ -33,10 +33,9 @@ letterToggle.onclick=()=>{const open=!$('.practice-strip').classList.contains('o
 canvas.addEventListener('pointerdown',closePanels);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closePanels();$('nav').classList.remove('open')}});
 $('#paper').value='dots';canvas.dataset.paper='dots';
-const brand=document.createElement('div');brand.className='board-brand';brand.textContent='Odia Smart Lab';document.body.append(brand);
-const menu=document.createElement('button');menu.id='activityMenu';toolIcon(menu,'menu','Learning activities');menu.setAttribute('aria-expanded','false');document.body.append(menu);
+const menu=document.createElement('button');menu.id='activityMenu';toolIcon(menu,'menu','Learning activities');menu.setAttribute('aria-expanded','false');
 menu.onclick=()=>{const open=$('nav').classList.toggle('open');menu.setAttribute('aria-expanded',String(open));closePanels()};
-document.querySelectorAll('[data-tab]').forEach(button=>button.addEventListener('click',()=>{$('nav').classList.remove('open');menu.setAttribute('aria-expanded','false');closePanels()}));
+document.querySelectorAll('[data-tab]').forEach(button=>button.addEventListener('click',()=>{$('nav').classList.remove('open');menu.setAttribute('aria-expanded','false');closePanels();dock.classList.toggle('hidden',button.dataset.tab!=='whiteboard');pageControls.classList.toggle('hidden',button.dataset.tab!=='whiteboard')}));
 $('#quickLetters').addEventListener('click',closePanels);$('#freewrite').addEventListener('click',closePanels);
 
 // Each page retains its drawing and undo/redo stack independently.
@@ -46,6 +45,7 @@ try {
  if(data && Array.isArray(data.pages) && data.pages.length){pages=data.pages;pageIndex=Math.max(0,Math.min(data.index||0,pages.length-1))}
 } catch {}
 if(!pages)pages=[{strokes,redo,guide}];
+const originalTab=tab;tab=function(name){originalTab(name);dock.classList.toggle('hidden',name!=='whiteboard');pageControls.classList.toggle('hidden',name!=='whiteboard')};
 function loadPage(){const p=pages[pageIndex];strokes=p.strokes||[];redo=p.redo||[];guide=p.guide||'';updateHistory();pageLabel.textContent=(pageIndex+1)+' / '+pages.length;prev.disabled=pageIndex===0;next.disabled=pageIndex===pages.length-1;render()}
 persist=function(){
  pages[pageIndex]={strokes,redo,guide};
@@ -55,7 +55,7 @@ persist=function(){
 };
 const pageControls=document.createElement('div');pageControls.className='page-controls';pageControls.setAttribute('aria-label','Page controls');
 function pageButton(label,text){const b=document.createElement('button');b.textContent=text;b.title=label;b.setAttribute('aria-label',label);pageControls.append(b);return b}
-const prev=pageButton('Previous page','‹');toolIcon(prev,'previous','Previous page');const pageLabel=document.createElement('span');pageControls.append(pageLabel);const next=pageButton('Next page','›');toolIcon(next,'next','Next page');const add=pageButton('New page','+');toolIcon(add,'add','New page');const bottomBar=document.createElement('div');bottomBar.className='bottom-bar';dock.parentNode.insertBefore(bottomBar,dock);bottomBar.append(dock,pageControls);
+const prev=pageButton('Previous page','‹');toolIcon(prev,'previous','Previous page');const pageLabel=document.createElement('span');pageControls.append(pageLabel);const next=pageButton('Next page','›');toolIcon(next,'next','Next page');const add=pageButton('New page','+');toolIcon(add,'add','New page');const bottomBar=document.createElement('div');bottomBar.className='bottom-bar';document.body.append(bottomBar);bottomBar.append(menu,dock,pageControls);
 function changePage(index){if(drawing)return;persist();pageIndex=index;loadPage();persist();closePanels()}
 prev.onclick=()=>changePage(pageIndex-1);next.onclick=()=>changePage(pageIndex+1);
 add.onclick=()=>{if(drawing)return;persist();pages.push({strokes:[],redo:[],guide:''});pageIndex=pages.length-1;loadPage();persist();closePanels()};
