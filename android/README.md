@@ -6,7 +6,7 @@ Android Studio project wrapping the existing offline classroom web app in a WebV
 
 1. Open this `android` directory in Android Studio.
 2. Use JDK 17 or 21 and install Android SDK Platform 35 when prompted.
-3. This source package does not include a Gradle wrapper. Use Gradle 8.9 installed on your computer to run `gradle wrapper --gradle-version 8.9` in this directory, then reopen/sync in Android Studio. The Android Gradle plugin requires internet access for the initial sync.
+3. Sync the project using its included Gradle 8.9 wrapper. The first sync needs internet access to download Gradle and the Android Gradle plugin.
 4. Connect an Android device with USB debugging, or start an emulator, and select Run. To build an APK, choose Build > Build APK(s).
 
 No Android SDK or Gradle was available in the development workspace, so this project has not been built or tested on an Android device. Board state is local to the device and may be removed if app data is cleared. Internet is not required by the bundled lessons. PNG export uses the system file picker.
