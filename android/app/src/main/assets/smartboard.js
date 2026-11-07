@@ -80,7 +80,7 @@ const moreButton=document.createElement('button');moreButton.id='moreTools';tool
 const morePanel=document.createElement('div');morePanel.id='moreToolsPanel';morePanel.className='more-tools-panel hidden';morePanel.setAttribute('aria-label','More writing tools');document.body.append(morePanel);
 const secondary=[$('#letterToggle'),$('#settings'),$('#clear'),$('#save'),pageControls];
 const placeholders=secondary.map(node=>{const marker=document.createComment('responsive toolbar position');node.before(marker);return marker});
-const phoneLayout=window.matchMedia('(max-width: 650px)');
+const phoneLayout=window.matchMedia('(max-width: 650px), (max-height: 500px) and (pointer: coarse)');
 function closeMore(){morePanel.classList.add('hidden');moreButton.setAttribute('aria-expanded','false')}
 function applyToolbarLayout(){closeMore();if(phoneLayout.matches){secondary.forEach(node=>morePanel.append(node));dock.append(moreButton)}else{secondary.forEach((node,i)=>placeholders[i].after(node));moreButton.remove()}}
 moreButton.onclick=()=>{const shouldOpen=morePanel.classList.contains('hidden');closePanels();$('nav').classList.remove('open');menu.setAttribute('aria-expanded','false');morePanel.classList.toggle('hidden',!shouldOpen);moreButton.setAttribute('aria-expanded',String(shouldOpen))};

@@ -79,3 +79,13 @@ nav button{text-align:left}
  #saathiMenu.open{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}#saathiMenu .saathi-title{grid-column:1/-1;font-size:16px;padding:2px 6px}#saathiMenu button{min-width:0;min-height:48px;padding:8px;text-align:center;font-size:13px;line-height:1.25}
  .board-settings,.practice-strip{bottom:calc(74px + env(safe-area-inset-bottom, 0px))}.board-brand{display:block;bottom:calc(70px + env(safe-area-inset-bottom, 0px));left:12px;font-size:12px;opacity:.8}
 }
+
+/* Landscape phones use the same compact dock and keep every tool reachable. */
+@media (max-height:500px) and (pointer:coarse){
+ .bottom-bar{left:50%;right:auto;bottom:calc(6px + env(safe-area-inset-bottom, 0px));transform:translateX(-50%);width:max-content;max-width:calc(100vw - 12px);padding:4px;overflow:visible;border-radius:22px}
+ .bottom-bar:after{display:none}.tools{padding:0;gap:0}.tools>button,#activityMenu{width:48px;height:48px;min-width:48px;min-height:48px;padding:10px}#moreTools{display:grid}
+ #saathiMenu{left:8px;bottom:calc(68px + env(safe-area-inset-bottom, 0px));width:min(420px,calc(100vw - 16px));max-height:calc(100dvh - 84px);padding:8px;overflow:auto}
+ #saathiMenu.open{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}#saathiMenu .saathi-title{grid-column:1/-1;font-size:14px;padding:0 6px}#saathiMenu button{min-width:0;min-height:48px;padding:6px;text-align:center;font-size:12px;line-height:1.2}
+ #penOptions,.board-settings,.practice-strip,.more-tools-panel{bottom:calc(68px + env(safe-area-inset-bottom, 0px));max-height:calc(100dvh - 80px);overflow:auto}
+ .board-brand{display:block;bottom:calc(10px + env(safe-area-inset-bottom, 0px));left:8px;font-size:11px;opacity:.8}
+}
