@@ -55,3 +55,11 @@ nav button{text-align:left}
  .floating-panel{bottom:70px;left:4px}
  .practice-strip{bottom:94px}
 }
+
+/* Responsive smartboard dock: controls remain accessible on smaller screens. */
+.floating-panel label{display:flex;flex-direction:column;gap:6px;font-size:14px;color:#355849;margin-top:12px}.floating-panel input,.floating-panel select{width:100%;min-height:44px}.colors button{width:44px;min-width:44px;min-height:44px}.floating-panel{width:280px}.board-brand{pointer-events:none}
+@media(max-width:650px){.bottom-bar{bottom:8px;border-radius:20px}.bottom-bar:after{content:'›';position:sticky;right:0;color:#00603b;background:white;font-size:22px}.floating-panel{bottom:80px;left:8px}}
+
+/* Compact, touch-sized pen controls anchored near the bottom. */
+.board-brand{position:fixed;top:auto;bottom:27px;left:20px;font-size:16px;z-index:3}.board-brand:after{content:"";display:block;width:70%;height:3px;margin-top:4px;background:#efaa27;border-radius:4px}
+#penOptions{width:260px;padding:8px;bottom:92px;left:clamp(8px, calc(50% - 265px), calc(100% - 268px));border-radius:18px}#penOptions:after{left:44px}.pen-row{display:flex;gap:4px;justify-content:space-between;align-items:center;margin:0;padding:3px 0;border-bottom:1px solid #e3e7e4;overflow:visible}.pen-row:last-child{border:0}.pen-row button{display:grid;place-items:center;width:48px;height:48px;min-width:0;min-height:48px;margin:0;padding:8px;border:1px solid #dce4df;border-radius:10px;background:#fff;color:#125137}.pen-row button.chosen{background:#fff7e3;border:2px solid #0b663d}.pen-row svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.size-row span{display:block;background:#075a37;border-radius:50%}.colors.pen-row{gap:1px}.colors.pen-row button{width:32px;min-width:32px;height:44px;min-height:44px;border:4px solid white;border-radius:50%;padding:0}.colors.pen-row button[aria-pressed=true]{outline:2px solid #f1ad24}.custom-color{width:36px;min-height:44px;border:0;background:transparent;padding:2px}.board-settings{bottom:92px;left:8px}.board-settings label{display:flex;flex-direction:column;gap:8px}.board-settings select{min-height:48px}@media(max-width:900px){.board-brand{display:none}}

@@ -1,5 +1,6 @@
 // Keep the classroom activities available behind a compact menu.
 const iconPaths={
+ marker:'M4 19l3-5L17 4l4 4L11 18l-5 2z M3 22h10',
  pen:'M13.7 5.3l5 5M4 20l4.4-.8L20 7.6a2.1 2.1 0 000-3l-.6-.6a2.1 2.1 0 00-3 0L4.8 15.6 4 20z',
  eraser:'M3.7 15.3l9-9a2 2 0 012.8 0l4.2 4.2a2 2 0 010 2.8l-6.4 6.4H8.1l-4.4-4.4z M8 11l7 7 M13.5 19.7H21',
  undo:'M9 7L4 12l5 5 M4 12h10a5 5 0 010 10',
@@ -20,19 +21,31 @@ function toolIcon(button,name,label){
 for(const [id,label] of [['pen','Pen & colors'],['eraser','Eraser'],['undo','Undo'],['redo','Redo'],['clear','Clear board'],['save','Save image']])toolIcon($('#'+id),id,label);
 const dock=$('.tools');
 const options=document.createElement('div');options.id='penOptions';options.className='floating-panel hidden';options.setAttribute('aria-label','Pen settings');
-options.append($('.colors'),$('#size').parentElement,$('#paper').parentElement);document.body.append(options);
-const settings=document.createElement('button');settings.id='settings';toolIcon(settings,'settings','Pen settings');dock.insertBefore(settings,$('#clear'));
-const letterToggle=document.createElement('button');letterToggle.id='letterToggle';toolIcon(letterToggle,'letters','Odia letter practice');dock.insertBefore(letterToggle,$('#undo'));
-function closePanels(){options.classList.add('hidden');$('.practice-strip').classList.remove('open');settings.setAttribute('aria-expanded','false');letterToggle.setAttribute('aria-expanded','false');$('#pen').setAttribute('aria-expanded','false')}
+const colors=$('.colors');const sizeInput=$('#size');const paperControl=$('#paper').parentElement;
+const typeRow=document.createElement('div');typeRow.className='pen-row type-row';typeRow.setAttribute('aria-label','Pen type');
+const types=[['pen','Pen'],['marker','Marker'],['highlighter','Highlighter'],['brush','Brush']];
+iconPaths.highlighter='M4 19l3-5L17 4l4 4L11 18l-5 2z M3 22h10';iconPaths.brush='M14 5l5-3 3 3-3 5-7 7-4-4z M8 13c-3 0-3 4-5 6 5 2 9 0 9-3';
+const sizeRow=document.createElement('div');sizeRow.className='pen-row size-row';sizeRow.setAttribute('aria-label','Stroke size');
+function selectType(type){penType=type;highlighter=type==='highlighter';erase=false;$('#eraser').classList.remove('active');$('#pen').classList.add('active');typeRow.querySelectorAll('button').forEach(b=>{const selected=b.dataset.type===type;b.classList.toggle('chosen',selected);b.setAttribute('aria-pressed',String(selected))})}
+types.forEach(([type,label])=>{const b=document.createElement('button');b.dataset.type=type;toolIcon(b,type,label);b.onclick=()=>selectType(type);typeRow.append(b)});
+[2,4,8,12].forEach(n=>{const b=document.createElement('button');b.setAttribute('aria-label','Stroke '+n);b.innerHTML='<span style="width:'+Math.max(4,n*1.5)+'px;height:'+Math.max(4,n*1.5)+'px"></span>';b.onclick=()=>{sizeInput.value=n;sizeRow.querySelectorAll('button').forEach(x=>{x.classList.toggle('chosen',x===b);x.setAttribute('aria-pressed',String(x===b))})};b.classList.toggle('chosen',n===4);b.setAttribute('aria-pressed',String(n===4));sizeRow.append(b)});
+colors.classList.add('pen-row');const colorInput=document.createElement('input');colorInput.type='color';colorInput.value='#155c50';colorInput.setAttribute('aria-label','Custom color');colorInput.className='custom-color';colorInput.oninput=()=>{color=colorInput.value;colors.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed','false'));selectType(penType)};colors.append(colorInput);
+options.append(typeRow,sizeRow,colors);document.body.append(options);selectType('pen');
+const settings=document.createElement('button');settings.id='settings';toolIcon(settings,'settings','Board style');dock.insertBefore(settings,$('#clear'));const boardSettings=document.createElement('div');boardSettings.className='floating-panel hidden board-settings';boardSettings.append(paperControl);document.body.append(boardSettings);settings.onclick=()=>{const was=boardSettings.classList.contains('hidden');closePanels();boardSettings.classList.toggle('hidden',!was)};
+const letterToggle=document.createElement('button');letterToggle.id='letterToggle';letterToggle.textContent='ଅ';letterToggle.setAttribute('aria-label','Odia letter practice');letterToggle.title='Odia letter practice';letterToggle.style.fontSize='25px';dock.insertBefore(letterToggle,$('#undo'));
+function closePanels(){options.classList.add('hidden');boardSettings.classList.add('hidden');$('.practice-strip').classList.remove('open');settings.setAttribute('aria-expanded','false');letterToggle.setAttribute('aria-expanded','false');$('#pen').setAttribute('aria-expanded','false')}
 function toggleOptions(){const open=options.classList.contains('hidden');closePanels();options.classList.toggle('hidden',!open);settings.setAttribute('aria-expanded',String(open));$('#pen').setAttribute('aria-expanded',String(open))}
-settings.onclick=toggleOptions;
+
 const selectPen=$('#pen').onclick;
-$('#pen').onclick=e=>{selectPen();if(e.isTrusted)toggleOptions()};
+$('#pen').onclick=e=>{selectPen();selectType(penType);if(e.isTrusted)toggleOptions()};
 const selectEraser=$('#eraser').onclick;$('#eraser').onclick=()=>{selectEraser();closePanels()};
 letterToggle.onclick=()=>{const open=!$('.practice-strip').classList.contains('open');closePanels();$('.practice-strip').classList.toggle('open',open);letterToggle.setAttribute('aria-expanded',String(open))};
 canvas.addEventListener('pointerdown',closePanels);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closePanels();$('nav').classList.remove('open')}});
 $('#paper').value='dots';canvas.dataset.paper='dots';
+const lang=document.createElement('button');lang.textContent='ଓ / EN';lang.setAttribute('aria-label','Change language');lang.onclick=()=>$('#language').click();$('nav').append(lang);
+const full=document.createElement('button');full.textContent='⛶ Full screen';full.onclick=()=>$('#fullscreen').click();$('nav').append(full);
+const brand=document.createElement('div');brand.className='board-brand';brand.textContent='ଓଡ଼ିଆ Smart Lab';document.body.append(brand);
 const menu=document.createElement('button');menu.id='activityMenu';toolIcon(menu,'menu','Learning activities');menu.setAttribute('aria-expanded','false');
 menu.onclick=()=>{const open=$('nav').classList.toggle('open');menu.setAttribute('aria-expanded',String(open));closePanels()};
 document.querySelectorAll('[data-tab]').forEach(button=>button.addEventListener('click',()=>{$('nav').classList.remove('open');menu.setAttribute('aria-expanded','false');closePanels();dock.classList.toggle('hidden',button.dataset.tab!=='whiteboard');pageControls.classList.toggle('hidden',button.dataset.tab!=='whiteboard')}));
