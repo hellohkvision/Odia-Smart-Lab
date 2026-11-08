@@ -22,6 +22,8 @@ for(const [id,label] of [['pen','Pen & colors'],['eraser','Eraser'],['undo','Und
 const dock=$('.tools');
 const options=document.createElement('div');options.id='penOptions';options.className='floating-panel hidden';options.setAttribute('aria-label','Pen settings');
 const colors=$('.colors');const sizeInput=$('#size');const paperControl=$('#paper').parentElement;
+// Stroke presets control this hidden value; keep the old slider out of the toolbar.
+sizeInput.parentElement.remove();sizeInput.type='hidden';options.append(sizeInput);
 const typeRow=document.createElement('div');typeRow.className='pen-row type-row';typeRow.setAttribute('aria-label','Pen type');
 const types=[['pen','Pen'],['marker','Marker'],['highlighter','Highlighter'],['brush','Brush']];
 iconPaths.highlighter='M4 19l3-5L17 4l4 4L11 18l-5 2z M3 22h10';iconPaths.brush='M14 5l5-3 3 3-3 5-7 7-4-4z M8 13c-3 0-3 4-5 6 5 2 9 0 9-3';
