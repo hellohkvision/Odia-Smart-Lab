@@ -1,0 +1,22 @@
+/* Classroom shell */
+.classroom-header{justify-content:center!important;padding-left:58px!important;padding-right:58px!important}
+.classroom-header .connection{position:absolute;right:18px;margin-left:0!important}
+@media(max-width:750px){.classroom-header{justify-content:center!important;padding:8px 58px!important}.classroom-header span:not(.connection){display:flex!important}.classroom-header .connection{display:none!important}}
+@media(max-width:360px){.classroom-header{gap:6px;padding:8px 48px}.classroom-header span:not(.connection){padding:8px 10px;font-size:13px}}
+
+.classroom-sidebar{display:flex;flex-direction:column;font-family:system-ui,"Noto Sans Oriya",sans-serif}
+.classroom-sidebar strong{display:flex;align-items:center;white-space:nowrap;letter-spacing:-.02em}
+.classroom-sidebar strong img{flex:none}
+.classroom-sidebar .classroom-nav{position:static;display:flex;flex-direction:column;gap:6px;margin:0;padding:0;border:0;background:transparent;box-shadow:none}
+.classroom-sidebar .classroom-nav button{display:flex;align-items:center;gap:12px;min-height:52px;margin:0;padding:10px 14px;border-radius:14px;font-size:15px;font-weight:600;line-height:1.35}
+.classroom-sidebar .nav-icon{width:25px;flex:none;text-align:center;font-size:19px}
+.classroom-sidebar .nav-label{min-width:0}
+.classroom-sidebar .classroom-language{margin-top:auto;padding:12px 14px;border:1px solid #ffffff35;border-radius:14px;background:#ffffff12;font-size:14px;font-weight:600}
+.classroom-sidebar .classroom-language:hover{background:#ffffff24}
+
+/* Keep the header content aligned and prevent status messages from overlapping it. */
+#status:not(:empty){top:auto;bottom:82px;left:50%;transform:translateX(-50%);z-index:6;padding:8px 12px;border-radius:12px;background:#fff;color:#23376b;box-shadow:0 3px 12px #173c7026}
+.classroom-header{white-space:nowrap;overflow:hidden}
+.classroom-header span{display:flex;align-items:center;justify-content:center;line-height:1.2}
+
+.classroom-sidebar{position:fixed;z-index:8;inset:0 auto 0 0;width:240px;background:linear-gradient(160deg,#10295f,#084777);color:white;padding:22px 12px;box-shadow:3px 0 16px #10295f33;transition:transform .2s;overflow:auto}.classroom-sidebar strong{display:block;font-size:21px;padding:0 10px 22px}.classroom-sidebar strong span{color:#ffdb28}.classroom-sidebar button{display:block;width:100%;text-align:left;background:transparent;color:white;border:0;margin:5px 0}.classroom-sidebar button.active{background:#246ee1}.classroom-header{position:fixed;z-index:4;top:0;left:240px;right:0;height:64px;background:#edf1ff;display:flex;align-items:center;gap:12px;padding:8px 18px;box-shadow:0 4px 15px #203c7833}.classroom-header button,.classroom-header span{border:0;border-radius:24px;background:#293fb0;color:white;padding:10px 16px;min-height:44px}.classroom-header .connection{margin-left:auto;background:white;color:#23376b;font-size:13px}.classroom-toggle{position:fixed;z-index:9;top:10px;left:220px;width:40px;height:44px;min-height:0;padding:0;border:0;border-radius:50%;background:#2849bc;color:white}.classroom-collapsed .classroom-sidebar{transform:translateX(-100%)}.classroom-collapsed .classroom-toggle{left:8px}.classroom-collapsed .classroom-header{left:0;padding-left:58px}.classroom-collapsed #whiteboard{left:0}#whiteboard{top:64px;left:240px}.view:not(#whiteboard){inset:80px 20px 90px 260px}.classroom-collapsed .view:not(#whiteboard){left:20px}.board-brand{display:none!important}canvas,canvas[data-paper="plain"]{background-color:#f8fbff;background-image:linear-gradient(135deg,#dcecff,#fff9ed 75%)}canvas[data-paper="dots"]{background-color:#f8fbff;background-image:radial-gradient(#cbd8e8 1px,transparent 1px),linear-gradient(135deg,#dcecff,#fff9ed 75%);background-size:24px 24px,100% 100%}.bottom-bar{left:calc(50% + 120px);bottom:18px;border-radius:24px;box-shadow:0 8px 24px #173c7040}.classroom-collapsed .bottom-bar{left:50%}.tools>button.active{background:#bce8ff;color:#1263b6}.tools>button{color:#263d82}#saathiMenu{z-index:10}@media(max-width:750px){.classroom-sidebar{width:220px}.classroom-header{left:0;padding-left:58px}.classroom-toggle{left:8px}.classroom-sidebar:not(.unused){box-shadow:4px 0 25px #10295f55}#whiteboard{left:0}.view:not(#whiteboard){left:12px}.bottom-bar{left:50%;bottom:calc(5px + env(safe-area-inset-bottom, 0px))}.classroom-header span:not(.connection){display:none}.classroom-header .connection{margin-left:0}.classroom-header{justify-content:flex-end}}

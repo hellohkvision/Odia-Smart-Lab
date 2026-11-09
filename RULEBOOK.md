@@ -49,3 +49,9 @@ For narrow screens, core controls may remain visible while secondary controls mo
 - Prefer SVG icons with consistent size and stroke; do not rely on color alone to show selection.
 - Validate syntax and run relevant UI or Android tests when available. Test phone landscape and smartboard sizes, drawing, erasing, undo/redo, page changes, reload/autosave, and PNG export. State which tests could not be run.
 - A generated design image is a concept, not an app screenshot. Label previews accurately, avoid claiming device compatibility without testing, and do not say a planned feature works until verified.
+
+## New board direction
+
+- Build a new writing-board interface and foundation for future board work. Do not treat incremental additions to the old board layout as a substitute for the requested new board.
+- Keep existing saved drawings and pages safe; plan and verify migration or preserve access to the old data before replacing the current implementation.
+- Implement and test board features in the new foundation, and distinguish working features from planned features. Integrate Odia-specific experiences later, as requested by the user.

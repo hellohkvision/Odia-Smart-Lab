@@ -1,0 +1,58 @@
+.extra-panel{position:fixed;bottom:84px;left:50%;transform:translateX(-50%);z-index:10;display:grid;grid-template-columns:repeat(3,minmax(80px,1fr));gap:6px;padding:10px;width:min(340px,calc(100vw - 16px));max-height:calc(100dvh - 100px);overflow:auto;background:#fff;border:1px solid #dce4df;border-radius:18px;box-shadow:0 6px 22px #16342826}
+.extra-panel button{display:grid;place-items:center;min-height:48px;padding:8px;font-size:14px;background:#f5f8f5;color:#123f2e;border-radius:10px}
+.extra-panel svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.extra-panel button.active{background:#e7f1e9;border:2px solid #00603b}
+.writing-icon{display:block;width:24px;height:24px;object-fit:contain}
+.tools>button.active .writing-icon{filter:brightness(0) invert(1)}
+.writing-icon-pen-tool{--writing-icon:url('icon-pen-tool.svg')}
+.writing-icon-marker{--writing-icon:url('icon-marker.svg')}
+.writing-icon-highlighter{--writing-icon:url('icon-highlighter.svg')}
+.tools .writing-icon{width:var(--dock-icon);height:var(--dock-icon)}
+.figma-icon{display:block;width:24px;height:24px;overflow:hidden}
+.figma-icon img{display:block;max-width:none;transform:scale(.5);transform-origin:top left}
+.tools>button.active .figma-icon{filter:brightness(0) invert(1)}
+.text-editor{width:min(440px,calc(100vw - 24px));max-height:85dvh;overflow:auto;border:1px solid #dce4df;border-radius:20px;padding:18px;color:#123f2e}
+.text-editor::backdrop{background:#123f2e50}
+.text-editor label{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;font-size:14px}
+.text-editor textarea,.text-editor input{width:100%;min-height:48px;padding:10px;font:inherit;border:1px solid #baccc1;border-radius:8px}
+.text-editor form>div{display:flex;justify-content:flex-end;gap:8px}
+
+/* Pen options: uniform touch tiles with round, unclipped color swatches. */
+#penOptions .pen-row{display:grid;grid-template-columns:repeat(4,minmax(48px,1fr));gap:4px;justify-content:initial;padding:5px 0}
+#penOptions .pen-row button{width:48px;height:48px;min-width:48px;min-height:48px;justify-self:center;box-sizing:border-box}
+#penOptions .colors.pen-row{margin:0;border:0;overflow:visible}
+#penOptions .colors.pen-row button{border:8px solid #fff;border-radius:50%;background-clip:padding-box;outline:0}
+#penOptions .colors.pen-row button[aria-pressed=true]{box-shadow:inset 0 0 0 2px #fff,0 0 0 2px #f1ad24}
+#penOptions .custom-color{width:48px;height:48px;min-height:48px;justify-self:center;padding:8px;border:0;border-radius:50%;background:transparent;box-sizing:border-box}
+#penOptions .custom-color::-webkit-color-swatch-wrapper{padding:0}
+#penOptions .custom-color::-webkit-color-swatch{border:1px solid #b6c9bd;border-radius:50%}
+#penOptions:after{display:none}
+
+/* All controls stay in one reachable row; narrow screens can swipe the dock. */
+.bottom-bar{max-width:calc(100vw - 16px);overflow-x:auto;overflow-y:hidden;scrollbar-width:thin}
+#moreTools{display:none}
+
+/* Shared responsive popup sizing, aligned above the compact dock. */
+:root{--menu-gap:6px;--menu-padding:8px;--popup-bottom:calc(64px + env(safe-area-inset-bottom,0px));--menu-icon:20px;--menu-tile:48px}
+#saathiMenu,#penOptions,.board-settings,.more-tools-panel,.extra-panel,.practice-strip{
+ bottom:var(--popup-bottom);
+ max-height:calc(100dvh - 80px - env(safe-area-inset-bottom,0px));
+ overflow-y:auto;overscroll-behavior:contain;
+}
+#saathiMenu{width:min(216px,calc(100vw - 16px));padding:var(--menu-padding);border-radius:16px}
+#saathiMenu.open{gap:var(--menu-gap)}
+#saathiMenu .saathi-title{font-size:14px;padding:0 4px 4px}
+#saathiMenu button{height:var(--menu-tile);min-height:48px;padding:8px;border-radius:10px}
+#saathiMenu svg,.more-tools-panel svg,.pen-row svg{width:var(--menu-icon);height:var(--menu-icon)}
+#penOptions{width:min(252px,calc(100vw - 16px));padding:var(--menu-padding);max-width:calc(100vw - 16px)}
+.more-tools-panel{width:min(244px,calc(100vw - 16px));gap:var(--menu-gap);padding:var(--menu-padding);border-radius:16px}
+.more-tools-panel>button{padding:8px}
+.extra-panel{width:min(292px,calc(100vw - 16px));gap:var(--menu-gap);padding:var(--menu-padding)}
+.extra-panel button{font-size:13px}
+@media(min-width:1200px) and (min-height:600px){
+ :root{--menu-gap:8px;--menu-padding:12px;--popup-bottom:calc(76px + env(safe-area-inset-bottom,0px));--menu-icon:24px;--menu-tile:56px}
+ #saathiMenu{width:264px}
+ #penOptions{width:280px}
+ .more-tools-panel{width:280px}
+ .extra-panel{width:340px}
+}

@@ -15,7 +15,8 @@ const iconPaths={
  add:'M12 5v14 M5 12h14'
 };
 function toolIcon(button,name,label){
- button.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+iconPaths[name]+'"/></svg>';
+ const assetIcons={pen:'pen-tool',marker:'marker',highlighter:'highlighter'};
+ button.innerHTML=assetIcons[name]?'<img class="writing-icon" src="icon-'+assetIcons[name]+'.svg" alt="" aria-hidden="true">':'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+iconPaths[name]+'"/></svg>';
  button.setAttribute('aria-label',label);button.title=label;
 }
 for(const [id,label] of [['pen','Pen & colors'],['eraser','Eraser'],['undo','Undo'],['redo','Redo'],['clear','Clear board'],['save','Save image']])toolIcon($('#'+id),id,label);
@@ -44,7 +45,7 @@ const selectEraser=$('#eraser').onclick;$('#eraser').onclick=()=>{selectEraser()
 letterToggle.onclick=()=>{const open=!$('.practice-strip').classList.contains('open');closePanels();$('.practice-strip').classList.toggle('open',open);letterToggle.setAttribute('aria-expanded',String(open))};
 canvas.addEventListener('pointerdown',()=>{closePanels();$('nav').classList.remove('open');const trigger=$('#activityMenu');if(trigger)trigger.setAttribute('aria-expanded','false')});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closePanels();$('nav').classList.remove('open');const trigger=$('#activityMenu');if(trigger)trigger.setAttribute('aria-expanded','false')}});
-$('#paper').value='dots';canvas.dataset.paper='dots';
+$('#paper').value='plain';canvas.dataset.paper='plain';
 const menuTitle=document.createElement('strong');menuTitle.className='saathi-title';menuTitle.textContent='ସାଥୀ';$('nav').prepend(menuTitle);$('nav').id='saathiMenu';$('nav').setAttribute('aria-label','ସାଥୀ menu');
 const lang=document.createElement('button');lang.textContent='ଓ / EN';lang.setAttribute('aria-label','Change language');lang.onclick=()=>$('#language').click();$('nav').append(lang);
 const full=document.createElement('button');full.textContent='⛶ Full screen';full.onclick=()=>$('#fullscreen').click();$('nav').append(full);
@@ -59,18 +60,20 @@ document.querySelectorAll('[data-tab]').forEach(button=>button.addEventListener(
 $('#quickLetters').addEventListener('click',closePanels);$('#freewrite').addEventListener('click',closePanels);
 
 // Each page retains its drawing and undo/redo stack independently.
-let pages, pageIndex=0;
+let pages, pageIndex=0, activeBoardUser=1;
 try {
- const data=JSON.parse(localStorage.getItem('odia-board-pages')||'null');
+ const chosen=Number(localStorage.getItem('odia-active-board-user'));if(chosen>=1&&chosen<=4&&Number.isInteger(chosen))activeBoardUser=chosen;
+ const raw=localStorage.getItem('odia-board-user-'+activeBoardUser)||(activeBoardUser===1?localStorage.getItem('odia-board-pages'):null);
+ const data=JSON.parse(raw||'null');
  if(data && Array.isArray(data.pages) && data.pages.length){pages=data.pages;pageIndex=Math.max(0,Math.min(data.index||0,pages.length-1))}
 } catch {}
-if(!pages)pages=[{strokes,redo,guide}];
+if(!pages)pages=activeBoardUser===1?[{strokes,redo,guide}]:[{strokes:[],redo:[],guide:''}];
 const originalTab=tab;tab=function(name){originalTab(name);dock.classList.toggle('hidden',name!=='whiteboard');pageControls.classList.toggle('hidden',name!=='whiteboard')};
 function loadPage(){const p=pages[pageIndex];strokes=p.strokes||[];redo=p.redo||[];guide=p.guide||'';updateHistory();pageLabel.textContent=(pageIndex+1)+' / '+pages.length;prev.disabled=pageIndex===0;next.disabled=pageIndex===pages.length-1;render()}
 persist=function(){
  pages[pageIndex]={strokes,redo,guide};
  updateHistory();
- try{localStorage.setItem('odia-board-pages',JSON.stringify({pages,index:pageIndex}));$('#status').textContent='Saved on device';}
+ try{localStorage.setItem('odia-board-user-'+activeBoardUser,JSON.stringify({pages,index:pageIndex}));}
  catch(e){$('#status').textContent='Could not save on device';}
 };
 const pageControls=document.createElement('div');pageControls.className='page-controls';pageControls.setAttribute('aria-label','Page controls');
@@ -88,7 +91,7 @@ const secondary=[$('#letterToggle'),$('#settings'),$('#clear'),$('#save'),pageCo
 const placeholders=secondary.map(node=>{const marker=document.createComment('responsive toolbar position');node.before(marker);return marker});
 const phoneLayout=window.matchMedia('(max-width: 650px), (max-height: 500px) and (pointer: coarse)');
 function closeMore(){morePanel.classList.add('hidden');moreButton.setAttribute('aria-expanded','false')}
-function applyToolbarLayout(){closeMore();if(phoneLayout.matches){secondary.forEach(node=>morePanel.append(node));dock.append(moreButton)}else{secondary.forEach((node,i)=>placeholders[i].after(node));moreButton.remove()}}
+function applyToolbarLayout(){closeMore();secondary.forEach((node,i)=>placeholders[i].after(node));moreButton.remove()}
 moreButton.onclick=()=>{const shouldOpen=morePanel.classList.contains('hidden');closePanels();$('nav').classList.remove('open');menu.setAttribute('aria-expanded','false');morePanel.classList.toggle('hidden',!shouldOpen);moreButton.setAttribute('aria-expanded',String(shouldOpen))};
 morePanel.addEventListener('click',e=>{if(e.target.closest('button'))closeMore()});
 canvas.addEventListener('pointerdown',closeMore);menu.addEventListener('click',closeMore);

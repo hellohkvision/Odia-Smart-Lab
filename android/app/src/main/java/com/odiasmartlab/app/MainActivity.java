@@ -11,7 +11,6 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Toast;
 import java.io.OutputStream;
 
 public class MainActivity extends Activity {
@@ -22,6 +21,13 @@ public class MainActivity extends Activity {
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
         webView = new WebView(this);
+        webView.setBackgroundColor(android.graphics.Color.rgb(237, 241, 255));
+        getWindow().getDecorView().setSystemUiVisibility(android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        webView.setOnApplyWindowInsetsListener((view, insets) -> {
+            view.setPadding(insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(),
+                insets.getSystemWindowInsetRight(), insets.getSystemWindowInsetBottom());
+            return insets;
+        });
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
         webView.getSettings().setAllowFileAccess(true);
@@ -46,6 +52,10 @@ public class MainActivity extends Activity {
         webView.loadUrl("file:///android_asset/index.html");
     }
 
+    private void showBoardNotice(String message, boolean error) {
+        runOnUiThread(() -> webView.evaluateJavascript("window.boardNotice && window.boardNotice(" + org.json.JSONObject.quote(message) + "," + error + ")", null));
+    }
+
     private class BoardExport {
         @JavascriptInterface public void savePng(String data) {
             if (data == null || !data.startsWith("data:image/png;base64,")) return;
@@ -57,7 +67,7 @@ public class MainActivity extends Activity {
                 intent.setType("image/png");
                 intent.putExtra(Intent.EXTRA_TITLE, "odia-smart-lab-board.png");
                 try { startActivityForResult(intent, SAVE_BOARD); }
-                catch (android.content.ActivityNotFoundException e) { pendingBoard = null; Toast.makeText(MainActivity.this, "No file picker available", Toast.LENGTH_LONG).show(); }
+                catch (android.content.ActivityNotFoundException e) { pendingBoard = null; showBoardNotice("No file picker available", true); }
             });
         }
     }
@@ -73,8 +83,8 @@ public class MainActivity extends Activity {
         try (OutputStream out = getContentResolver().openOutputStream(uri)) {
             if (out == null) throw new java.io.IOException("Unable to open output");
             out.write(image);
-            Toast.makeText(this, "Board saved", Toast.LENGTH_SHORT).show();
-        } catch (Exception e) { Toast.makeText(this, "Could not save board", Toast.LENGTH_LONG).show(); }
+            showBoardNotice("Image saved successfully", false);
+        } catch (Exception e) { showBoardNotice("Could not save image. Please try again.", true); }
     }
 
     @Override public void onBackPressed() {

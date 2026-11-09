@@ -1,0 +1,20 @@
+/* Quiet, bottom-aligned surfaces that match the writing board. */
+.app-confirm,.text-editor{position:fixed;inset:auto 0 calc(72px + env(safe-area-inset-bottom,0px));width:min(360px,calc(100vw - 24px));max-height:calc(100dvh - 96px - env(safe-area-inset-bottom,0px));overflow:auto;margin:0 auto;padding:16px;border:1px solid #dce5df;border-radius:16px;background:#fff;color:#153f2c;box-shadow:0 5px 22px #123f2e18}
+.app-confirm::backdrop,.text-editor::backdrop{background:#102d241a}
+.app-confirm h2{font-size:16px;line-height:1.35;font-weight:600;margin:0 0 6px}
+.app-confirm p{font-size:13px;line-height:1.5;color:#61736a;margin:0 0 12px}
+.notice-symbol{display:none}
+.dialog-actions{display:flex;justify-content:flex-end;gap:8px}
+.dialog-actions button,.text-editor button{min-height:48px;padding:8px 16px;border-radius:10px;font-size:13px;border:1px solid #dde6df;background:#fff;color:#153f2c}
+.dialog-actions .danger-action{background:#f7f9f7;border-color:#cbd9cf;color:#153f2c;font-weight:600}
+.dialog-actions .danger-action:hover{background:#edf3ee}
+.app-notice{position:fixed;bottom:calc(72px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);z-index:50;max-width:calc(100vw - 24px);padding:9px 14px;border:1px solid #dce5df;border-radius:12px;background:#fff;color:#355849;box-shadow:0 4px 16px #153f2c12;font-size:12px;line-height:1.4;pointer-events:none}
+body:has(dialog[open]) .app-notice{display:none}
+.app-notice.error{border-color:#ddc9c4;color:#8b4137}
+#status{display:none}
+.floating-panel,.extra-panel,.more-tools-panel,#saathiMenu{box-shadow:0 5px 20px #16342818;border-color:#dce5df}
+.text-editor label{font-size:13px}
+.text-editor textarea,.text-editor input{background:#fafcfb;border-color:#dce5df}
+.text-editor textarea:focus,.text-editor input:focus{outline:2px solid #13734c;outline-offset:2px}
+.text-editor button[value=insert]{background:#00603b;color:white;border-color:#00603b}
+@media(max-height:320px){.app-confirm,.text-editor{bottom:calc(8px + env(safe-area-inset-bottom,0px));max-height:calc(100dvh - 24px);padding:12px}}

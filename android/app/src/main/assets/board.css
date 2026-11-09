@@ -56,12 +56,20 @@ nav button{text-align:left}
  .practice-strip{bottom:94px}
 }
 
+/* Scale dock icons and their touch targets with the available screen size. */
+:root{--dock-icon:20px;--dock-target:48px}
+@media(min-width:1200px) and (min-height:600px){:root{--dock-icon:24px;--dock-target:52px}}
+.tools>button,#activityMenu,.page-controls button{width:var(--dock-target);height:var(--dock-target);min-width:var(--dock-target);min-height:var(--dock-target);padding:0}
+.tools svg,#activityMenu svg,.page-controls svg{width:var(--dock-icon);height:var(--dock-icon)}
+.page-controls span{min-width:var(--dock-target);font-size:clamp(14px,2vmin,20px)}
+@media(max-width:700px){.tools>button,.page-controls button{width:var(--dock-target);height:var(--dock-target);min-height:var(--dock-target);padding:0}}
+
 /* Responsive smartboard dock: controls remain accessible on smaller screens. */
 .floating-panel label{display:flex;flex-direction:column;gap:6px;font-size:14px;color:#355849;margin-top:12px}.floating-panel input,.floating-panel select{width:100%;min-height:44px}.colors button{width:44px;min-width:44px;min-height:44px}.floating-panel{width:280px}.board-brand{pointer-events:none}
 @media(max-width:650px){.bottom-bar{bottom:8px;border-radius:20px}.bottom-bar:after{content:'›';position:sticky;right:0;color:#00603b;background:white;font-size:22px}.floating-panel{bottom:80px;left:8px}}
 
 /* Compact, touch-sized pen controls anchored near the bottom. */
-.board-brand{position:fixed;top:auto;bottom:27px;left:20px;font-size:16px;z-index:3}.board-brand:after{content:"";display:block;width:70%;height:3px;margin-top:4px;background:#efaa27;border-radius:4px}
+.board-brand{position:fixed;top:auto;bottom:27px;left:20px;font-size:16px;z-index:3}.board-brand:after{content:"";display:block;width:58%;height:8px;margin-top:1px;background:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 80 8%27 preserveAspectRatio=%27none%27%3E%3Cpath d=%27M2 6 Q40 0 78 3%27 fill=%27none%27 stroke=%27%23f5a900%27 stroke-width=%272.5%27 stroke-linecap=%27round%27/%3E%3C/svg%3E") center/100% 100% no-repeat}
 #penOptions{width:260px;padding:8px;bottom:92px;left:clamp(8px, calc(50% - 265px), calc(100% - 268px));border-radius:18px}#penOptions:after{left:44px}.pen-row{display:flex;gap:4px;justify-content:space-between;align-items:center;margin:0;padding:3px 0;border-bottom:1px solid #e3e7e4;overflow:visible}.pen-row:last-child{border:0}.pen-row button{display:grid;place-items:center;width:48px;height:48px;min-width:0;min-height:48px;margin:0;padding:8px;border:1px solid #dce4df;border-radius:10px;background:#fff;color:#125137}.pen-row button.chosen{background:#fff7e3;border:2px solid #0b663d}.pen-row svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.size-row span{display:block;background:#075a37;border-radius:50%}.colors.pen-row{gap:1px}.colors.pen-row button{width:32px;min-width:32px;height:44px;min-height:44px;border:4px solid white;border-radius:50%;padding:0}.colors.pen-row button[aria-pressed=true]{outline:2px solid #f1ad24}.custom-color{width:36px;min-height:44px;border:0;background:transparent;padding:2px}.board-settings{bottom:92px;left:8px}.board-settings label{display:flex;flex-direction:column;gap:8px}.board-settings select{min-height:48px}@media(max-width:900px){.board-brand{display:none}}
 
 /* ସାଥୀ: compact classroom activity menu, anchored within reach. */
@@ -89,6 +97,9 @@ nav button{text-align:left}
  #penOptions,.board-settings,.practice-strip,.more-tools-panel{bottom:calc(68px + env(safe-area-inset-bottom, 0px));max-height:calc(100dvh - 80px);overflow:auto}
  .board-brand{display:block;bottom:calc(10px + env(safe-area-inset-bottom, 0px));left:8px;font-size:11px;opacity:.8}
 }
+
+/* Keep the dock close to the bottom edge on every screen size. */
+.bottom-bar{bottom:calc(2px + env(safe-area-inset-bottom, 0px))}
 
 /* Saathi task menu follows the approved compact 3-by-2 icon layout. */
 #saathiMenu{width:min(300px,calc(100vw - 16px));padding:10px;gap:6px;border-radius:22px}#saathiMenu.open{display:grid;grid-template-columns:repeat(3,minmax(48px,1fr));gap:6px}#saathiMenu .saathi-title{grid-column:1/-1;text-align:center;padding:2px 6px;font-size:16px}#saathiMenu button{display:grid;place-items:center;min-width:48px;min-height:52px;padding:10px;border:1px solid #e5e9e6;border-radius:14px;background:#fff;color:#125137;box-shadow:0 2px 5px #16342812}#saathiMenu button.active{background:#fff8df;color:#125137;border:2px solid #f2b12e}#saathiMenu svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}@media(max-height:500px) and (pointer:coarse){#saathiMenu{width:min(300px,calc(100vw - 16px))}#saathiMenu button{min-height:48px;padding:7px}}

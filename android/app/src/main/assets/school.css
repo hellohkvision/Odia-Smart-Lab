@@ -1,0 +1,560 @@
+/* Warm, quiet classroom surfaces with generous touch targets. */
+:root{--school-ink:#173e39;--school-muted:#60756d;--school-line:#dde5df;--school-green:#176656}
+body{font-family:system-ui,'Noto Sans Oriya',sans-serif;color:var(--school-ink)}
+.classroom-sidebar{background:#173f38;box-shadow:none;border-right:1px solid #ffffff15}
+.classroom-sidebar .classroom-nav button.active{background:#e5f1c9;color:#173f38}.classroom-sidebar .classroom-nav button:hover{background:#ffffff1c}.classroom-sidebar .classroom-nav button.active:hover{background:#d4e7b1}
+.classroom-toggle{background:#28594e;min-width:48px;min-height:48px;top:8px}.classroom-header{background:#fffef9;box-shadow:none;border-bottom:1px solid var(--school-line)}.classroom-header span{background:#edf2e7;color:#244d41}.classroom-header .connection{background:transparent;color:#44665c}
+.classroom-sidebar strong span{color:#e6cc78}.classroom-sidebar strong{font-size:19px}
+#teacherHome{background:#f7f8f2;inset:64px 0 0 240px;padding:32px 36px 44px;overflow:auto;color:var(--school-ink)}.classroom-collapsed #teacherHome{left:0}
+.school-heading{display:flex;justify-content:space-between;gap:24px;align-items:center;margin-bottom:26px}.school-eyebrow{font-size:11px;font-weight:750;letter-spacing:1.8px;color:#527265}.school-heading h1{font-size:clamp(28px,3.1vw,44px);letter-spacing:-1.6px;line-height:1.15;margin:12px 0}.school-heading p{font-size:14px;color:var(--school-muted);margin:12px 0 0}.school-date{font-size:13px;color:var(--school-muted);border:1px solid var(--school-line);border-radius:30px;padding:12px 18px;white-space:nowrap;background:#fffef9}
+.school-layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:24px;max-width:1600px;margin:auto}.school-hero{position:relative;overflow:hidden;background:#e7edda;border:1px solid #dce4cf;border-radius:24px;padding:30px;min-height:278px}.school-hero h2{position:relative;z-index:1;font-size:clamp(26px,2.8vw,38px);line-height:1.15;letter-spacing:-1px;margin:16px 0}.school-hero p{position:relative;z-index:1;font-size:14px;color:#4f665a;max-width:65%}.school-primary{position:relative;z-index:1;background:var(--school-green);color:white;border:0;border-radius:12px;font-size:14px;font-weight:650;margin-top:12px}.school-primary:hover{background:#114d41}.school-primary span{margin-left:20px}.school-art{position:absolute;right:16px;top:36px;transform:rotate(-10deg);font-size:108px;color:#365b43;opacity:.65}.school-art span{display:block;position:absolute;right:45px;top:100px;font-size:70px;color:#9b7633}.school-art small{position:absolute;right:-5px;top:155px;font-size:45px}
+.school-section-title{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:26px 0 14px}.school-section-title h2,.school-planner h2{font-size:20px;letter-spacing:-.5px;margin:0}.school-section-title>span{font-size:12px;color:var(--school-muted)}.school-activities{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.school-activities button{display:flex;flex-direction:column;align-items:flex-start;text-align:left;padding:20px;border:1px solid var(--school-line);border-radius:18px;background:#fffefb;gap:10px}.school-activities button:hover{background:#edf2e5;border-color:#90a58b}.school-symbol{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:#f2e9cd;font-size:26px;color:#775c24}.school-activities button:nth-child(2) .school-symbol{background:#e2ece8;color:#346557}.school-activities button:nth-child(3) .school-symbol{background:#ede6f3;color:#756087}.school-activities strong{font-size:15px}.school-activities small{font-size:12px;line-height:1.6;color:var(--school-muted)}.school-activities button>span:last-child{align-self:flex-end}.school-note{display:flex;gap:12px;font-size:13px;line-height:1.7;padding:20px 0;color:var(--school-muted)}.school-note strong{color:#375d4f}
+.school-planner{border:1px solid var(--school-line);border-radius:22px;background:#fffefb;padding:24px;height:fit-content}.school-planner h2{margin:10px 0 24px}.school-planner>label{display:block;font-size:12px;font-weight:650;margin:16px 0 8px}.school-planner input:not([type=checkbox]),.school-planner textarea{width:100%;padding:12px;border:1px solid #d5ded5;border-radius:10px;background:#fbfcf8;font:inherit;font-size:13px;color:#244d41;min-height:48px}.school-planner textarea{resize:vertical}.school-checks{display:grid;gap:14px;margin-top:22px}.school-checks label{display:flex;align-items:center;gap:10px;font-size:13px;min-height:36px}.school-checks input{width:20px;height:20px;accent-color:#176656}.school-planner p{font-size:11px;line-height:1.6;color:var(--school-muted)}.school-timer{border-top:1px solid var(--school-line);padding-top:20px;margin-top:22px;display:flex;align-items:center;justify-content:space-between;gap:12px}.school-timer h3{margin:0 0 10px;font-size:14px}.school-timer label{font-size:12px;margin-right:8px}.school-timer input#schoolMinutes{width:64px;padding:8px}.school-timer output{font-size:32px;letter-spacing:-1px;font-variant-numeric:tabular-nums}.school-timer-actions{display:flex;gap:8px;margin-top:16px}.school-timer-actions button{font-size:12px;padding:10px 14px}.school-timer-actions button:first-child{flex:1;background:#176656;color:white;border-color:#176656}
+.board-brand{display:block!important;top:auto;bottom:100px;left:258px;font-size:16px;color:#6c8479}.board-brand:after{content:'';display:block;width:58px;height:8px;margin-top:4px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 58 8'%3E%3Cpath d='M2 5 Q9 1 16 4 T30 4 T44 4 Q51 2 56 3' fill='none' stroke='%23ddc34f' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E") center/100% 100% no-repeat}.classroom-collapsed .board-brand{left:20px}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #bb8b24;outline-offset:3px}
+@media(max-width:1150px){#teacherHome{padding:24px}.school-layout{grid-template-columns:minmax(0,1fr) 260px;gap:16px}.school-date,.school-section-title>span{display:none}.school-planner{padding:18px}.school-activities button{padding:14px}.school-hero{padding:24px}.school-art{opacity:.3}.school-hero p{max-width:80%}}
+@media(max-width:950px){.school-layout{grid-template-columns:1fr}.school-planner{max-width:none}.school-heading h1 br{display:none}.school-hero{min-height:245px}.school-art{right:50px}.school-planner textarea{min-height:80px}}
+@media(max-width:750px){#teacherHome{left:0;padding:22px 18px}.school-heading{margin-bottom:20px}.school-heading h1{font-size:30px}.school-activities{gap:8px}.school-activities button{padding:14px 10px}.school-activities strong{font-size:14px}.board-brand{left:18px}.school-hero h2{font-size:28px}.school-section-title h2{font-size:18px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+
+.teacher-home-open .bottom-bar,.teacher-home-open .board-brand,.teacher-home-open .floating-panel,.teacher-home-open .practice-strip{display:none!important}
+/* Drawer stays above the header and scrolls independently on short landscape screens. */
+.classroom-sidebar{z-index:30;transition:transform .24s ease;touch-action:pan-y;overscroll-behavior:contain;padding-top:68px;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+.classroom-toggle{z-index:32;left:184px;transition:left .24s ease;touch-action:manipulation;font-size:24px;line-height:1}
+.classroom-collapsed .classroom-toggle{left:8px}
+.classroom-header{touch-action:pan-y}
+.classroom-sidebar .classroom-nav{flex-shrink:0}
+.classroom-sidebar .classroom-language{flex-shrink:0}
+.classroom-shade{display:none}
+@media(max-width:750px){
+ .classroom-toggle{left:164px}
+ .classroom-collapsed .classroom-toggle{left:8px}
+ .classroom-shade:not([hidden]){display:block;position:fixed;inset:0;z-index:29;background:#102b2559;border:0;border-radius:0;padding:0;touch-action:manipulation}
+}
+@media(prefers-reduced-motion:reduce){.classroom-sidebar,.classroom-toggle{transition:none}}
+/* Minimal top bar; retain 48px menu target and all navigation behavior. */
+.classroom-header{height:48px;gap:8px;background:#fffefb;padding:0 60px!important;justify-content:flex-start!important;border-bottom:1px solid #e7ebe5}
+.classroom-header span:not(.connection){min-height:0;padding:0!important;background:transparent;border-radius:0;font-size:11px;font-weight:500;color:#52665c}
+.classroom-header span:nth-child(2){border-left:1px solid #dce3da;padding-left:8px!important}
+.classroom-header .connection{font-size:11px;padding:0;min-height:0;background:transparent;right:16px;color:#748279}
+.classroom-toggle{top:0;font-size:20px;background:transparent;color:#36594d;border:0;border-radius:10px;box-shadow:none}
+.classroom-toggle:hover{background:#e9eee5}
+body:not(.classroom-collapsed) .classroom-toggle{color:#fff}
+body:not(.classroom-collapsed) .classroom-toggle:hover{background:#ffffff16}
+#whiteboard,#teacherHome{top:48px}
+.view:not(#whiteboard):not(#teacherHome){top:64px}
+@media(max-width:750px){.classroom-header{padding-right:16px!important}.classroom-header .connection{display:none!important}}
+/* Center class and subject selections while preserving the compact header. */
+.classroom-header{justify-content:center!important;padding:0 60px!important}
+.classroom-header span:not(.connection){display:flex!important;flex:none;min-width:0;border:0;padding:0!important}
+.classroom-header select{min-height:48px;max-width:170px;border:0;border-radius:0;background:transparent;color:#36594d;padding:0 20px 0 8px;font:500 12px system-ui,sans-serif;cursor:pointer}
+.classroom-header select:focus-visible{outline:2px solid #bb8b24;outline-offset:-4px}
+.classroom-header select option{background:#fff;color:#173e39}
+@media(max-width:750px){.classroom-header{padding:0 56px!important}.classroom-header select{max-width:145px}}
+@media(max-width:400px){.classroom-header{gap:2px}.classroom-header select{max-width:120px;font-size:11px;padding-left:2px}}
+/* Unified classroom UI: quiet surfaces, consistent icons and compact controls. */
+:root{--lab-accent:#186453;--lab-text:#24483e;--lab-border:#dce5df;--lab-soft:#eaf2ed}
+.classroom-sidebar{padding:60px 14px 18px;background:#183f36;box-shadow:4px 0 24px #14382c12}
+.classroom-sidebar strong{display:flex;align-items:center;gap:5px;font-size:18px;letter-spacing:-.35px;padding:4px 8px 26px;line-height:1.5}
+.classroom-sidebar strong img{width:32px;height:32px;margin-right:4px!important}
+.classroom-sidebar .classroom-nav{gap:4px}
+.classroom-sidebar .classroom-nav button{position:relative;min-height:48px;border-radius:10px;padding:10px 12px;font-size:14px;font-weight:500;color:#dce9e2;gap:12px}
+.classroom-sidebar .classroom-nav button.active{background:#e7efe2;color:#214f40;font-weight:650}
+.classroom-sidebar .classroom-nav button.active:before{content:'';position:absolute;left:0;top:14px;bottom:14px;width:3px;border-radius:2px;background:#43826b}
+.classroom-sidebar .nav-icon{display:grid;place-items:center;width:22px}
+.classroom-nav svg,.classroom-language svg,.classroom-toggle svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.classroom-sidebar .classroom-language{display:flex;align-items:center;gap:12px;border:0;border-top:1px solid #ffffff1c;border-radius:0;background:transparent;padding:18px 12px 4px;font-weight:500;font-size:13px}
+.classroom-toggle{display:grid;place-items:center;padding:0}
+.classroom-header{gap:8px;background:#fcfdfb;border-color:var(--lab-border)}
+.classroom-header select{appearance:none;-webkit-appearance:none;min-height:48px;min-width:105px;max-width:164px;padding:0 30px 0 16px;border-radius:0;color:var(--lab-text);font-size:13px;font-weight:600;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6' fill='none' stroke='%235b786b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") right 10px center/12px no-repeat}
+.classroom-header span:not(.connection){position:relative}
+.classroom-header span:not(.connection):before{content:'';position:absolute;inset:7px 0;background:var(--lab-soft);border:1px solid #dbe7de;border-radius:8px;pointer-events:none}
+.classroom-header select{position:relative}
+.classroom-header .connection{font-size:11px;color:#61786c}
+canvas,canvas[data-paper=plain]{background-color:#fffefb;background-image:none}
+canvas[data-paper=dots]{background-color:#fffefb;background-image:radial-gradient(#d9e1da 1px,transparent 1px);background-size:24px 24px}
+canvas[data-paper=ruled]{background-color:#fffefb;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 39px,#e0e7df 39px,#e0e7df 40px);background-size:auto 40px}
+.bottom-bar{border:1px solid var(--lab-border);border-radius:16px;background:#fffffff5;box-shadow:0 4px 20px #183c3212;bottom:calc(10px + env(safe-area-inset-bottom,0px))}
+.tools>button,#activityMenu,.page-controls button{color:var(--lab-text);border-radius:9px}
+.tools>button:hover,#activityMenu:hover,.page-controls button:hover{background:#f0f4ef}
+.tools>button.active,#activityMenu[aria-expanded=true]{background:var(--lab-soft);color:var(--lab-accent);box-shadow:inset 0 0 0 1px #bbd4c6}
+.tools>button.active:after{content:'';width:12px;height:2px;border-radius:2px;background:var(--lab-accent);position:absolute;bottom:4px}
+.tools>button{position:relative}
+#penOptions,.floating-panel,.more-tools-panel,.extra-panel,#saathiMenu{border-color:var(--lab-border);border-radius:14px;box-shadow:0 8px 28px #183c321a}
+#saathiMenu button{border-radius:10px;box-shadow:none;color:var(--lab-text)}
+#saathiMenu button.active,.pen-row button.chosen{background:var(--lab-soft);border-color:#7ca58d}
+.board-brand{bottom:calc(24px + env(safe-area-inset-bottom,0px));font-size:14px;font-weight:650;left:258px;color:#6b8176;opacity:1}
+.board-brand:after{width:46px;height:6px;margin-top:3px}
+.activity-content-label{color:#637a6d;font-size:12px;font-weight:600;margin:0 0 16px}
+.school-heading h1{font-weight:650;letter-spacing:-1px}.school-hero,.school-planner{border-radius:16px}.school-activities button{border-radius:12px}.school-symbol{background:var(--lab-soft)!important;color:var(--lab-accent)!important;border-radius:10px}
+@media(max-width:900px){.board-brand{bottom:calc(80px + env(safe-area-inset-bottom,0px));left:258px;font-size:12px}}
+@media(max-width:750px){.board-brand{left:18px}.classroom-header select{min-width:96px;max-width:145px}.classroom-sidebar{padding-top:56px}.classroom-sidebar strong{padding-bottom:20px}}
+@media(max-width:400px){.classroom-header select{min-width:90px;max-width:116px;padding-left:10px;font-size:12px}}
+.classroom-collapsed .board-brand{left:18px}
+/* Keep branding clear of the dock and the white pen asset legible. */
+.board-brand{bottom:calc(86px + env(safe-area-inset-bottom,0px))}
+#pen.active{background:var(--lab-accent);color:white;box-shadow:inset 0 0 0 1px #115443}
+#pen.active:after{background:#d7ecdf}
+/* Keep every writing action visible; wrap on compact landscape screens. */
+@media(max-width:1000px),(max-height:500px){
+ .bottom-bar{left:50%;right:auto;transform:translateX(-50%);width:max-content;max-width:calc(100vw - 20px);display:flex;flex-wrap:wrap;justify-content:center;gap:2px;padding:6px;overflow:visible}
+ .bottom-bar .tools{display:contents}
+ .bottom-bar .tools>button,.bottom-bar #activityMenu{flex:0 0 48px;width:48px;height:48px;min-height:48px}
+ .bottom-bar .page-controls{flex:0 0 auto;max-width:100%;justify-content:center}
+ .board-brand{bottom:calc(132px + env(safe-area-inset-bottom,0px))}
+ #penOptions,.board-settings,.practice-strip,#saathiMenu,.extra-panel{bottom:calc(128px + env(safe-area-inset-bottom,0px));max-height:calc(100dvh - 184px);overflow:auto}
+}
+/* Compact branding next to the hamburger; centered selectors stay in place. */
+.board-brand,.classroom-collapsed .board-brand{top:9px;bottom:auto;left:56px;font-size:12px;line-height:18px;letter-spacing:-.2px;z-index:5;pointer-events:none;white-space:nowrap;color:#6b8176}
+.board-brand:after{width:38px;height:5px;margin-top:1px}
+body:not(.classroom-collapsed) .board-brand{left:296px}
+@media(max-width:750px){body:not(.classroom-collapsed) .board-brand{left:56px}}
+@media(max-width:560px){
+ .classroom-header,.classroom-collapsed .classroom-header{padding-left:170px!important;padding-right:8px!important;gap:4px}
+ .classroom-header select{min-width:76px;max-width:112px;font-size:12px;padding-left:8px;padding-right:24px}
+}
+@media(max-width:380px){
+ .board-brand,.classroom-collapsed .board-brand,body:not(.classroom-collapsed) .board-brand{left:50px;font-size:11px}
+ .classroom-header,.classroom-collapsed .classroom-header{padding-left:150px!important;padding-right:4px!important;gap:2px}
+ .classroom-header select{min-width:70px;max-width:78px;font-size:11px;padding-left:4px;padding-right:18px;background-position:right 4px center}
+}
+/* Slimmer taskbar: retain horizontal geometry and 48px touch targets. */
+.bottom-bar{padding-top:2px;padding-bottom:2px;border-radius:12px}
+.bottom-bar .tools>button,.bottom-bar #activityMenu,.bottom-bar .page-controls button{height:48px;min-height:48px;padding-top:12px;padding-bottom:12px;border-radius:8px}
+.bottom-bar .tools svg,.bottom-bar #activityMenu svg,.bottom-bar .page-controls svg{width:20px;height:20px}
+.bottom-bar .writing-icon{width:22px;height:22px;object-fit:contain}
+.bottom-bar .page-controls span{font-size:12px}
+/* Fit all drawer content into the available screen, including short landscape. */
+.classroom-sidebar{height:100dvh;max-height:100%;box-sizing:border-box;display:grid;grid-template-rows:48px minmax(0,1fr) 48px;gap:8px;padding:48px 12px 8px;overflow:hidden}
+.classroom-sidebar strong{margin:0;padding:0 8px;align-self:center;font-size:17px;line-height:1.25;min-width:0}
+.classroom-sidebar .classroom-nav{display:grid;grid-template-columns:1fr;grid-template-rows:repeat(5,minmax(48px,1fr));align-content:stretch;gap:4px;min-height:0;margin:0;padding:0}
+.classroom-sidebar .classroom-nav button{margin:0;min-height:48px;height:100%;padding:8px 12px;line-height:1.25}
+.classroom-sidebar .classroom-language{height:48px;min-height:48px;margin:0;padding:8px 12px;align-self:end}
+@media(max-height:430px){
+ .classroom-sidebar{grid-template-rows:40px minmax(0,1fr) 48px;gap:4px;padding:44px 10px 4px}
+ .classroom-sidebar strong{font-size:15px;padding:0 4px;gap:3px}
+ .classroom-sidebar strong img{width:26px;height:26px}
+ .classroom-sidebar .classroom-nav{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(3,minmax(48px,1fr));gap:4px}
+ .classroom-sidebar .classroom-nav button{flex-direction:column;justify-content:center;text-align:center;gap:3px;padding:4px;font-size:11px;border-radius:8px}
+ .classroom-sidebar .classroom-nav .nav-label{white-space:normal;overflow-wrap:anywhere}
+ .classroom-sidebar .classroom-nav svg{width:18px;height:18px}
+ .classroom-sidebar .classroom-nav button.active:before{top:10px;bottom:10px}
+ .classroom-sidebar .classroom-language{font-size:12px}
+}
+@media(max-height:300px){
+ .classroom-sidebar{padding-top:4px;grid-template-rows:40px minmax(0,1fr) 48px;gap:2px}
+ .classroom-sidebar strong{padding-right:38px;font-size:13px}
+ .classroom-sidebar strong img{width:22px;height:22px}
+}
+/* Original 24px Figma menu asset, without altering its intrinsic geometry. */
+.classroom-toggle .figma-menu-icon{display:block;flex:none}
+.classroom-collapsed .classroom-toggle{background:#183f36;color:#fff;border-radius:9px}
+.classroom-collapsed .classroom-toggle:hover{background:#245b4d}
+.icon-credits{font-size:12px;color:#61786c;margin-top:24px;max-width:640px}
+.icon-credits summary{cursor:pointer;min-height:48px;display:flex;align-items:center}
+.icon-credits p{font-size:12px;overflow-wrap:anywhere}
+/* Landscape classroom pages use horizontal panels within the available height. */
+@media (max-height:600px){
+ #teacherHome{top:48px;bottom:0;padding:10px 16px;overflow-x:auto;overflow-y:hidden}
+ #teacherHome .school-heading{margin:0 0 8px}
+ #teacherHome .school-heading h1{font-size:20px;line-height:1.1;margin:4px 0;letter-spacing:-.4px}
+ #teacherHome .school-heading h1 br{display:none}
+ #teacherHome .school-heading p,#teacherHome .school-date{display:none}
+ #teacherHome .school-layout{display:flex;align-items:stretch;gap:12px;width:max-content;height:calc(100% - 58px);margin:0}
+ #teacherHome .school-layout>div{display:flex;gap:12px;align-items:stretch;height:100%}
+ #teacherHome .school-hero{flex:0 0 260px;min-height:0;height:100%;padding:16px}
+ #teacherHome .school-hero h2{font-size:22px;margin:8px 0}
+ #teacherHome .school-hero p{margin:6px 0;font-size:12px}
+ #teacherHome .school-hero .school-primary{margin-top:4px}
+ #teacherHome .school-art{opacity:.18;font-size:65px;right:8px;top:24px}
+ #teacherHome .school-section-title,#teacherHome .school-note{display:none}
+ #teacherHome .school-activities{display:flex;gap:8px;height:100%}
+ #teacherHome .school-activities button{width:155px;min-height:48px;padding:12px;gap:6px}
+ #teacherHome .school-activities small{line-height:1.3}
+ #teacherHome .school-symbol{width:36px;height:36px;font-size:22px}
+ #teacherHome .school-planner{width:720px;height:100%;padding:12px 16px;display:grid;grid-template-columns:200px 220px 240px;grid-template-rows:22px 24px 1fr;gap:4px 14px;overflow:hidden}
+ #teacherHome .school-planner>.school-eyebrow{grid-column:1/-1}
+ #teacherHome .school-planner h2{grid-column:1/-1;font-size:16px;margin:0}
+ #teacherHome .school-planner>label{margin:0;align-self:end}
+ #teacherHome .school-planner>label[for=schoolTopic]{grid-column:1;grid-row:3;align-self:start}
+ #teacherHome .school-planner>#schoolTopic{grid-column:1;grid-row:3;align-self:start;margin-top:22px}
+ #teacherHome .school-planner>label[for=schoolGoal]{grid-column:1;grid-row:3;align-self:start;margin-top:76px}
+ #teacherHome .school-planner>#schoolGoal{grid-column:1;grid-row:3;align-self:start;margin-top:96px;min-height:56px;height:56px}
+ #teacherHome .school-checks{grid-column:2;grid-row:3;gap:0;margin:0}
+ #teacherHome .school-planner>#schoolSaved{grid-column:2;grid-row:3;align-self:end;margin:0}
+ #teacherHome .school-timer{grid-column:3;grid-row:3;align-self:start;border:0;padding:0;margin:0}
+ #teacherHome .school-timer-actions{grid-column:3;grid-row:3;align-self:center;margin:0}
+ #teacherHome .school-planner>#schoolTimerStatus{grid-column:3;grid-row:3;align-self:end;margin:0}
+ #teacherHome .icon-credits{display:none}
+ .view:not(#whiteboard):not(#teacherHome){top:52px;bottom:8px;overflow-x:auto;overflow-y:hidden}
+ #lessons .cards{display:flex;height:calc(100% - 26px);width:max-content;gap:12px}
+ #lessons .card{width:220px;height:100%;padding:12px;overflow:auto}
+ #lessons .card h2{font-size:17px;margin:6px 0}
+ #lessons .card p{font-size:12px;margin:6px 0}
+ #lessons .glyph{font-size:28px;padding:8px;margin:6px 0}
+ #alphabet .panel{height:100%;width:max-content;max-width:none;padding:12px}
+ #alphabet h2,#alphabet p{margin:4px 0}
+ #alphabet .alphabet{display:grid;grid-auto-flow:column;grid-template-rows:repeat(2,minmax(48px,1fr));grid-auto-columns:82px;height:calc(100% - 70px);gap:6px}
+ #alphabet .alphabet button{font-size:25px;padding:4px;min-height:48px}
+ #quiz .quiz{height:100%;max-width:none;width:min(740px,100%);padding:12px;overflow:auto}
+ #quiz .quiz h2{font-size:18px;margin:8px 0}
+ #quiz .answers{display:flex;gap:8px;margin:8px 0}
+ #quiz .answers button{font-size:22px;min-height:48px;flex:1}
+ .activity-content-label{margin:0 0 4px}
+}
+/* Keep the menu touch target while making its visible background compact. */
+.classroom-collapsed .classroom-toggle,.classroom-collapsed .classroom-toggle:hover{background:transparent}
+.classroom-collapsed .classroom-toggle .figma-menu-icon{background:#183f36;border-radius:6px;padding:4px;box-sizing:content-box}
+/* Reduce empty space above and below toolbar controls. */
+.bottom-bar{padding-top:0;padding-bottom:0;row-gap:0}
+.bottom-bar .tools{padding-top:0;padding-bottom:0}
+.bottom-bar .tools>button,.bottom-bar #activityMenu,.bottom-bar .page-controls button{padding-top:14px;padding-bottom:14px}
+/* The drawing dock is only needed on the board, outside the open drawer. */
+body:not(.classroom-collapsed) .bottom-bar,body.activity-not-board .bottom-bar{display:none!important}
+/* Teacher home is intentionally empty for now; saved planner data is retained. */
+#teacherHome>*{display:none!important}
+/* Keep the first-page menu icon distinct from the light writing surface. */
+.classroom-collapsed .classroom-toggle .figma-menu-icon{background:#154d3e;border:1px solid #0e3e32;border-radius:7px;box-shadow:0 1px 3px #173c3226}
+/* Tool popups stay compact and reachable immediately above the dock. */
+#penOptions,.board-settings,.practice-strip,#saathiMenu,.extra-panel{overscroll-behavior:contain}
+.extra-panel{grid-template-columns:repeat(4,minmax(48px,1fr));width:min(280px,calc(100vw - 16px));gap:4px;padding:8px}
+.extra-panel button{min-width:48px;min-height:48px;padding:8px}
+/* One compact row scales its controls to the screen width. */
+.bottom-bar{--compact-tool:clamp(25px,calc((100vw - 32px)/17),48px);display:flex;flex-wrap:nowrap;justify-content:center;gap:0;width:max-content;max-width:calc(100vw - 12px);padding:2px 4px;overflow:visible;border-radius:11px}
+.bottom-bar .tools,.bottom-bar .page-controls{display:contents}
+.bottom-bar .tools>button,.bottom-bar #activityMenu,.bottom-bar .page-controls button{flex:0 0 var(--compact-tool);width:var(--compact-tool);min-width:0;height:var(--compact-tool);min-height:0;padding:4px;margin:0;border-radius:7px}
+.bottom-bar .page-controls span{flex:0 0 calc(var(--compact-tool)*1.05);min-width:0;text-align:center;font-size:clamp(9px,1.4vw,12px);white-space:nowrap}
+.bottom-bar .tools svg,.bottom-bar #activityMenu svg,.bottom-bar .page-controls svg,.bottom-bar .writing-icon{width:clamp(15px,calc(var(--compact-tool)*.5),20px);height:clamp(15px,calc(var(--compact-tool)*.5),20px)}
+.bottom-bar #letterToggle{font-size:clamp(16px,calc(var(--compact-tool)*.55),23px)!important}
+.bottom-bar .tools>button.active:after{bottom:2px}
+@font-face{font-family:'Noto Sans Odia';src:url('NotoSansOriya.ttf') format('truetype');font-style:normal;font-weight:100 900;font-display:swap}
+body,button,select,input,textarea{font-family:'Noto Sans Odia',system-ui,sans-serif}
+#alphabet .panel{max-width:none;overflow-x:auto;overflow-y:hidden}
+.alphabet-shelf{display:flex;align-items:flex-start;gap:20px;width:max-content}
+.alphabet-group h3{margin:8px 0;font-size:13px;letter-spacing:.02em;color:#557467;font-weight:650;white-space:nowrap}
+.alphabet-cells{display:grid;grid-auto-flow:column;grid-template-rows:repeat(2,72px);grid-auto-columns:72px;gap:8px}
+.alphabet-cells button{min-width:0;min-height:48px;padding:4px;font-family:'Noto Sans Odia',sans-serif;font-size:30px;color:#184a3f;background:#f9fcf9;border:1px solid #d8e6dc;border-radius:12px}
+.alphabet-cells button:hover,.alphabet-cells button:focus-visible{background:#e8f2e9;border-color:#6d9b7e}
+@media(max-height:600px){#alphabet .panel{height:100%;width:max-content;min-width:100%;padding:12px}#alphabet .alphabet-shelf{height:calc(100% - 64px)}#alphabet .alphabet-group{height:100%}#alphabet .alphabet-cells{grid-template-rows:repeat(2,minmax(48px,1fr));grid-auto-columns:68px;height:calc(100% - 28px);gap:6px}#alphabet .alphabet-cells button{font-size:25px}}
+/* Hide text insertion from the toolbar. */
+#textInsertTool{display:none!important}
+.board-background-options{margin:12px 0 0;padding:0;border:0}
+.board-background-options legend{font-size:12px;font-weight:600;color:#355849;margin-bottom:6px}
+.board-background-row{display:flex;flex-wrap:wrap;gap:4px}
+.board-background-row button{width:48px;height:48px;min-width:48px;min-height:48px;padding:9px;border:2px solid transparent;border-radius:10px;background:transparent}
+.board-background-row button:before{content:'';display:block;width:100%;height:100%;background:var(--swatch);border:1px solid #acbfb2;border-radius:50%}
+.board-background-row button[aria-pressed=true]{border-color:#176656}
+/* Aligned board and ink color controls with full-spectrum pickers. */
+.board-settings{width:min(320px,calc(100vw - 16px));padding:12px;border-radius:14px}
+.board-settings>label{display:flex;flex-direction:column;gap:6px;margin:0;font-size:13px;font-weight:600;color:#31584a}
+.board-settings select{box-sizing:border-box;width:100%;min-height:48px;padding:8px 12px;border:1px solid #c9d9cd;border-radius:9px;background:#fff;color:#204b3e;font-size:14px}
+.board-background-options{margin:12px 0 0}
+.board-background-options legend{padding:0;font-size:13px}
+.board-background-row{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:0;align-items:center}
+.board-background-row button,.board-background-row .board-custom-color{box-sizing:border-box;width:100%;height:48px;min-width:0;min-height:48px;padding:8px;border:2px solid transparent;border-radius:9px;background:transparent}
+.board-background-row button[aria-pressed=true],.board-background-row .board-custom-color.is-selected{border-color:#176656}
+.board-background-row .board-custom-color::-webkit-color-swatch-wrapper,#penOptions .custom-color::-webkit-color-swatch-wrapper{padding:0}
+.board-background-row .board-custom-color::-webkit-color-swatch{border:1px solid #acbfb2;border-radius:50%}
+#penOptions .colors.pen-row{grid-template-columns:repeat(4,minmax(48px,1fr))}
+#penOptions .custom-color{border:2px solid #d4e4d8;border-radius:12px}
+/* Round, touch-sized custom color pickers for board and writing ink. */
+.board-background-row .board-custom-color,#penOptions .custom-color{width:48px;height:48px;min-width:48px;min-height:48px;justify-self:center;padding:8px;border:2px solid transparent;border-radius:50%;background:transparent;box-sizing:border-box}
+.board-background-row .board-custom-color.is-selected{border-color:#176656}
+.board-background-row .board-custom-color::-webkit-color-swatch-wrapper,#penOptions .custom-color::-webkit-color-swatch-wrapper{padding:0;border-radius:50%}
+.board-background-row .board-custom-color::-webkit-color-swatch,#penOptions .custom-color::-webkit-color-swatch{border:1px solid #acbfb2;border-radius:50%}
+.custom-palette-icon{position:relative;display:grid!important;place-items:center;width:48px;height:48px;min-width:48px;min-height:48px;margin:0!important;padding:0!important;justify-self:center;cursor:pointer}
+.custom-palette-icon .board-custom-color,.custom-palette-icon .custom-color{position:absolute;inset:0;width:48px!important;height:48px!important;opacity:0;padding:0!important;z-index:1;cursor:pointer}
+.custom-palette-mark{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:conic-gradient(#ed5a64,#f4bf48,#8dc96b,#51bdd1,#8785d5,#ed5a64);box-shadow:inset 0 0 0 1px #123f2e33}
+.custom-palette-mark svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 1px 1px #0007)}
+.custom-palette-icon:focus-within{outline:3px solid #bb8b24;outline-offset:1px;border-radius:50%}
+.custom-palette-icon:has(.is-selected) .custom-palette-mark{outline:2px solid #176656;outline-offset:3px}
+#moreTools{display:grid}
+.more-tools-panel .laser-choice{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:48px;color:#225144;font-size:18px}
+.more-tools-panel .laser-choice small{font-size:10px}
+.more-tools-panel .laser-choice.active{background:#dceee3;outline:2px solid #176656}
+.laser-pointer{position:fixed;z-index:20;width:18px;height:18px;transform:translate(-50%,-50%);border-radius:50%;background:#e83c37;box-shadow:0 0 0 4px #e83c3740,0 0 12px #e83c37;pointer-events:none}
+.more-tools-panel>button{display:flex;flex-direction:column;gap:2px;align-items:center;justify-content:center;font-size:19px}
+.more-tools-panel>button small{font-size:10px;line-height:1.1}
+.board-straightedge{position:fixed;z-index:9;left:50%;top:48%;transform:translate(-50%,-50%);width:min(320px,calc(100vw - 24px));height:54px;padding:4px 12px;background:#e8f3ecd9;border:1px solid #7b9c88;border-radius:10px;color:#315a4a;touch-action:none;user-select:none;box-shadow:0 3px 12px #163c3020}
+.board-straightedge>span{font-size:10px;line-height:36px}
+.board-straightedge button{position:absolute;right:4px;top:2px;width:48px;min-height:48px;padding:0;border:0;background:transparent;font-size:20px}
+.straightedge-line{position:absolute;left:8px;right:8px;bottom:3px;height:8px;border-bottom:2px solid #315a4a;background:repeating-linear-gradient(to right,#315a4a 0 1px,transparent 1px 16px)}
+body.activity-not-board .board-straightedge,body:not(.classroom-collapsed) .board-straightedge{display:none!important}
+/* Keep the closed drawer control visible from the first frame. */
+.classroom-collapsed .classroom-toggle{display:grid!important;place-items:center!important;position:fixed;top:0;left:8px!important;width:48px;height:48px;min-width:48px;min-height:48px;z-index:32;color:#fff!important;isolation:isolate;background:transparent!important}
+.classroom-collapsed .classroom-toggle:before{content:'';position:absolute;left:8px;top:8px;width:32px;height:32px;border-radius:7px;background:#154d3e;border:1px solid #0e3e32;z-index:-1}
+.classroom-collapsed .classroom-toggle .figma-menu-icon{width:24px;height:24px;padding:0;border:0;background:transparent;box-shadow:none}
+/* Attach the taskbar to the bottom safe edge. */
+.bottom-bar{bottom:env(safe-area-inset-bottom,0px)!important;border-radius:11px 11px 0 0}
+/* Reduce only the taskbar height, retaining its horizontal layout. */
+.bottom-bar{padding-top:0;padding-bottom:0}
+.bottom-bar .tools>button,.bottom-bar #activityMenu,.bottom-bar .page-controls button{height:min(38px,var(--compact-tool));min-height:0;padding-top:3px;padding-bottom:3px}
+/* Scale symbols with the slimmer dock and keep visual breathing room. */
+.bottom-bar .tools svg,.bottom-bar #activityMenu svg,.bottom-bar .page-controls svg,.bottom-bar .writing-icon{width:clamp(13px,calc(var(--compact-tool)*.4),17px);height:clamp(13px,calc(var(--compact-tool)*.4),17px)}
+.bottom-bar #letterToggle{font-size:clamp(14px,calc(var(--compact-tool)*.45),19px)!important}
+.bottom-bar .tools>button,.bottom-bar #activityMenu,.bottom-bar .page-controls button{padding:5px}
+.right-tool-bar{position:fixed;right:calc(4px + env(safe-area-inset-right,0px));top:50%;transform:translateY(-50%);z-index:5;display:flex;flex-direction:column;gap:2px;padding:4px;background:#fffffff2;border:1px solid #dce5df;border-radius:12px;box-shadow:0 4px 16px #183c3218}
+.right-tool-bar button{display:grid;place-items:center;width:48px;height:48px;min-height:48px;padding:10px;border:0;border-radius:8px;background:transparent;color:#245246}
+.right-tool-bar button.active{background:#eaf2ed;box-shadow:inset 0 0 0 1px #9fc0ad}
+.right-tool-bar button:disabled{opacity:.3}
+.right-tool-bar svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+body.activity-not-board .right-tool-bar,body:not(.classroom-collapsed) .right-tool-bar{display:none}
+/* Slim top chrome while retaining existing controls. */
+.classroom-header{height:40px!important;padding-top:0!important;padding-bottom:0!important}
+.classroom-header select{min-height:40px;height:40px;font-size:12px}
+.classroom-header span:not(.connection):before{inset:5px 0}
+.classroom-toggle,.classroom-collapsed .classroom-toggle{top:0!important;height:40px!important;min-height:40px!important}
+.classroom-collapsed .classroom-toggle:before{top:4px}
+.board-brand,.classroom-collapsed .board-brand{top:5px}
+#whiteboard,#teacherHome{top:40px!important}
+.view:not(#whiteboard):not(#teacherHome){top:48px!important}
+/* Black writing surface by default before saved board preferences load. */
+canvas,canvas[data-paper=plain],canvas[data-paper=dots],canvas[data-paper=ruled]{background-color:#101715}
+/* Full-screen board: remove top chrome and sidebar from the interface. */
+.classroom-header,.classroom-toggle,.classroom-sidebar,.classroom-shade,.board-brand{display:none!important}
+#whiteboard,#teacherHome{top:0!important;left:0!important;right:0}
+.view:not(#whiteboard):not(#teacherHome){top:8px!important;left:8px!important;right:8px!important}
+body:not(.classroom-collapsed) .bottom-bar,body:not(.classroom-collapsed) .right-tool-bar{display:flex!important}
+body.activity-not-board .bottom-bar,body.activity-not-board .right-tool-bar{display:none!important}
+#penOptions .size-row{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;padding:8px 2px}
+#penOptions .stroke-slider-label,#penOptions .stroke-slider-value{font-size:12px;font-weight:600;color:#31584a;margin:0}
+#penOptions #size{grid-column:1/-1;width:100%;height:40px;min-height:40px;margin:0;accent-color:#176656;touch-action:pan-x}
+/* Compact popup controls while preserving comfortable touch targets. */
+#saathiMenu,#penOptions,.board-settings,.more-tools-panel,.extra-panel{padding:7px;gap:3px;border-radius:12px}
+#saathiMenu button,.more-tools-panel>button,.extra-panel button{min-height:48px;padding:5px;border-radius:8px}
+#saathiMenu svg,.more-tools-panel svg,.extra-panel svg,.pen-row svg{width:18px;height:18px}
+#penOptions .pen-row{gap:2px;padding:3px 0}
+#penOptions .pen-row button{padding:9px;border-radius:8px}
+#penOptions .size-row{padding:4px 2px}
+#penOptions #size{height:36px;min-height:36px}
+#saathiMenu .saathi-title{font-size:12px;padding:0 2px 2px}
+.more-tools-panel>button small{font-size:10px}
+/* Compact the visible pen-type tiles and color swatches. */
+#penOptions{width:min(216px,calc(100vw - 16px));padding:5px}
+#penOptions .pen-row{grid-template-columns:repeat(4,48px);justify-content:center;gap:1px;padding:2px 0}
+#penOptions .type-row button{width:48px;height:48px;min-width:48px;min-height:48px;padding:12px;border-radius:9px}
+#penOptions .type-row svg,#penOptions .type-row img{width:20px;height:20px}
+#penOptions .colors.pen-row button{width:48px;height:48px;padding:0;border:13px solid #fff;border-radius:50%;background-clip:padding-box}
+#penOptions .colors.pen-row button[aria-pressed=true]{outline:2px solid #d7a32e;outline-offset:-5px;box-shadow:none}
+#penOptions .custom-palette-mark{width:24px;height:24px}
+#penOptions .custom-palette-mark svg{width:14px;height:14px}
+#penOptions .size-row{grid-template-columns:1fr auto;padding:3px 2px}
+#penOptions .stroke-slider-label,#penOptions .stroke-slider-value{font-size:11px}
+#penOptions #size{height:32px;min-height:32px}
+/* Match the compact visual scale across all task-menu popups. */
+#saathiMenu,.board-settings,.more-tools-panel,.extra-panel,.practice-strip{padding:6px;gap:3px;border-radius:12px}
+#saathiMenu button,.more-tools-panel>button,.extra-panel button,#quickLetters button,#freewrite{min-width:48px;min-height:48px;padding:10px;border-radius:8px}
+#saathiMenu svg,.more-tools-panel svg,.extra-panel svg{width:18px;height:18px}
+#saathiMenu .saathi-title{font-size:12px;padding:1px 2px}
+.more-tools-panel>button{font-size:16px;gap:1px}
+.more-tools-panel>button small{font-size:10px}
+#quickLetters button{font-size:19px;padding:5px}
+#freewrite{font-size:10px;padding:5px}
+.board-settings{width:min(280px,calc(100vw - 16px))}
+.board-settings select{font-size:12px;min-height:48px;padding:6px 9px}
+.board-background-options legend,.board-settings>label{font-size:12px}
+.board-background-row button{padding:12px}
+.board-background-row .custom-palette-mark{width:24px;height:24px}
+.board-background-row .custom-palette-mark svg{width:14px;height:14px}
+/* Dark classroom dock with clear active and disabled states. */
+.bottom-bar{background:#172822f7;border:1px solid #3d5749;border-bottom:0;box-shadow:0 -4px 18px #0004;border-radius:12px 12px 0 0}
+.bottom-bar .tools>button,.bottom-bar #activityMenu,.bottom-bar .page-controls button{color:#e1eee6;background:transparent;border:0;box-shadow:none;border-radius:7px}
+.bottom-bar .tools>button:hover,.bottom-bar #activityMenu:hover,.bottom-bar .page-controls button:hover{background:#345849}
+.bottom-bar .tools>button.active,.bottom-bar #activityMenu[aria-expanded=true]{background:#3b795c;color:#fff;box-shadow:inset 0 0 0 1px #90b99b}
+.bottom-bar #pen.active{background:#3b795c;color:#fff;box-shadow:inset 0 0 0 1px #90b99b}
+.bottom-bar .tools>button.active:after{background:#e1f3e5}
+.bottom-bar .tools>button:disabled,.bottom-bar .page-controls button:disabled{opacity:.38}
+.bottom-bar .page-controls span{color:#d5e4d8}
+.bottom-bar #undo,.bottom-bar #clear{border-left:1px solid #426052}
+.bottom-bar .writing-icon{filter:brightness(0) invert(1)}
+.bottom-bar button:focus-visible{outline:2px solid #f1c95a;outline-offset:-2px}
+/* Light sage toolbar theme, contrasting with the dark board. */
+.bottom-bar{background:#f6faf6f7;border-color:#c8dbce;box-shadow:0 -4px 20px #0003}
+.bottom-bar .tools>button,.bottom-bar #activityMenu,.bottom-bar .page-controls button{color:#224c3d}
+.bottom-bar .tools>button:hover,.bottom-bar #activityMenu:hover,.bottom-bar .page-controls button:hover{background:#e2eee5}
+.bottom-bar .tools>button.active,.bottom-bar #activityMenu[aria-expanded=true],.bottom-bar #pen.active{background:#17664d;color:#fff;box-shadow:inset 0 0 0 1px #12533f}
+.bottom-bar .page-controls span{color:#496a58}
+.bottom-bar #undo,.bottom-bar #clear{border-left:1px solid #d5e2d8}
+.bottom-bar .writing-icon{filter:none}
+.bottom-bar .tools>button.active .writing-icon{filter:brightness(0) invert(1)}
+/* Approved compact toolbar preview and small board branding. */
+body:not(.activity-not-board) .board-brand{display:block!important;position:fixed;top:10px;bottom:auto;left:12px!important;z-index:3;font-size:10px;line-height:1.3;font-weight:600;color:#9bb1a4;opacity:1;pointer-events:none}
+body.activity-not-board .board-brand{display:none!important}
+body:not(.activity-not-board) .board-brand:after{display:block;width:22px;height:5px;margin-top:2px}
+.bottom-bar{background:#fff;border:1px solid #dce7df;border-bottom:0;border-radius:12px 12px 0 0;box-shadow:0 -3px 16px #0002}
+.bottom-bar #moreTools{background:#eaf4ec;color:#176650}
+.bottom-bar #moreTools[aria-expanded=true]{background:#176650;color:#fff}
+.board-users{position:fixed;right:calc(6px + env(safe-area-inset-right,0px));top:8px;z-index:6;display:flex;gap:2px;padding:3px;border:1px solid #dce7df;border-radius:10px;background:#fffffff2;box-shadow:0 3px 12px #0002}
+.board-users button{display:grid;place-items:center;width:40px;height:40px;min-height:40px;padding:0;border:0;border-radius:7px;background:transparent;color:#245246;font-weight:650}
+.board-users button.active{background:#17664d;color:white;box-shadow:inset 0 0 0 1px #12533f}
+.board-users button:focus-visible{outline:2px solid #d6a42f;outline-offset:-2px}
+body.activity-not-board .board-users{display:none}
+/* Equal board divisions and controls remain independent of drawing input. */
+.board-split-controls{display:grid;grid-template-columns:repeat(2,36px);gap:2px;border-top:1px solid #dce5df;padding-top:4px}
+.right-tool-bar .board-split-controls button{width:36px;height:36px;min-height:36px;padding:0;font-size:13px;font-weight:650}
+.board-split-lines{position:absolute;inset:0;z-index:2;pointer-events:none}
+.board-split-lines span{position:absolute;top:0;bottom:0;width:2px;background:#e4eee7a6;transform:translateX(-50%)}
+.board-split-lines.light-board span{background:#365a4a8c}
+/* Compact divider menu opens to the left of its right-toolbar trigger. */
+.right-tool-bar .board-split-controls:not(.hidden){position:absolute;right:calc(100% + 6px);bottom:0;display:grid;grid-template-columns:repeat(4,40px);gap:2px;padding:5px;border:1px solid #dce5df;border-radius:10px;background:#fff;box-shadow:0 4px 16px #183c3218}
+.right-tool-bar .board-split-controls button{width:40px;height:40px;min-height:40px}
+.right-tool-bar .split-menu-toggle[aria-expanded=true]{background:#eaf2ed;color:#17664d}
+/* Consistent, compact task-menu popups. */
+#saathiMenu,#penOptions,.board-settings,.more-tools-panel,.extra-panel,.practice-strip,.right-tool-bar .board-split-controls:not(.hidden){padding:5px;gap:3px;border-radius:10px;box-shadow:0 5px 16px #173c321c}
+#saathiMenu{width:min(192px,calc(100vw - 16px))}
+#saathiMenu.open{grid-template-columns:repeat(3,minmax(48px,1fr));gap:3px}
+#saathiMenu .saathi-title{font-size:12px;padding:0 2px 2px}
+#saathiMenu button,.more-tools-panel>button,.extra-panel button{width:100%;min-width:48px;min-height:48px;padding:6px;border-radius:7px}
+#saathiMenu svg,.more-tools-panel svg,.extra-panel svg{width:18px;height:18px}
+#penOptions{width:min(212px,calc(100vw - 16px));padding:5px}
+#penOptions .pen-row{grid-template-columns:repeat(4,48px);justify-content:center;gap:1px;padding:2px 0}
+#penOptions .size-row{grid-template-columns:1fr auto;padding:3px 2px}
+#penOptions #size{height:32px;min-height:32px}
+.board-settings{width:min(280px,calc(100vw - 16px));padding:8px}
+.board-settings select{width:100%;min-height:48px;font-size:12px}
+.board-background-row{grid-template-columns:repeat(6,minmax(40px,1fr));gap:0}
+.board-background-row button,.board-background-row .custom-palette-icon{min-width:40px;width:40px;min-height:48px;height:48px;justify-self:center}
+.more-tools-panel{width:min(220px,calc(100vw - 16px));grid-template-columns:repeat(4,minmax(48px,1fr));gap:3px}
+.more-tools-panel>button{font-size:16px;gap:1px}
+.more-tools-panel>button small{font-size:10px}
+.extra-panel{width:min(220px,calc(100vw - 16px));grid-template-columns:repeat(4,minmax(48px,1fr));gap:3px}
+.practice-strip{width:min(440px,calc(100vw - 16px));gap:3px}
+#quickLetters button,#freewrite{min-width:48px;min-height:48px;padding:5px}
+#quickLetters button{font-size:19px}#freewrite{font-size:10px}
+.right-tool-bar .board-split-controls:not(.hidden){grid-template-columns:repeat(4,40px);gap:2px;padding:4px}
+.shape-fill-controls{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:2px 4px;border-bottom:1px solid #dce5df;color:#31584a;font-size:12px}
+.shape-fill-controls label{display:flex;align-items:center;gap:6px;min-height:44px}.shape-fill-controls input[type=checkbox]{width:20px;height:20px;accent-color:#176656}.shape-fill-controls input[type=color]{width:44px;height:44px;padding:6px;border:0;background:transparent}
+/* Classroom board visual refresh: calm canvas and legible bottom controls. */
+body{background:#101917;color:#173e34}
+.bottom-bar{background:#f7faf6;border:1px solid #d0dfd3;border-bottom:0;border-radius:14px 14px 0 0;box-shadow:0 -4px 18px #001c101f;padding-left:8px;padding-right:8px}
+.bottom-bar .tools>button,.bottom-bar #activityMenu,.bottom-bar .page-controls button{color:#254f40;border-radius:8px}
+.bottom-bar .tools>button.active,.bottom-bar #pen.active,.bottom-bar #activityMenu[aria-expanded=true]{background:#17664d;color:#fff;box-shadow:0 0 0 1px #0e533e}
+.bottom-bar .page-controls span{font-weight:650;color:#48685a}
+.right-tool-bar{background:#f7faf6;border-color:#d0dfd3;border-radius:12px;box-shadow:0 4px 14px #001c1026}
+#saathiMenu,#penOptions,.board-settings,.more-tools-panel,.extra-panel,.practice-strip{background:#fbfdfb;border:1px solid #cfdfd3;color:#254f40;box-shadow:0 8px 24px #001c102e}
+#saathiMenu button,.more-tools-panel>button,.extra-panel button{background:#f2f7f2;color:#254f40;border-color:#dce8de}
+#saathiMenu button.active,#penOptions .pen-row button.chosen,.extra-panel button.active{background:#dcefe0;border-color:#629477;color:#154d39}
+.bottom-bar button:focus-visible,.right-tool-bar button:focus-visible{outline:2px solid #e8b94d;outline-offset:-2px}
+.screen-shade{position:absolute;z-index:4;top:0;left:0;right:0;background:#182820;pointer-events:none;box-shadow:0 2px 8px #0005}
+.shade-controls{position:fixed;z-index:11;left:50%;bottom:calc(64px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:flex;align-items:center;gap:8px;padding:6px 8px;background:#fff;border:1px solid #cbded0;border-radius:10px;box-shadow:0 5px 18px #0003;color:#254f40}
+.shade-controls label{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600}.shade-controls input{width:min(180px,35vw);min-height:44px;accent-color:#176656}.shade-controls button{width:44px;height:44px;min-height:44px;padding:0;font-size:22px}
+/* Refreshed toolbar: high-contrast icons and distinct action groups. */
+.bottom-bar{background:#eef5ef;border:1px solid #bed3c2;border-bottom:0;border-radius:16px 16px 0 0;box-shadow:0 -5px 20px #0003;padding:3px 8px 0}
+.bottom-bar .tools>button,.bottom-bar #activityMenu,.bottom-bar .page-controls button{border-radius:9px;color:#204d3b}
+.bottom-bar .tools>button.active,.bottom-bar #pen.active{background:#195e47;color:white;box-shadow:0 2px 6px #103f3026}
+.bottom-bar #activityMenu{background:#d9e9dd;color:#164b38}
+.bottom-bar #moreTools{background:#d9e9dd;color:#164b38}
+.bottom-bar #undo,.bottom-bar #clear{border-left:1px solid #bdd1c1}
+.bottom-bar .page-controls span{font-weight:700;color:#234e3d}
+.page-overview{position:fixed;z-index:11;bottom:calc(50px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);width:min(500px,calc(100vw - 16px));max-height:min(240px,calc(100dvh - 80px));overflow:auto;padding:8px;background:#fbfdfb;border:1px solid #cfdfd3;border-radius:12px;box-shadow:0 8px 24px #001c102e;color:#254f40}
+.page-overview-heading{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:650}
+.page-overview-heading button{width:44px;height:44px;min-height:44px;padding:0;border:0;background:transparent;font-size:20px}
+.page-overview-list{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 6px}
+.page-overview-list button{flex:0 0 120px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:5px;border:1px solid #d6e4d9;border-radius:8px;background:white;font-size:12px}
+.page-overview-list button[aria-current=page]{border:2px solid #176650}
+.page-overview-list canvas{width:108px;height:68px;touch-action:auto;border-radius:4px}
+.class-timer{position:fixed;z-index:11;right:8px;bottom:calc(54px + env(safe-area-inset-bottom,0px));width:min(220px,calc(100vw - 16px));max-height:calc(100dvh - 65px);overflow:auto;padding:10px;background:#fbfdfb;border:1px solid #cfdfd3;border-radius:12px;box-shadow:0 8px 24px #001c102e;color:#254f40}
+.class-timer-head{display:flex;align-items:center;justify-content:space-between;font-size:13px}.class-timer-head button{width:40px;height:40px;min-height:40px;padding:0;border:0;background:transparent;font-size:20px}.class-timer-time{font-size:30px;font-weight:650;font-variant-numeric:tabular-nums;text-align:center}.class-timer label{display:flex;justify-content:space-between;align-items:center;font-size:12px}.class-timer input{width:64px;min-height:40px;padding:6px;border:1px solid #cfdfd3;border-radius:8px}.class-timer-actions{display:flex;gap:6px;margin-top:8px}.class-timer-actions button{flex:1;min-height:44px;padding:6px;font-size:12px}.class-timer-actions button:first-child{background:#176650;color:#fff}.class-timer .timer-status{margin:4px 0 0;font-size:11px}
+/* Show More actions directly in a compact right-hand toolbar. */
+#moreTools{display:none!important}
+.right-tool-bar{display:grid;grid-template-columns:repeat(3,48px);gap:2px;max-height:calc(100dvh - 60px);overflow-y:auto;overscroll-behavior:contain;align-content:start}
+.right-tool-bar .right-tool-extras{display:contents}
+.right-tool-bar .right-tool-extras>button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;width:48px;height:48px;min-width:48px;min-height:48px;padding:3px;font-size:16px;line-height:1}
+.right-tool-bar .right-tool-extras>button small{max-width:100%;font-size:8px;line-height:1.1;overflow-wrap:anywhere}
+.right-tool-bar .board-split-controls:not(.hidden){position:fixed;right:calc(160px + env(safe-area-inset-right,0px));bottom:55px}
+/* Related actions live in small, clearly named groups. */
+.right-tool-bar{display:flex;flex-direction:column;grid-template-columns:none;width:48px;max-height:calc(100dvh - 24px);overflow-y:auto;padding:3px;gap:1px}
+.right-tool-bar>button{width:40px;height:40px;min-height:40px;padding:9px;flex:none}
+.right-tool-bar .tool-group-trigger[aria-expanded=true]{background:#dceee3;color:#17664d;box-shadow:inset 0 0 0 1px #a8c9b2}
+.right-group-popup{position:fixed;z-index:15;width:min(208px,calc(100vw - 64px));max-height:calc(100dvh - 16px);overflow:auto;padding:8px;background:#fbfdfb;border:1px solid #cfdfd3;border-radius:12px;box-shadow:0 8px 24px #001c102e;color:#254f40}
+.right-group-popup strong{display:block;font-size:12px;margin:2px 3px 6px}
+.right-group-grid{display:grid;grid-template-columns:repeat(3,minmax(48px,1fr));gap:4px}
+.right-group-grid button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:100%;min-width:48px;min-height:48px;padding:5px;border:0;border-radius:8px;background:#eef5ef;color:#245246;font-size:18px;line-height:1}
+.right-group-grid button small{font-size:10px;line-height:1.2;text-align:center}
+.right-group-grid button:focus-visible{outline:2px solid #d4a52c}
+.right-tool-bar .board-split-controls:not(.hidden){right:calc(100% + 6px);position:absolute}
+/* Compact settings: perfectly round color swatches and a small selected ring. */
+.board-settings{width:min(252px,calc(100vw - 16px));padding:8px}
+.board-settings>label{font-size:12px;gap:4px;margin:0}
+.board-settings select{height:40px;min-height:40px;font-size:13px;padding:4px 10px;border-radius:8px}
+.board-background-options{margin:8px 0 0;padding:0}.board-background-options legend{font-size:12px;margin-bottom:3px}
+.board-background-row{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:0;align-items:center;justify-items:center}
+.board-background-row button{display:grid;place-items:center;width:40px;min-width:0;height:44px;min-height:44px;padding:0;border:0!important;border-radius:50%;background:transparent}
+.board-background-row button:before{content:'';display:block;box-sizing:border-box;width:22px;height:22px;aspect-ratio:1;border:1px solid #a9bfb0;border-radius:50%;background:var(--swatch)}
+.board-background-row button[aria-pressed=true]:before{outline:2px solid #176656;outline-offset:3px}
+.board-background-row .custom-palette-icon{width:40px;min-width:0;height:44px;min-height:44px;padding:0!important}
+.board-background-row .custom-palette-icon .board-custom-color{width:40px!important;min-width:0!important;height:44px!important;min-height:44px!important}
+.board-background-row .custom-palette-mark{width:24px;height:24px;aspect-ratio:1}
+.board-background-row .custom-palette-mark svg{width:14px;height:14px}
+/* Keep the selected pen-color ring close to the visible swatch. */
+#penOptions .colors.pen-row button{position:relative}
+#penOptions .colors.pen-row button[aria-pressed=true]{outline:0;box-shadow:none}
+#penOptions .colors.pen-row button[aria-pressed=true]:after{content:'';position:absolute;left:50%;top:50%;width:28px;height:28px;transform:translate(-50%,-50%);border:2px solid #d7a32e;border-radius:50%;box-sizing:border-box;pointer-events:none}
+/* A contrasting edge keeps white ink visible on the light palette. */
+#penOptions .colors.pen-row button{position:relative}
+#penOptions .colors.pen-row button:before{content:'';position:absolute;left:50%;top:50%;width:22px;height:22px;transform:translate(-50%,-50%);box-sizing:border-box;border:1.5px solid #839b8d;border-radius:50%;pointer-events:none}
+.eraser-contact{position:fixed;z-index:18;pointer-events:none;transform:translate(-50%,-50%);border:2px solid #e7ba4d;border-radius:50%;background:#f4d16e33;box-shadow:0 0 0 1px #132d22a6}
+.zone-tools{position:fixed;z-index:5;left:0;right:0;bottom:calc(52px + env(safe-area-inset-bottom,0px));display:grid;pointer-events:none}
+.zone-tool{pointer-events:auto;justify-self:center;display:flex;align-items:center;gap:3px;max-width:calc(100% - 4px);padding:3px;background:#f9fcf9;border:1px solid #cbded0;border-radius:9px;box-shadow:0 3px 10px #0003;color:#244e3e}
+.zone-tool strong{font-size:11px;padding:0 3px}.zone-tool input[type=color]{width:36px;height:36px;min-width:36px;padding:5px;border:0;background:transparent}.zone-tool select{max-width:74px;height:36px;min-width:0;padding:2px;border:1px solid #d3e1d6;border-radius:6px;background:#fff;font-size:11px}.zone-tool input[type=range]{width:42px;min-width:20px;accent-color:#17664d}
+body.activity-not-board .zone-tools{display:none!important}
+@media(max-width:700px){.zone-tool{flex-wrap:wrap;justify-content:center;gap:1px}.zone-tool input[type=range]{width:42px}.zone-tool select{max-width:58px;font-size:10px}}
+body.split-mode .bottom-bar,body.split-mode .right-tool-bar{display:none!important}
+.split-session-controls{position:fixed;z-index:8;right:8px;bottom:calc(8px + env(safe-area-inset-bottom,0px));display:flex;gap:4px;padding:4px;background:#f9fcf9;border:1px solid #cfdfd3;border-radius:10px;box-shadow:0 4px 14px #0003}
+.split-session-controls button{min-width:48px;min-height:44px;padding:6px 10px;font-size:12px;font-weight:600}
+.split-session-controls button:first-child{background:#176650;color:white;border-color:#176650}
+body.split-mode .zone-tools{bottom:calc(60px + env(safe-area-inset-bottom,0px))}
+body.activity-not-board .split-session-controls{display:none!important}
+/* Compact per-area controls: one line, round color swatch, no oversized native fields. */
+.zone-tool{display:flex;flex-wrap:nowrap!important;align-items:center;justify-content:center;gap:3px;width:max-content;max-width:calc(100% - 6px);padding:3px 5px;border-radius:10px;background:#f8fcf8;border:1px solid #d0e2d4;box-shadow:0 3px 10px #0002}
+.zone-tool strong{flex:0 0 auto;font-size:11px;padding:0 2px;color:#315c49}
+.zone-tool input[type=color]{appearance:none;-webkit-appearance:none;flex:0 0 32px;width:32px;height:32px;min-width:32px;margin:0;padding:5px;border:0;border-radius:50%;background:transparent}
+.zone-tool input[type=color]::-webkit-color-swatch-wrapper{padding:0;border-radius:50%}
+.zone-tool input[type=color]::-webkit-color-swatch{border:1px solid #91a99a;border-radius:50%}
+.zone-tool select{flex:0 1 62px;width:62px;max-width:62px;min-width:0;height:32px;padding:2px 3px;border:1px solid #d0e2d4;border-radius:7px;background:#fff;color:#264d3d;font-size:11px}
+.zone-tool input[type=range]{flex:0 1 42px;width:42px;min-width:20px;height:32px;margin:0;accent-color:#17664d}
+.split-session-controls{gap:3px;padding:3px;border-radius:9px}
+.split-session-controls button{min-width:44px;min-height:36px;padding:4px 8px;border-radius:7px;font-size:11px}
+body.split-mode .zone-tools{bottom:calc(50px + env(safe-area-inset-bottom,0px))}
+@media(max-width:700px){.zone-tool{gap:1px;padding:2px 3px}.zone-tool select{flex-basis:48px;width:48px;font-size:10px}.zone-tool input[type=range]{flex-basis:28px;width:28px}.zone-tool input[type=color]{flex-basis:28px;width:28px;height:32px;min-width:28px;padding:4px}}
+/* Split-mode pen types use a compact icon and a small popup. */
+.zone-tool{position:relative;overflow:visible}
+.zone-tool .zone-native-select{display:none}
+.zone-tool .zone-pen-trigger{flex:0 0 32px;width:32px;height:32px;min-width:32px;min-height:32px;padding:0;border:1px solid #d0e2d4;border-radius:7px;background:#fff;color:#22523f;font-size:18px;line-height:1}
+.zone-tool .zone-pen-trigger[aria-expanded=true]{background:#e4f1e6;border-color:#6c9d7b}
+.zone-pen-menu{position:absolute;z-index:15;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%);display:grid;grid-template-columns:repeat(2,56px);gap:3px;padding:5px;border:1px solid #cfdfd3;border-radius:10px;background:#fff;box-shadow:0 5px 16px #0003}
+.zone-pen-menu button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:48px;min-height:44px;padding:3px;border:1px solid transparent;border-radius:7px;background:#f1f7f1;color:#22523f;font-size:16px;line-height:1}
+.zone-pen-menu button small{font-size:9px}.zone-pen-menu button[aria-pressed=true]{border-color:#176650;background:#e3f1e5}
+.zone-tool:first-child .zone-pen-menu{left:0;transform:none}
+.zone-tool:last-child .zone-pen-menu{left:auto;right:0;transform:none}
+/* Split options live outside the scrolling toolbar so they cannot be clipped. */
+body>.board-split-controls:not(.hidden){position:fixed;z-index:20;display:grid;grid-template-columns:repeat(4,44px);gap:3px;padding:5px;border:1px solid #cfdfd3;border-radius:10px;background:#fbfdfb;box-shadow:0 5px 18px #0003}
+body>.board-split-controls button{width:44px;min-width:44px;height:44px;min-height:44px;padding:0;border:1px solid #d4e3d6;border-radius:8px;background:#f1f7f1;color:#245246;font-size:13px;font-weight:650}
+body>.board-split-controls button.active{background:#176650;color:#fff;border-color:#176650}
+/* Keep split-mode writing controls flush with the bottom edge. */
+body.split-mode .zone-tools{bottom:env(safe-area-inset-bottom,0px);align-items:end}
+body.split-mode .zone-tool{border-radius:9px 9px 0 0;box-shadow:0 -3px 10px #0002}
+.split-session-controls{bottom:env(safe-area-inset-bottom,0px);padding:2px;gap:2px;border-radius:9px 9px 0 0}
+.split-session-controls button{min-width:38px;width:auto;height:32px;min-height:32px;padding:3px 6px;font-size:10px;line-height:1;border-radius:7px}
+/* Keep session controls clear of the last user's edge toolbar. */
+.split-session-controls{top:8px;bottom:auto;right:calc(8px + env(safe-area-inset-right,0px));border-radius:9px}
+/* Reuse the main pen-menu icon family in split mode. */
+.zone-pen-trigger img,.zone-pen-trigger svg,.zone-pen-menu button img,.zone-pen-menu button svg{display:block;width:20px;height:20px;object-fit:contain;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.zone-pen-trigger{display:grid;place-items:center}
+.zone-pen-menu button>span{display:grid;place-items:center}
+/* Slim visual track and thumb while retaining the slider's touch area. */
+.zone-tool input[type=range]{appearance:none;-webkit-appearance:none;height:32px;background:transparent;margin:0}
+.zone-tool input[type=range]::-webkit-slider-runnable-track{height:3px;border-radius:3px;background:#b8d0bd}
+.zone-tool input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:12px;height:12px;margin-top:-4.5px;border:0;border-radius:50%;background:#17664d}
+.zone-tool .zone-color-trigger{display:grid;place-items:center;flex:0 0 32px;width:32px;height:32px;min-width:32px;min-height:32px;padding:0;border:0;border-radius:50%;background:transparent}
+.zone-color-trigger:before{content:'';width:20px;height:20px;border:1px solid #839b8d;border-radius:50%;background:var(--zone-ink)}
+.zone-color-trigger[aria-expanded=true]{outline:2px solid #17664d;outline-offset:-2px}
+.zone-color-menu{position:absolute;z-index:16;bottom:calc(100% + 5px);left:0;display:grid;grid-template-columns:repeat(3,40px);gap:2px;padding:5px;background:#fff;border:1px solid #cfdfd3;border-radius:10px;box-shadow:0 5px 16px #0003}
+.zone-tool:last-child .zone-color-menu{left:auto;right:0}
+.zone-color-menu button,.zone-custom-color{display:grid;place-items:center;width:40px;height:40px;min-width:40px;min-height:40px;padding:0;border:0;border-radius:8px;background:transparent}
+.zone-color-menu button:before{content:'';width:22px;height:22px;border:1px solid #839b8d;border-radius:50%;background:var(--swatch)}
+.zone-color-menu button[aria-pressed=true]{box-shadow:inset 0 0 0 2px #17664d}
+.zone-custom-color{position:relative;margin:0!important;cursor:pointer}.zone-custom-color span{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:conic-gradient(#ed5a64,#f4bf48,#8dc96b,#51bdd1,#8785d5,#ed5a64);color:#fff;font-size:15px;text-shadow:0 1px 2px #0008}.zone-custom-color input{position:absolute;inset:0;width:40px!important;height:40px!important;opacity:0;cursor:pointer}
+/* Reachable split-session actions, clear of the user toolbars. */
+.split-session-controls{top:auto;right:calc(6px + env(safe-area-inset-right,0px));bottom:calc(42px + env(safe-area-inset-bottom,0px));gap:2px;padding:2px;border-radius:8px}
+.split-session-controls button{width:auto;min-width:34px;height:28px;min-height:28px;padding:2px 5px;font-size:10px;line-height:1;border-radius:6px}
