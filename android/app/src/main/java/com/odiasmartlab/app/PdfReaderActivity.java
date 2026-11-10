@@ -229,6 +229,8 @@ public class PdfReaderActivity extends Activity {
         final boolean spread = twoPages;
         final int width = Math.max(200, Math.min(2000, image.getWidth()));
         final int height = Math.max(200, Math.min(1600, image.getHeight()));
+        // Keep a small, consistent gutter between pages at the current rendering resolution.
+        final int gutter = spread ? Math.min(width - 2, Math.max(2, Math.round(8 * getResources().getDisplayMetrics().density * width / Math.max(1, image.getWidth())))) : 0;
         pageLabel.setText((current + 1) + (spread && current + 1 < pageCount ? "–" + (current + 2) : "") + " / " + pageCount);
         previous.setEnabled(current > 0); next.setEnabled(current + (spread ? 2 : 1) < pageCount);
         layout.setText(spread ? "୧ ପୃଷ୍ଠା" : "୨ ପୃଷ୍ଠା");
@@ -241,12 +243,16 @@ public class PdfReaderActivity extends Activity {
                 int slots = spread ? 2 : 1;
                 for (int i = 0; i < slots && current + i < pageCount; i++) {
                     try (PdfRenderer.Page page = renderer.openPage(current + i)) {
-                        int slotWidth = width / slots;
+                        int slotWidth = spread ? (width - gutter) / 2 : width;
                         float scale = Math.min((float) slotWidth / page.getWidth(), (float) height / page.getHeight());
                         int w = Math.max(1, (int)(page.getWidth() * scale)), h = Math.max(1, (int)(page.getHeight() * scale));
                         Bitmap part = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888); part.eraseColor(Color.WHITE);
                         page.render(part, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
-                        canvas.drawBitmap(part, i * slotWidth + (slotWidth - w) / 2f, (height - h) / 2f, null); part.recycle();
+                        // Align facing edges, rather than centering each page in half the screen.
+                        float left = spread && current + 1 < pageCount
+                            ? (i == 0 ? (width - gutter) / 2f - w : (width + gutter) / 2f)
+                            : (width - w) / 2f;
+                        canvas.drawBitmap(part, left, (height - h) / 2f, null); part.recycle();
                     }
                 }
                 final Bitmap result = bitmap;
