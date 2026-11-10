@@ -75,6 +75,10 @@ public class MainActivity extends Activity {
     }
 
     private class BoardExport {
+        @JavascriptInterface public void openPdfReader() {
+            runOnUiThread(() -> startActivity(new Intent(MainActivity.this, PdfReaderActivity.class)));
+        }
+
         @JavascriptInterface public void closeApp() { runOnUiThread(() -> finish()); }
 
         @JavascriptInterface public void emailPng(String data) { sharePng(data); }
