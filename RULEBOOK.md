@@ -12,7 +12,7 @@ This is the shared product baseline for future work. Explicit new user requests 
 
 Preserve this order and the underlying functions unless the user explicitly requests a change:
 
-1. ସାଥୀ: activity menu.
+1. Menu: board file actions and access to ସାଥୀ activities.
 2. Pen: opens one compact pen-options popup; it includes pen type, stroke size, and color.
 3. Eraser.
 4. Odia letter practice.
