@@ -4,8 +4,21 @@
  const trigger=document.createElement('button');trigger.type='button';trigger.id='fileMenuTrigger';trigger.setAttribute('aria-label','Board file menu');trigger.setAttribute('aria-haspopup','menu');trigger.setAttribute('aria-controls','boardFileMenu');trigger.setAttribute('aria-expanded','false');trigger.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16 M4 12h16 M4 18h16"/></svg><span aria-hidden="true">Menu</span>';saathi.before(trigger);
  saathi.setAttribute('aria-label','ସାଥୀ activities');const saathiLabel=saathi.querySelector('.dock-tool-name');if(saathiLabel)saathiLabel.textContent='ସାଥୀ';
  const actions=document.createElement('div');actions.id='boardFileMenu';actions.className='board-file-menu hidden';actions.setAttribute('role','menu');actions.setAttribute('aria-label','Board menu');
- const list=[['New','＋'],['Open','▱'],['Save','▣'],['Save as','▣'],['Import','⇥'],['Export','⇤'],['Cloud Storage','☁'],['Template','▤'],['Send Email','✉'],['Settings','⚙'],['Recover previous','↶']];
- const items={};for(const [label,icon] of list){const b=document.createElement('button');b.type='button';b.setAttribute('role','menuitem');b.setAttribute('aria-label',label);const symbol=document.createElement('span');symbol.className='file-menu-icon';symbol.setAttribute('aria-hidden','true');symbol.textContent=icon;const name=document.createElement('span');name.textContent=label;b.append(symbol,name);actions.append(b);items[label]=b}
+ const icons={
+  'New':'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6 M12 12v6 M9 15h6',
+  'Open':'M3 7a2 2 0 012-2h5l2 2h7a2 2 0 012 2v1 M3 10h18l-2 9H5z',
+  'Save':'M5 3h12l4 4v12a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z M7 3v6h9V3 M7 21v-7h10v7',
+  'Save as':'M5 3h12l4 4v12a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z M7 3v6h9V3 M7 18l3-3 2 2 4-4 M16 13v3 M16 13h-3',
+  'Import':'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6 M7 15h9 M13 12l3 3-3 3',
+  'Export':'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6 M17 15H8 M11 12l-3 3 3 3',
+  'Cloud Storage':'M7 18a4.5 4.5 0 01-.5-9 5.8 5.8 0 0111.3 1A4 4 0 0118 18H7z M12 17v-6 M9.5 13.5L12 11l2.5 2.5',
+  'Template':'M4 4h16v16H4z M4 9h16 M10 9v11 M14 13h3 M14 16h3',
+  'Send Email':'M3 6a2 2 0 012-2h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2z M3 7l9 6 9-6',
+  'Settings':'M12 8a4 4 0 100 8 4 4 0 000-8z M19 13a7 7 0 000-2l2-1-2-3-2 1a7 7 0 00-2-1l-.5-2h-5L9 7a7 7 0 00-2 1L5 7 3 10l2 1a7 7 0 000 2l-2 1 2 3 2-1a7 7 0 002 1l.5 2h5l.5-2a7 7 0 002-1l2 1 2-3z',
+  'Recover previous':'M4 5v5h5 M4 10a8 8 0 111 6 M12 7v5l3 2'
+ };
+ const list=['New','Open','Save','Save as','Import','Export','Cloud Storage','Template','Send Email','Settings','Recover previous'];
+ const items={};for(const label of list){const b=document.createElement('button');b.type='button';b.setAttribute('role','menuitem');b.setAttribute('aria-label',label);b.dataset.action=label;const symbol=document.createElement('span');symbol.className='file-menu-icon';symbol.setAttribute('aria-hidden','true');symbol.innerHTML='<svg viewBox="0 0 24 24" focusable="false"><path d="'+icons[label]+'"/></svg>';const name=document.createElement('span');name.className='file-menu-label';name.textContent=label;b.append(symbol,name);if(label==='Cloud Storage'){const chevron=document.createElement('span');chevron.className='file-menu-chevron';chevron.setAttribute('aria-hidden','true');chevron.textContent='›';b.append(chevron)}actions.append(b);items[label]=b}
  document.body.append(actions);
  const close=()=>{actions.classList.add('hidden');trigger.setAttribute('aria-expanded','false')};
  const show=()=>{document.getElementById('saathiMenu').classList.remove('open');saathi.setAttribute('aria-expanded','false');closePanels();closeMore();actions.classList.remove('hidden');trigger.setAttribute('aria-expanded','true');const rect=trigger.getBoundingClientRect();actions.style.left=Math.max(4,Math.min(rect.left,innerWidth-actions.offsetWidth-4))+'px';actions.style.bottom=Math.max(4,innerHeight-rect.top+4)+'px'};
@@ -26,13 +39,4 @@
  items.Template.onclick=()=>{close();settings.click()};items.Settings.onclick=()=>{close();settings.click()};
  items['Send Email'].onclick=()=>{close();const out=document.createElement('canvas');out.width=canvas.width;out.height=canvas.height;const g=out.getContext('2d');g.fillStyle=getComputedStyle(canvas).backgroundColor;g.fillRect(0,0,out.width,out.height);g.drawImage(canvas,0,0);if(window.AndroidBoard?.emailPng)window.AndroidBoard.emailPng(out.toDataURL('image/png'));else notify('Email sharing is available in the Android app.')};
  items['Recover previous'].onclick=()=>{close();try{const data=JSON.parse(localStorage.getItem('odia-board-recovery-'+activeBoardUser)||'null');if(!data){notify('No recovery copy is available.');return}replaceBoard(data,'Recover previous board?')}catch(e){notify('Could not open recovery copy.',true)}};
- // The customize control is always visible, so hidden actions can be restored.
- const storageKey='odia-file-menu-hidden-v1';let hiddenItems=[];try{const saved=JSON.parse(localStorage.getItem(storageKey)||'[]');if(Array.isArray(saved))hiddenItems=saved.filter(x=>Object.prototype.hasOwnProperty.call(items,x))}catch{}
- const customize=document.createElement('button');customize.type='button';customize.className='file-menu-customize';customize.textContent='⚙  Customize menu';customize.setAttribute('aria-expanded','false');
- const panel=document.createElement('div');panel.className='menu-customization hidden';panel.setAttribute('role','group');panel.setAttribute('aria-label','Choose visible menu options');
- const heading=document.createElement('strong');heading.textContent='Show in menu';panel.append(heading);const switches={};
- function applyVisibility(){for(const label of Object.keys(items)){const hide=hiddenItems.includes(label);items[label].classList.toggle('hidden',hide);if(switches[label])switches[label].checked=!hide}if(items['Cloud Storage'].classList.contains('hidden'))cloud.classList.add('hidden')}
- function persistVisibility(){try{localStorage.setItem(storageKey,JSON.stringify(hiddenItems))}catch(e){notify('Could not save menu preferences.',true)}}
- for(const [label] of list){const row=document.createElement('label');const input=document.createElement('input');input.type='checkbox';input.setAttribute('aria-label','Show '+label);switches[label]=input;input.onchange=()=>{hiddenItems=hiddenItems.filter(x=>x!==label);if(!input.checked)hiddenItems.push(label);applyVisibility();persistVisibility()};const text=document.createElement('span');text.textContent=label;row.append(input,text);panel.append(row)}
- const reset=document.createElement('button');reset.type='button';reset.textContent='Show all options';reset.onclick=()=>{hiddenItems=[];applyVisibility();persistVisibility()};const done=document.createElement('button');done.type='button';done.textContent='Done';done.onclick=()=>{panel.classList.add('hidden');customize.setAttribute('aria-expanded','false');customize.focus()};panel.append(reset,done);actions.append(customize,panel);customize.onclick=()=>{const open=panel.classList.contains('hidden');panel.classList.toggle('hidden',!open);customize.setAttribute('aria-expanded',String(open))};applyVisibility();
 })();

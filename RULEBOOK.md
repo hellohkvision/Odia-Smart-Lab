@@ -31,7 +31,8 @@ For narrow screens, core controls may remain visible while secondary controls mo
 
 - Open close to the bottom toolbar. Use a compact vertical list with an icon and readable label for each existing action, inspired by the classroom board reference; adapt on small screens without clipping.
 - Keep Whiteboard, Odia alphabet, Lessons, Quiz, Language and Fullscreen accessible, with distinct understandable icons and accessible names.
-- The file menu can be customized by showing or hiding options; customization and restore-all must stay accessible. Save the preference locally.\n- Menu previews must preserve the approved toolbar and branding. Changes to the menu must not redesign or remove other tools.
+- Keep file menu actions visible with consistent, recognizable icons and readable labels.
+- Menu previews must preserve the approved toolbar and branding. Changes to the menu must not redesign or remove other tools.
 - Language and fullscreen controls must reflect real functionality and platform limitations; do not claim complete Odia translation until implemented.
 
 ## Pen and board behavior
