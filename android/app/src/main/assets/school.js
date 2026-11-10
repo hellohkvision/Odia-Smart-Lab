@@ -138,10 +138,10 @@
    if(handle){drag={id:e.pointerId,start:p,points:copy(selected.points),size:selected.size,bounds,handle};canvas.setPointerCapture(e.pointerId);render();return}
   }
   selected=[...strokes].reverse().find(s=>(s.color!=='#fffef9'||!!s.text)&&s.points?.length>0&&(()=>{const b=selectionBounds(s);return p[0]>=b.left-tx&&p[0]<=b.right+tx&&p[1]>=b.top-ty&&p[1]<=b.bottom+ty})())||null;
-  if(selected){drag={id:e.pointerId,start:p,points:copy(selected.points),size:selected.size,handle:null};canvas.setPointerCapture(e.pointerId)}render();
+  if(selected){drag={id:e.pointerId,start:p,points:copy(selected.points),size:selected.size,handle:null};window.odiaVocabStart?.(e,selected);canvas.setPointerCapture(e.pointerId)}render();
  },true);
  canvas.addEventListener('pointermove',e=>{
-  if(!selecting)return;e.stopImmediatePropagation();if(!drag||drag.id!==e.pointerId)return;
+  if(!selecting)return;window.odiaVocabMove?.(e);e.stopImmediatePropagation();if(!drag||drag.id!==e.pointerId)return;
   const p=point(e),dx=p[0]-drag.start[0],dy=p[1]-drag.start[1];
   if(drag.handle){
    const r=canvas.getBoundingClientRect(),b=drag.bounds;
@@ -158,7 +158,7 @@
   }else selected.points=drag.points.map(q=>[q[0]+dx,q[1]+dy]);
   render();
  },true);
- function end(e){if(!selecting)return;e.stopImmediatePropagation();if(!drag||drag.id!==e.pointerId)return;if(e.type==='pointercancel'||e.type==='lostpointercapture'){selected.points=drag.points;selected.size=drag.size}else if(JSON.stringify(selected.points)!==JSON.stringify(drag.points)||selected.size!==drag.size)persist();drag=null;render();}
+ function end(e){if(!selecting)return;window.odiaVocabEnd?.(e);e.stopImmediatePropagation();if(!drag||drag.id!==e.pointerId)return;if(e.type==='pointercancel'||e.type==='lostpointercapture'){selected.points=drag.points;selected.size=drag.size}else if(JSON.stringify(selected.points)!==JSON.stringify(drag.points)||selected.size!==drag.size)persist();drag=null;render();}
  canvas.addEventListener('pointerup',end,true);canvas.addEventListener('pointercancel',end,true);canvas.addEventListener('lostpointercapture',end,true);
  function selectedClosed(){if(!selected||!Array.isArray(selected.points)||selected.points.length<3)return false;const a=selected.points[0],b=selected.points[selected.points.length-1];return Math.hypot(a[0]-b[0],a[1]-b[1])<0.01}
  window.boardSelectionInfo=()=>selecting&&selected&&strokes.includes(selected)?{closed:selectedClosed(),fillColor:selected.fillColor||null,fillOpacity:Number.isFinite(selected.fillOpacity)?selected.fillOpacity:1,borderColor:selected.color}:null;

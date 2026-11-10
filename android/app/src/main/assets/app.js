@@ -23,7 +23,7 @@ function drawBoardStroke(g,s,width,height){
   g.fillStyle=s.color;g.font=Math.max(1,h*.78)+'px "Noto Sans Odia", sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(s.text,x+w/2,y+h/2,Math.max(1,w));g.restore();return;
  }
  if(s.text){
-  g.fillStyle=s.color;g.font=s.size+'px sans-serif';g.textAlign='left';g.textBaseline='top';
+  g.fillStyle=s.color;g.font=s.size+(s.kind==='vocabWord'?'px "Noto Sans Odia", sans-serif':'px sans-serif');g.textAlign='left';g.textBaseline='top';
   const lines=s.text.split('\n');let x=p[0][0]*width,y=p[0][1]*height;
   if(p.length>=2){
    const naturalWidth=Math.max(1,...lines.map(line=>g.measureText(line).width)),naturalHeight=Math.max(1,s.size*(1.2+(lines.length-1)*1.4));
