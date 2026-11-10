@@ -12,7 +12,7 @@ This is the shared product baseline for future work. Explicit new user requests 
 
 Preserve this order and the underlying functions unless the user explicitly requests a change:
 
-1. Menu: board file actions and access to ସାଥୀ activities.
+1. Left action group: Menu, ସାଥୀ, Exit, Share as four separate buttons; Menu opens file actions and ସାଥୀ opens activities.
 2. Pen: opens one compact pen-options popup; it includes pen type, stroke size, and color.
 3. Eraser.
 4. Odia letter practice.
@@ -31,7 +31,7 @@ For narrow screens, core controls may remain visible while secondary controls mo
 
 - Open close to the bottom toolbar. Use a compact vertical list with an icon and readable label for each existing action, inspired by the classroom board reference; adapt on small screens without clipping.
 - Keep Whiteboard, Odia alphabet, Lessons, Quiz, Language and Fullscreen accessible, with distinct understandable icons and accessible names.
-- Menu previews must preserve the approved toolbar and branding. Changes to the menu must not redesign or remove other tools.
+- The file menu can be customized by showing or hiding options; customization and restore-all must stay accessible. Save the preference locally.\n- Menu previews must preserve the approved toolbar and branding. Changes to the menu must not redesign or remove other tools.
 - Language and fullscreen controls must reflect real functionality and platform limitations; do not claim complete Odia translation until implemented.
 
 ## Pen and board behavior

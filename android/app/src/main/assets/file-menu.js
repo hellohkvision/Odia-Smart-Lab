@@ -1,13 +1,15 @@
 /* Board file actions. A single recovery copy is kept before replacing the board. */
 (()=>{
- const trigger=document.getElementById('activityMenu');
+ const saathi=document.getElementById('activityMenu');
+ const trigger=document.createElement('button');trigger.type='button';trigger.id='fileMenuTrigger';trigger.setAttribute('aria-label','Board file menu');trigger.setAttribute('aria-haspopup','menu');trigger.setAttribute('aria-controls','boardFileMenu');trigger.setAttribute('aria-expanded','false');trigger.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16 M4 12h16 M4 18h16"/></svg><span aria-hidden="true">Menu</span>';saathi.before(trigger);
+ saathi.setAttribute('aria-label','ସାଥୀ activities');const saathiLabel=saathi.querySelector('.dock-tool-name');if(saathiLabel)saathiLabel.textContent='ସାଥୀ';
  const actions=document.createElement('div');actions.id='boardFileMenu';actions.className='board-file-menu hidden';actions.setAttribute('role','menu');actions.setAttribute('aria-label','Board menu');
- const list=[['New','＋'],['Open','▱'],['Save','▣'],['Save as','▣'],['Import','⇥'],['Export','⇤'],['Cloud Storage','☁'],['Template','▤'],['Send Email','✉'],['Settings','⚙'],['Recover previous','↶'],['Activities','⌂']];
+ const list=[['New','＋'],['Open','▱'],['Save','▣'],['Save as','▣'],['Import','⇥'],['Export','⇤'],['Cloud Storage','☁'],['Template','▤'],['Send Email','✉'],['Settings','⚙'],['Recover previous','↶']];
  const items={};for(const [label,icon] of list){const b=document.createElement('button');b.type='button';b.setAttribute('role','menuitem');b.setAttribute('aria-label',label);const symbol=document.createElement('span');symbol.className='file-menu-icon';symbol.setAttribute('aria-hidden','true');symbol.textContent=icon;const name=document.createElement('span');name.textContent=label;b.append(symbol,name);actions.append(b);items[label]=b}
- document.body.append(actions);const oldMenu=trigger.onclick;
+ document.body.append(actions);
  const close=()=>{actions.classList.add('hidden');trigger.setAttribute('aria-expanded','false')};
- const show=()=>{document.getElementById('saathiMenu').classList.remove('open');closePanels();closeMore();actions.classList.remove('hidden');trigger.setAttribute('aria-expanded','true');const rect=trigger.getBoundingClientRect();actions.style.left=Math.max(4,Math.min(rect.left,innerWidth-actions.offsetWidth-4))+'px';actions.style.bottom=Math.max(4,innerHeight-rect.top+4)+'px'};
- trigger.onclick=()=>actions.classList.contains('hidden')?show():close();
+ const show=()=>{document.getElementById('saathiMenu').classList.remove('open');saathi.setAttribute('aria-expanded','false');closePanels();closeMore();actions.classList.remove('hidden');trigger.setAttribute('aria-expanded','true');const rect=trigger.getBoundingClientRect();actions.style.left=Math.max(4,Math.min(rect.left,innerWidth-actions.offsetWidth-4))+'px';actions.style.bottom=Math.max(4,innerHeight-rect.top+4)+'px'};
+ trigger.onclick=()=>actions.classList.contains('hidden')?show():close();saathi.addEventListener('click',close);
  document.addEventListener('pointerdown',e=>{if(!actions.contains(e.target)&&!trigger.contains(e.target))close()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!actions.classList.contains('hidden')){close();trigger.focus()}});
  function documentData(){persist();return {format:'odia-smart-lab-board',version:1,pages:JSON.parse(JSON.stringify(pages)),index:pageIndex}}
  function notify(message,error=false){if(window.boardNotice)window.boardNotice(message,error);else document.getElementById('status').textContent=message}
@@ -24,5 +26,13 @@
  items.Template.onclick=()=>{close();settings.click()};items.Settings.onclick=()=>{close();settings.click()};
  items['Send Email'].onclick=()=>{close();const out=document.createElement('canvas');out.width=canvas.width;out.height=canvas.height;const g=out.getContext('2d');g.fillStyle=getComputedStyle(canvas).backgroundColor;g.fillRect(0,0,out.width,out.height);g.drawImage(canvas,0,0);if(window.AndroidBoard?.emailPng)window.AndroidBoard.emailPng(out.toDataURL('image/png'));else notify('Email sharing is available in the Android app.')};
  items['Recover previous'].onclick=()=>{close();try{const data=JSON.parse(localStorage.getItem('odia-board-recovery-'+activeBoardUser)||'null');if(!data){notify('No recovery copy is available.');return}replaceBoard(data,'Recover previous board?')}catch(e){notify('Could not open recovery copy.',true)}};
- items.Activities.onclick=()=>{close();oldMenu();};
+ // The customize control is always visible, so hidden actions can be restored.
+ const storageKey='odia-file-menu-hidden-v1';let hiddenItems=[];try{const saved=JSON.parse(localStorage.getItem(storageKey)||'[]');if(Array.isArray(saved))hiddenItems=saved.filter(x=>Object.prototype.hasOwnProperty.call(items,x))}catch{}
+ const customize=document.createElement('button');customize.type='button';customize.className='file-menu-customize';customize.textContent='⚙  Customize menu';customize.setAttribute('aria-expanded','false');
+ const panel=document.createElement('div');panel.className='menu-customization hidden';panel.setAttribute('role','group');panel.setAttribute('aria-label','Choose visible menu options');
+ const heading=document.createElement('strong');heading.textContent='Show in menu';panel.append(heading);const switches={};
+ function applyVisibility(){for(const label of Object.keys(items)){const hide=hiddenItems.includes(label);items[label].classList.toggle('hidden',hide);if(switches[label])switches[label].checked=!hide}if(items['Cloud Storage'].classList.contains('hidden'))cloud.classList.add('hidden')}
+ function persistVisibility(){try{localStorage.setItem(storageKey,JSON.stringify(hiddenItems))}catch(e){notify('Could not save menu preferences.',true)}}
+ for(const [label] of list){const row=document.createElement('label');const input=document.createElement('input');input.type='checkbox';input.setAttribute('aria-label','Show '+label);switches[label]=input;input.onchange=()=>{hiddenItems=hiddenItems.filter(x=>x!==label);if(!input.checked)hiddenItems.push(label);applyVisibility();persistVisibility()};const text=document.createElement('span');text.textContent=label;row.append(input,text);panel.append(row)}
+ const reset=document.createElement('button');reset.type='button';reset.textContent='Show all options';reset.onclick=()=>{hiddenItems=[];applyVisibility();persistVisibility()};const done=document.createElement('button');done.type='button';done.textContent='Done';done.onclick=()=>{panel.classList.add('hidden');customize.setAttribute('aria-expanded','false');customize.focus()};panel.append(reset,done);actions.append(customize,panel);customize.onclick=()=>{const open=panel.classList.contains('hidden');panel.classList.toggle('hidden',!open);customize.setAttribute('aria-expanded',String(open))};applyVisibility();
 })();
