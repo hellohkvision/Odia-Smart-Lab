@@ -858,3 +858,6 @@ body.activity-not-board .left-actions{display:none!important}
  .page-dock .page-controls>span{min-width:42px;font-size:12px}
  #saathiMenu.open{bottom:calc(64px + env(safe-area-inset-bottom,0px));max-height:calc(100dvh - 80px)}
 }
+
+/* A solid contrasting eraser cursor; no border or differently colored outline. */
+.eraser-contact{border:0!important;outline:0;box-shadow:none!important;background:#fff;}

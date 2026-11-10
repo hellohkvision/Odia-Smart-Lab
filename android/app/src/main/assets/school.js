@@ -337,7 +337,25 @@
  const panel=document.createElement('div');panel.className='zone-tools hidden';panel.setAttribute('aria-label','Writing tools for each area');document.body.append(panel);
  function renderZones(){const n=window.boardZoneCount||1;panel.replaceChildren();panel.classList.toggle('hidden',n<=1);panel.style.gridTemplateColumns='repeat('+n+',minmax(0,1fr))';for(let i=0;i<n;i++){const opt=window.boardZoneOptions[i],group=document.createElement('div');group.className='zone-tool';group.setAttribute('role','group');group.setAttribute('aria-label','User '+(i+1)+' writing tools');const label=document.createElement('strong');label.textContent=String(i+1);const paint=document.createElement('input');paint.type='color';paint.value=opt.color;paint.setAttribute('aria-label','User '+(i+1)+' ink color');paint.oninput=()=>opt.color=paint.value;const type=document.createElement('select');type.setAttribute('aria-label','User '+(i+1)+' pen type');for(const [value,title] of [['pen','Pen'],['marker','Marker'],['highlighter','Highlight'],['brush','Brush']])type.add(new Option(title,value));type.value=opt.type;type.onchange=()=>opt.type=type.value;const width=document.createElement('input');width.type='range';width.min='1';width.max='24';width.value=opt.size;width.setAttribute('aria-label','User '+(i+1)+' stroke size');width.oninput=()=>opt.size=Number(width.value);group.append(label,paint,type,width);panel.append(group)}}
  document.addEventListener('boardzoneschange',renderZones);renderZones();
- const cursor=document.createElement('div');cursor.className='eraser-contact hidden';cursor.setAttribute('aria-hidden','true');document.body.append(cursor);window.showEraserContact=(e,size)=>{const d=Math.max(5,Math.min(120,size));cursor.style.width=d+'px';cursor.style.height=d+'px';cursor.style.left=e.clientX+'px';cursor.style.top=e.clientY+'px';cursor.classList.remove('hidden')};window.hideEraserContact=()=>cursor.classList.add('hidden');
+ const cursor=document.createElement('div');cursor.className='eraser-contact hidden';cursor.setAttribute('aria-hidden','true');document.body.append(cursor);
+ // Use a single solid color that contrasts with the active board, without an outline.
+ let lastSurface='',cursorColor='#fff';
+ function eraserColor(surface){
+  const rgb=surface.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i);
+  const hex=surface.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+  let channels;
+  if(rgb)channels=rgb.slice(1,4).map(Number);
+  else if(hex){let value=hex[1];if(value.length===3)value=[...value].map(c=>c+c).join('');channels=[0,2,4].map(i=>parseInt(value.slice(i,i+2),16))}
+  else return '#ffffff';
+  const brightness=(channels[0]*299+channels[1]*587+channels[2]*114)/1000;
+  return brightness>=150?'#5d6762':'#ffffff';
+ }
+ window.showEraserContact=(e,size)=>{
+  const surface=canvas.style.backgroundColor||getComputedStyle(canvas).backgroundColor;
+  if(surface!==lastSurface){lastSurface=surface;cursorColor=eraserColor(surface);cursor.style.backgroundColor=cursorColor}
+  const d=Math.max(5,Math.min(120,size));cursor.style.width=d+'px';cursor.style.height=d+'px';cursor.style.left=e.clientX+'px';cursor.style.top=e.clientY+'px';cursor.classList.remove('hidden');
+ };
+ window.hideEraserContact=()=>cursor.classList.add('hidden');
 })();
 // In split mode retain only Save and Exit alongside each area's writing tools.
 (()=>{
