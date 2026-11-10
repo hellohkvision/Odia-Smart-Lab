@@ -838,3 +838,23 @@ body.activity-not-board .left-actions{display:none!important}
 #lessons .pathasala-subject:nth-child(4n+4) .pathasala-icon{background:#f4edf9;color:#806198}
 #lessons .pathasala-subject-dots button.active:before{background:#597a92}
 #lessons .pathasala-class-option[aria-pressed=true]{background:#405f73;color:#fff}
+/* Classroom display: readable bottom controls and an LG-style task list. */
+#saathiMenu.open{display:flex;flex-direction:column;align-items:stretch;grid-template-columns:none;gap:2px;left:max(4px,env(safe-area-inset-left,0px));bottom:calc(48px + env(safe-area-inset-bottom,0px));width:min(240px,calc(100vw - 16px));max-height:calc(100dvh - 64px);overflow-y:auto;padding:6px}
+#saathiMenu .saathi-title{text-align:left;padding:6px 10px;font-size:14px}
+#saathiMenu button{display:flex;flex-direction:row;justify-content:flex-start;align-items:center;gap:12px;width:100%;min-height:48px;padding:8px 10px;text-align:left;box-shadow:none}
+#saathiMenu button svg{flex:none;width:22px;height:22px}
+#saathiMenu button small{display:block;font:500 13px/1.3 system-ui,'Noto Sans Odia',sans-serif;text-align:left;overflow-wrap:normal}
+@media (min-width:1200px) and (min-height:600px){
+ .left-actions,.bottom-bar,.page-dock{height:60px}
+ .left-actions button,.left-actions #activityMenu{width:52px;min-width:52px;height:54px;min-height:54px}
+ .left-actions button svg{width:23px;height:23px}.left-actions button span{font-size:10px}
+ .bottom-bar{left:calc(170px + (100vw - 430px)/2)!important;max-width:calc(100vw - 442px);--compact-tool:clamp(48px,calc((100vw - 470px)/14),64px);overflow-x:auto}
+ .bottom-bar .tools>button,.bottom-bar #moreTools{height:54px;min-height:54px;flex-basis:var(--compact-tool);width:var(--compact-tool);min-width:var(--compact-tool)}
+ .bottom-bar button svg,.bottom-bar button img{width:24px!important;height:24px!important}
+ .bottom-bar button .dock-tool-name{font-size:11px;line-height:1.1}
+ .page-dock .page-controls button{width:52px;min-width:52px;height:54px;min-height:54px}
+ .page-dock .page-controls button svg{width:22px;height:22px}
+ .page-dock .page-controls button .dock-tool-name{font-size:10px}
+ .page-dock .page-controls>span{min-width:42px;font-size:12px}
+ #saathiMenu.open{bottom:calc(64px + env(safe-area-inset-bottom,0px));max-height:calc(100dvh - 80px)}
+}

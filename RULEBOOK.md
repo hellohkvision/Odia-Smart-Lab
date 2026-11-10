@@ -29,7 +29,7 @@ For narrow screens, core controls may remain visible while secondary controls mo
 
 ## ସାଥୀ menu
 
-- Open close to the bottom toolbar. Use a compact 3-column, 2-row icon grid when space permits; adapt on small screens without clipping.
+- Open close to the bottom toolbar. Use a compact vertical list with an icon and readable label for each existing action, inspired by the classroom board reference; adapt on small screens without clipping.
 - Keep Whiteboard, Odia alphabet, Lessons, Quiz, Language and Fullscreen accessible, with distinct understandable icons and accessible names.
 - Menu previews must preserve the approved toolbar and branding. Changes to the menu must not redesign or remove other tools.
 - Language and fullscreen controls must reflect real functionality and platform limitations; do not claim complete Odia translation until implemented.
