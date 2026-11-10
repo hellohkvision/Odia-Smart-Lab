@@ -17,6 +17,11 @@ function drawBoardStroke(g,s,width,height){
  }
  g.globalAlpha=s.alpha??1;g.globalCompositeOperation=s.color==='#fffef9'?'destination-out':'source-over';
  g.lineCap='round';g.lineJoin='round';g.strokeStyle=s.color;g.lineWidth=s.size;
+ if(s.kind==='letter'&&s.text&&p.length>=2){
+  const x=Math.min(p[0][0],p[1][0])*width,y=Math.min(p[0][1],p[1][1])*height;
+  const w=Math.abs(p[1][0]-p[0][0])*width,h=Math.abs(p[1][1]-p[0][1])*height;
+  g.fillStyle=s.color;g.font=Math.max(1,h*.78)+'px "Noto Sans Odia", sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(s.text,x+w/2,y+h/2,Math.max(1,w));g.restore();return;
+ }
  if(s.text){g.fillStyle=s.color;g.font=s.size+'px sans-serif';g.textAlign='left';g.textBaseline='top';s.text.split('\n').forEach((line,i)=>g.fillText(line,p[0][0]*width,p[0][1]*height+i*s.size*1.4));g.restore();return}
  g.beginPath();g.moveTo(p[0][0]*width,p[0][1]*height);
  if(p.length===1)g.lineTo(p[0][0]*width+.1,p[0][1]*height);
@@ -34,7 +39,7 @@ function paintBoard(){
  ensureInkSurfaces(w,h);
  if(!inkCacheValid){
   const baseInk=committedInk.getContext('2d');baseInk.setTransform(1,0,0,1,0,0);baseInk.clearRect(0,0,w,h);baseInk.setTransform(d,0,0,d,0,0);
-  for(const stroke of strokes)drawBoardStroke(baseInk,stroke,r.width,r.height);
+  for(const stroke of strokes)if(stroke.kind!=='letter')drawBoardStroke(baseInk,stroke,r.width,r.height);
   inkCacheValid=true;
  }
  const work=workingInk.getContext('2d');work.setTransform(1,0,0,1,0,0);work.clearRect(0,0,w,h);work.drawImage(committedInk,0,0);work.setTransform(d,0,0,d,0,0);
@@ -42,6 +47,7 @@ function paintBoard(){
  if(current.length)drawBoardStroke(work,{points:current,color:color,size:+$('#size').value,alpha:1},r.width,r.height);
  ctx.setTransform(d,0,0,d,0,0);ctx.clearRect(0,0,r.width,r.height);
  if(guide){ctx.fillStyle='#dfe8da';ctx.font=`${Math.min(r.height*.6,r.width*.5)}px "Noto Sans Odia", sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(guide,r.width/2,r.height/2)}
+ for(const stroke of strokes)if(stroke.kind==='letter')drawBoardStroke(ctx,stroke,r.width,r.height);
  ctx.drawImage(workingInk,0,0,r.width,r.height);
 }
 function render(){inkCacheValid=false;paintBoard()}
@@ -67,7 +73,15 @@ for(const c of ['#155c50','#242d3a','#d25343','#d49d24','#4877c3','#9665b1']){co
 $('#pen').onclick=()=>{erase=false;highlighter=penType==='highlighter';$('#pen').classList.add('active');$('#eraser').classList.remove('active')};$('#eraser').onclick=()=>{erase=true;highlighter=false;$('#eraser').classList.add('active');$('#pen').classList.remove('active')};function updateHistory(){$('#undo').disabled=!strokes.length;$('#redo').disabled=!redo.length}$('#undo').onclick=()=>{if(drawing||!strokes.length)return;redo.push(strokes.pop());persist();render()};$('#redo').onclick=()=>{if(drawing||!redo.length)return;strokes.push(redo.pop());persist();render()};updateHistory();$('#paper').onchange=()=>{canvas.dataset.paper=$('#paper').value};$('#freewrite').onclick=()=>{guide='';$('#boardtitle').textContent='ଲେଖନ୍ତୁ · Write and practice';persist();render()};$('#clear').onclick=async()=>{if((strokes.length||guide)&&await confirmBoard('Clear this page?','Only the current page will be cleared. Save an image first if you need a copy.','Clear page')){strokes=[];redo=[];guide='';$('#boardtitle').textContent='ଲେଖନ୍ତୁ · Write and practice';persist();render()}};
 $('#save').onclick=()=>{const out=document.createElement('canvas');out.width=canvas.width;out.height=canvas.height;const c=out.getContext('2d');c.fillStyle=getComputedStyle(canvas).backgroundColor;c.fillRect(0,0,out.width,out.height);c.drawImage(canvas,0,0);if(window.AndroidBoard){AndroidBoard.savePng(out.toDataURL('image/png'))}else{const a=document.createElement('a');a.download='odia-smart-lab-board.png';a.href=out.toDataURL();a.click()}};
 function tab(name){document.querySelectorAll('.view').forEach(v=>v.classList.toggle('hidden',v.id!==name));document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));if(name==='whiteboard')render()}document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>tab(b.dataset.tab));
-const vowels=['ଅ','ଆ','ଇ','ଈ','ଉ','ଊ','ଋ','ଏ','ଐ','ଓ','ଔ'];const sounds=['a','aa','i','ee','u','oo','ru','e','ai','o','au'];async function practice(letter){if(strokes.length&&!await confirmBoard('Start letter practice?','This replaces the drawing on the current page. Save an image first if needed.','Start practice'))return;guide=letter;strokes=[];redo=[];persist();tab('whiteboard');$('#boardtitle').textContent='Trace the letter: '+letter}vowels.forEach((v,i)=>{const b=document.createElement('button');b.innerHTML=v+'<small>'+sounds[i]+'</small>';b.onclick=()=>practice(v);$('#letters').append(b)});
+const vowels=['ଅ','ଆ','ଇ','ଈ','ଉ','ଊ','ଋ','ଏ','ଐ','ଓ','ଔ'];const sounds=['a','aa','i','ee','u','oo','ru','e','ai','o','au'];async function practice(letter){
+ if(drawing)return;
+ tab('whiteboard');
+ const r=canvas.getBoundingClientRect(),w=r.width||innerWidth,h=r.height||innerHeight;
+ const glyphHeight=Math.max(30,Math.min(h*.38,w*.3)),glyphWidth=glyphHeight*1.1,left=.4,top=.24;
+ const item={kind:'letter',text:letter,points:[[left,top],[left+glyphWidth/w,top+glyphHeight/h]],color:color,size:glyphHeight*.78,alpha:1};
+ strokes.push(item);redo=[];persist();$('#boardtitle').textContent='Trace the letter: '+letter;
+ if(typeof window.selectBoardItem==='function')window.selectBoardItem(item);else render();
+}vowels.forEach((v,i)=>{const b=document.createElement('button');b.innerHTML=v+'<small>'+sounds[i]+'</small>';b.onclick=()=>practice(v);$('#letters').append(b)});
 vowels.concat(['କ','ଖ','ଗ','ଘ','ଙ','ଚ','ଛ','ଜ','ଝ','ଞ','ଟ','ଠ','ଡ','ଢ','ଣ','ତ','ଥ','ଦ','ଧ','ନ','ପ','ଫ','ବ','ଭ','ମ','ଯ','ର','ଲ','ଳ','ଶ','ଷ','ସ','ହ']).forEach(letter=>{const b=document.createElement('button');b.textContent=letter;b.setAttribute('aria-label','Practice '+letter);b.onclick=()=>practice(letter);$('#quickLetters').append(b)});if(guide)$('#boardtitle').textContent='Trace the letter: '+guide;
 const lessons=[['01 · LANGUAGE','Odia vowels','ଅ ଆ ଇ','Explore the first three vowels and practice their shapes.','Practice ଅ',()=>practice('ଅ')],['02 · NUMBERS','Count with Odia','୧ ୨ ୩','Learn the digits from one to five: ୧ ୨ ୩ ୪ ୫.','Practice ୧',()=>practice('୧')],['03 · CLASS ACTIVITY','Test your knowledge','✦','Identify Odia letters and numbers in a short classroom quiz.','Start quiz',()=>{restart();tab('quiz')}]];for(const [tag,title,glyph,desc,label,action]of lessons){const c=document.createElement('article');c.className='card';c.innerHTML=`<span class="tag">${tag}</span><h2>${title}</h2><div class="glyph">${glyph}</div><p>${desc}</p><button>${label} →</button>`;c.querySelector('button').onclick=action;$('#lessonCards').append(c)}
 const questions=[['Which letter makes the “aa” sound?',['ଅ','ଆ','ଇ','ଉ'],1],['Which Odia digit means three?',['୧','୫','୩','୨'],2],['Which letter makes the “i” sound?',['ଓ','ଏ','ଉ','ଇ'],3],['Which Odia digit means five?',['୫','୪','୨','୧'],0]];let qi=0,score=0;function showQ(){$('#progress').textContent=`Question ${qi+1} of ${questions.length} · Score ${score}`;$('#question').textContent=questions[qi][0];$('#feedback').textContent='';$('#next').classList.add('hidden');$('#answers').replaceChildren();questions[qi][1].forEach((a,i)=>{const b=document.createElement('button');b.textContent=a;b.onclick=()=>{const correct=i===questions[qi][2];if(correct)score++;$('#feedback').textContent=correct?'Correct! Well done.':'The correct answer is '+questions[qi][1][questions[qi][2]]+'. Keep learning!';$('#answers').querySelectorAll('button').forEach(x=>x.disabled=true);$('#next').classList.remove('hidden')};$('#answers').append(b)})}function restart(){qi=0;score=0;showQ()}$('#restart').onclick=restart;$('#next').onclick=()=>{qi++;if(qi<questions.length)showQ();else{$('#progress').textContent='Quiz complete';$('#question').textContent=`You scored ${score} out of ${questions.length}!`;$('#answers').replaceChildren();$('#feedback').textContent='Practice makes progress. Try again whenever you’re ready.';$('#next').classList.add('hidden')}};restart();

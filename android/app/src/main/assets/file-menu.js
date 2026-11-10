@@ -48,7 +48,7 @@
   const base=out.getContext('2d'),g=ink.getContext('2d');if(!base||!g)throw Error('Canvas unavailable');base.scale(scale,scale);g.scale(scale,scale);
   base.fillStyle=background;base.fillRect(0,0,w,h);
   if(page.guide){base.fillStyle='#dfe8da';base.font=Math.min(h*.6,w*.5)+'px "Noto Sans Odia", sans-serif';base.textAlign='center';base.textBaseline='middle';base.fillText(page.guide,w/2,h/2)}
-  for(const stroke of page.strokes||[])drawBoardStroke(g,stroke,w,h);base.drawImage(ink,0,0,w,h);
+  for(const stroke of page.strokes||[])if(stroke.kind==='letter')drawBoardStroke(base,stroke,w,h);else drawBoardStroke(g,stroke,w,h);base.drawImage(ink,0,0,w,h);
   return out.toDataURL('image/jpeg',.86);
  }
  let pdfPreparing=false;
