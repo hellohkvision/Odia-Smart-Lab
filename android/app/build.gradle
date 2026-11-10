@@ -6,11 +6,31 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+    def signingPath = System.getenv('ANDROID_KEYSTORE_PATH')
+    def signingPassword = System.getenv('ANDROID_KEYSTORE_PASSWORD')
+    def signingAlias = System.getenv('ANDROID_KEY_ALIAS')
+    def signingKeyPassword = System.getenv('ANDROID_KEY_PASSWORD')
+    def signingReady = [signingPath, signingPassword, signingAlias, signingKeyPassword].every { it }
+    signingConfigs {
+        release {
+            if (signingReady) {
+                storeFile file(signingPath)
+                storePassword signingPassword
+                keyAlias signingAlias
+                keyPassword signingKeyPassword
+            }
+        }
+    }
+    buildTypes {
+        release {
+            if (signingReady) signingConfig signingConfigs.release
+        }
+    }
     defaultConfig {
         applicationId 'com.odiasmartlab.app'
         minSdk 23
         targetSdk 35
-        versionCode 1
+        versionCode (project.findProperty('appVersionCode') ?: '1').toString().toInteger()
         versionName '1.0'
     }
 }
