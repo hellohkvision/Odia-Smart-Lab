@@ -89,7 +89,7 @@
   redo=[];persist();render();
  }
  function start(e,item,fromPen){
-  cancel();if(!item||!['letter','vocabWord'].includes(item.kind))return;
+  cancel();if(!item||!['letter','vocabWord'].includes(item.kind)||(item.kind==='letter'&&/^[A-Za-z]$/.test(item.text)))return;
   const record={id:e.pointerId,x:e.clientX,y:e.clientY,item,fromPen,held:false,timer:null};pending=record;
   if(item.kind==='letter')record.timer=setTimeout(()=>{
    if(pending!==record||!strokes.includes(item))return;

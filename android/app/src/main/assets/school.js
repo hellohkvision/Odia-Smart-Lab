@@ -208,6 +208,27 @@
  for(const [title,letters] of groups){const section=document.createElement('section');section.className='alphabet-group';const heading=document.createElement('h3');heading.textContent=title;const cells=document.createElement('div');cells.className='alphabet-cells';for(const letter of letters){const b=document.createElement('button');b.textContent=letter;b.setAttribute('aria-label','Practice '+letter);b.onclick=()=>practice(letter);cells.append(b);if(!existing.has(letter)){const quick=document.createElement('button');quick.textContent=letter;quick.setAttribute('aria-label','Practice '+letter);quick.onclick=()=>practice(letter);document.querySelector('#quickLetters').append(quick);existing.add(letter)}}section.append(heading,cells);shelf.append(section)}
  if(document.fonts)document.fonts.ready.then(()=>render());
 })();
+// Switch the board's quick letter shelf between Odia and English without changing app language.
+(()=>{
+ const quick=document.getElementById('quickLetters'),freewrite=document.getElementById('freewrite');
+ if(!quick||!freewrite)return;
+ const odiaLetters=[...quick.children],englishLetters=[];
+ for(const letter of 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'){
+  const button=document.createElement('button');button.type='button';button.textContent=letter;
+  button.setAttribute('aria-label','Practice English letter '+letter);button.onclick=()=>practice(letter);englishLetters.push(button);
+ }
+ const toggle=document.createElement('button');toggle.id='practiceEnglishToggle';toggle.className='practice-language-switch';toggle.type='button';toggle.textContent='EN';toggle.setAttribute('aria-pressed','false');
+ let english=false;
+ function update(){
+  toggle.setAttribute('aria-pressed',String(english));
+  const label=english?'English alphabet selected; switch to Odia':'Switch to English alphabet';
+  toggle.setAttribute('aria-label',label);toggle.title=label;
+  quick.setAttribute('aria-label',english?'English letters':'Odia letters');
+  quick.replaceChildren(...(english?englishLetters:odiaLetters));quick.scrollLeft=0;
+ }
+ toggle.onclick=()=>{english=!english;update()};
+ freewrite.before(toggle);update();
+})();
 // A toolbar action closes every other popup before its own handler runs.
 (()=>{
  const panels=[{button:menu,panel:document.getElementById('saathiMenu'),open:'open'}, {button:$('#pen'),panel:options,open:null}, {button:settings,panel:boardSettings,open:null}, {button:letterToggle,panel:$('.practice-strip'),open:'open'}, {button:insertButton,panel:extraPanel,open:null}, {button:moreButton,panel:morePanel,open:null}];

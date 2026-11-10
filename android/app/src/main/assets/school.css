@@ -861,3 +861,8 @@ body.activity-not-board .left-actions{display:none!important}
 
 /* A solid contrasting eraser cursor; no border or differently colored outline. */
 .eraser-contact{border:0!important;outline:0;box-shadow:none!important;background:#fff;}
+
+/* English switch stays beside Free writing and meets touch-target sizing. */
+.practice-strip .practice-language-switch{flex:0 0 auto;min-width:48px;min-height:48px;padding:6px;border:1px solid #d6d6d6;border-radius:8px;background:#f2f2f2;color:#173f38;font-size:14px;font-weight:700}
+.practice-strip .practice-language-switch[aria-pressed="true"]{background:#155c50;color:#fff;border-color:#155c50}
+.practice-strip .practice-language-switch:focus-visible{outline:2px solid #e8b94d;outline-offset:2px}
