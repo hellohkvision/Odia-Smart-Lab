@@ -558,3 +558,283 @@ body.split-mode .zone-tool{border-radius:9px 9px 0 0;box-shadow:0 -3px 10px #000
 /* Reachable split-session actions, clear of the user toolbars. */
 .split-session-controls{top:auto;right:calc(6px + env(safe-area-inset-right,0px));bottom:calc(42px + env(safe-area-inset-bottom,0px));gap:2px;padding:2px;border-radius:8px}
 .split-session-controls button{width:auto;min-width:34px;height:28px;min-height:28px;padding:2px 5px;font-size:10px;line-height:1;border-radius:6px}
+/* Fit the expanded single-row dock within available width. */
+.bottom-bar{--compact-tool:clamp(16px,calc((100vw - 36px)/21),48px)}
+/* Small names beneath dock icons. */
+.bottom-bar button:has(.dock-tool-name){display:flex!important;flex-direction:column;justify-content:center;align-items:center;gap:0;overflow:hidden;padding:1px 0!important;line-height:1}
+.bottom-bar .dock-tool-name{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:system-ui,sans-serif;font-size:clamp(6px,.75vw,8px);font-weight:600;line-height:1.1}
+.bottom-bar .tools>button.active:after{display:none}
+/* Consistent toolbar icons, labels and page-control alignment. */
+.bottom-bar button:has(.dock-tool-name){display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:2px!important;overflow:hidden}
+.bottom-bar button .dock-tool-name,.bottom-bar .page-controls button .dock-tool-name{flex:none!important;display:block;min-width:0!important;width:auto!important;height:auto!important;max-width:100%;margin:0;padding:0;font-family:system-ui,sans-serif;font-size:clamp(7px,.8vw,9px);font-weight:600;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:inherit}
+.bottom-bar button svg{display:block;flex:none;width:clamp(14px,calc(var(--compact-tool)*.43),19px)!important;height:clamp(14px,calc(var(--compact-tool)*.43),19px)!important;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.bottom-bar button img{display:block;flex:none;width:clamp(14px,calc(var(--compact-tool)*.43),19px)!important;height:clamp(14px,calc(var(--compact-tool)*.43),19px)!important;object-fit:contain}
+.bottom-bar .page-controls>span{flex:0 0 calc(var(--compact-tool)*1.05);min-width:0;text-align:center;color:#496a58;font-size:clamp(9px,1vw,12px);font-weight:650}
+.bottom-bar button:disabled{opacity:.38}.bottom-bar button.active .dock-tool-name{color:#fff}
+/* Compact right-edge toolbar with short, readable names. */
+.right-tool-bar{right:env(safe-area-inset-right,0px);width:48px;padding:3px;border-right:0;border-radius:11px 0 0 11px}
+.right-tool-bar>button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:42px;height:44px;min-height:44px;padding:2px;line-height:1}
+.right-tool-bar>button svg{display:block;flex:none;width:18px;height:18px}
+.right-tool-name{display:block;max-width:100%;font-family:system-ui,sans-serif;font-size:8px;font-weight:600;line-height:1;white-space:nowrap}
+.right-tool-bar{box-sizing:border-box;overflow-x:hidden}
+.right-tool-bar>button{width:40px}
+/* Participation divider color. */
+.board-split-lines span,.board-split-lines.light-board span{background:#000}
+.edit-group-menu{position:fixed;z-index:16;display:flex;gap:3px;padding:5px;background:#fbfdfb;border:1px solid #cfdfd3;border-radius:10px;box-shadow:0 6px 18px #001c102e}
+.edit-group-menu button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:48px;height:48px;min-width:48px;min-height:48px;padding:3px;border:0;border-radius:8px;background:#f0f6f0;color:#245246;line-height:1}
+.edit-group-menu button svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.edit-group-menu .dock-tool-name{font:600 9px/1 system-ui,sans-serif}
+.edit-group-menu button:disabled{opacity:.35}.edit-group-menu button:focus-visible{outline:2px solid #d4a52c}
+.edit-group-menu #undo,.edit-group-menu #clear{border:0}
+/* White eraser with a contrasting outline on light and selected backgrounds. */
+.bottom-bar #eraser svg{stroke:#245246!important}
+.bottom-bar #eraser svg path{fill:#fff}
+/* White eraser contact indicator and compact eraser-size control. */
+.eraser-contact{border:2px solid #fff;background:#ffffff42;box-shadow:0 0 0 1px #1b3529a6}
+.bottom-bar #eraser svg{stroke:currentColor!important}.bottom-bar #eraser svg path{fill:none}
+.eraser-size-panel{position:fixed;z-index:16;display:grid;grid-template-columns:1fr auto;gap:4px 8px;width:min(200px,calc(100vw - 16px));padding:9px;background:#fbfdfb;border:1px solid #cfdfd3;border-radius:10px;box-shadow:0 6px 18px #001c102e;color:#254f40}
+.eraser-size-panel label,.eraser-size-panel output{font-size:12px;font-weight:600}.eraser-size-panel input{grid-column:1/-1;width:100%;height:40px;min-height:40px;margin:0;accent-color:#176650}
+/* The white eraser indicator stays visible on light and dark boards. */
+.eraser-contact{border:2px solid #fff;background:#ffffff55;box-shadow:0 0 0 2px #263e33a8,0 1px 5px #0005}
+/* Monochrome interface; user-selected ink and board colors remain available. */
+:root{--lab-accent:#171717;--lab-text:#181818;--lab-border:#d8d8d8;--lab-soft:#ededed;--school-ink:#181818;--school-muted:#606060;--school-line:#dedede;--school-green:#171717}
+.bottom-bar,.right-tool-bar{background:#fff;border-color:#d8d8d8;box-shadow:0 4px 18px #0002}
+.bottom-bar .tools>button,.bottom-bar #activityMenu,.bottom-bar .page-controls button,.right-tool-bar button{color:#202020}
+.bottom-bar .tools>button:hover,.bottom-bar #activityMenu:hover,.bottom-bar .page-controls button:hover{background:#eee}
+.bottom-bar .tools>button.active,.bottom-bar #pen.active,.bottom-bar #activityMenu[aria-expanded=true],.right-tool-bar button.active,.right-tool-bar .tool-group-trigger[aria-expanded=true]{background:#181818;color:#fff;box-shadow:none}
+.bottom-bar #activityMenu,.bottom-bar #moreTools{background:#eee;color:#181818}
+.bottom-bar #undo,.bottom-bar #clear{border-color:#ddd}.bottom-bar .page-controls>span{color:#333}
+#saathiMenu,#penOptions,.board-settings,.more-tools-panel,.extra-panel,.practice-strip,.right-group-popup,.page-overview,.class-timer,.eraser-size-panel,.zone-pen-menu,.zone-color-menu,body>.board-split-controls:not(.hidden){background:#fff;color:#181818;border-color:#d6d6d6}
+#saathiMenu button,.more-tools-panel>button,.extra-panel button,.right-group-grid button,.zone-pen-menu button,body>.board-split-controls button{background:#f2f2f2;color:#222;border-color:#ddd}
+#saathiMenu button.active,#penOptions .pen-row button.chosen,.extra-panel button.active,.zone-pen-menu button[aria-pressed=true],body>.board-split-controls button.active{background:#222;color:#fff;border-color:#222}
+.board-settings>label,.board-background-options legend,#penOptions .stroke-slider-label,#penOptions .stroke-slider-value,.eraser-size-panel label,.eraser-size-panel output,.right-group-popup strong{color:#222}
+.board-settings select,.zone-tool select,.zone-pen-trigger{color:#222;background-color:#fff;border-color:#d3d3d3}
+#penOptions input[type=range],.eraser-size-panel input,.zone-tool input[type=range],.shade-controls input{accent-color:#222}
+.zone-tool input[type=range]::-webkit-slider-runnable-track{background:#c9c9c9}.zone-tool input[type=range]::-webkit-slider-thumb{background:#222}
+.zone-tool,.split-session-controls,.shade-controls{background:#fff;border-color:#d7d7d7;color:#222}.zone-tool strong{color:#222}
+.split-session-controls button:first-child,.class-timer-actions button:first-child{background:#222;border-color:#222;color:#fff}
+.board-background-row button[aria-pressed=true]:before,.custom-palette-icon:has(.is-selected) .custom-palette-mark{outline-color:#222}
+canvas,canvas[data-paper=plain],canvas[data-paper=dots],canvas[data-paper=ruled]{background-color:#121212}
+/* Color-coded tool icons on the monochrome toolbar. */
+.bottom-bar #activityMenu{color:#7754b5}
+.bottom-bar #selectTool{color:#3f68bb}
+.bottom-bar #pen{color:#2669b0}
+.bottom-bar #eraser{color:#d26368}
+.bottom-bar #undo,.bottom-bar #redo{color:#56737d}
+.bottom-bar #clear{color:#bd5050}
+.bottom-bar #insertTools{color:#a46a26}
+.bottom-bar #tableTool{color:#3579a0}
+.bottom-bar .split-menu-toggle{color:#7858a4}
+.bottom-bar button[aria-label="Page overview"]{color:#367e81}
+.bottom-bar #letterToggle{color:#b07327}
+.bottom-bar #settings{color:#607389}
+.bottom-bar #save{color:#427a68}
+.bottom-bar .page-controls button{color:#536e82}
+.right-tool-bar button[aria-label="Board tools"]{color:#376f9d}
+.right-tool-bar button[aria-label="Pages tools"]{color:#aa7136}
+.right-tool-bar button[aria-label="Objects tools"]{color:#785eae}
+.bottom-bar .tools>button.active,.bottom-bar #pen.active,.bottom-bar #activityMenu[aria-expanded=true],.right-tool-bar .tool-group-trigger[aria-expanded=true]{color:#fff}
+.bottom-bar button:disabled{opacity:.42}
+/* Left-edge actions stay separate from the writing dock. */
+.left-actions{position:fixed;left:env(safe-area-inset-left,0px);bottom:env(safe-area-inset-bottom,0px);z-index:6;display:flex;align-items:center;gap:1px;padding:2px;background:#fff;border:1px solid #d8d8d8;border-bottom:0;border-radius:0 10px 0 0}
+.left-actions button,.left-actions #activityMenu{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;width:38px;height:36px;min-width:38px;min-height:36px;padding:2px;border:0;border-radius:6px;background:transparent;color:#222;line-height:1}
+.left-actions button svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.left-actions button span{font:600 8px/1 system-ui,sans-serif}
+.left-actions button:hover,.left-actions #activityMenu[aria-expanded=true]{background:#ececec}
+body.split-mode .left-actions{display:none!important}body.activity-not-board .left-actions button[aria-label="Share board image"]{display:none}
+.bottom-bar{left:calc(118px + (100vw - 118px)/2)!important;max-width:calc(100vw - 124px);--compact-tool:clamp(14px,calc((100vw - 160px)/20),48px)}
+/* Match both bottom toolbar heights and their control alignment. */
+.left-actions,.bottom-bar{box-sizing:border-box;height:40px;align-items:center}
+.left-actions button,.left-actions #activityMenu,.bottom-bar .tools>button,.bottom-bar .page-controls button{height:36px;min-height:36px}
+/* Soft selection highlight replaces the solid black active state. */
+.bottom-bar .tools>button.active,.bottom-bar #pen.active,.right-tool-bar button.active,.right-tool-bar .tool-group-trigger[aria-expanded=true]{background:#e4efff;color:#174b91;box-shadow:inset 0 0 0 1px #86aee0}
+.bottom-bar .tools>button.active .dock-tool-name{color:#174b91}
+.bottom-bar .tools>button.active .writing-icon{filter:none}
+/* Page navigation at the bottom right; secondary actions in More. */
+#moreTools{display:flex!important}
+.bottom-bar{left:calc(118px + (100vw - 118px - 150px)/2)!important;max-width:calc(100vw - 274px);--compact-tool:clamp(15px,calc((100vw - 290px)/14),48px)}
+.page-dock{position:fixed;right:env(safe-area-inset-right,0px);bottom:env(safe-area-inset-bottom,0px);z-index:6;display:flex;align-items:center;height:40px;padding:2px;background:#fff;border:1px solid #d8d8d8;border-bottom:0;border-radius:10px 0 0 0;box-sizing:border-box}
+.page-dock .page-controls{display:flex;align-items:center;border:0}
+.page-dock .page-controls button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;width:34px;min-width:34px;height:36px;min-height:36px;padding:1px;border:0;background:transparent;color:#536e82;line-height:1}
+.page-dock .page-controls button svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.page-dock .page-controls>span{min-width:36px;text-align:center;font:650 10px system-ui,sans-serif;color:#333}
+.page-dock .page-controls button .dock-tool-name{min-width:0;font:600 7px/1 system-ui,sans-serif;color:inherit}
+body.split-mode .page-dock,body.activity-not-board .page-dock{display:none!important}
+.more-tools-panel:not(.hidden){display:grid;grid-template-columns:repeat(4,minmax(48px,1fr));max-height:min(230px,calc(100dvh - 60px));overflow:auto}
+.more-tools-panel>button{width:100%;min-width:48px;min-height:48px}
+/* Keep bottom toolbar groups visually separate and prevent crowding. */
+.left-actions{left:env(safe-area-inset-left,0px);gap:2px;padding-left:3px;padding-right:3px}
+.page-dock{right:env(safe-area-inset-right,0px);padding-left:4px;padding-right:4px}
+.bottom-bar{left:calc(130px + (100vw - 290px)/2)!important;max-width:calc(100vw - 306px);--compact-tool:clamp(16px,calc((100vw - 326px)/16),44px);gap:2px;padding-left:5px;padding-right:5px}
+.bottom-bar .tools>button,.bottom-bar #moreTools{margin:0 1px}
+@media(max-width:650px){.bottom-bar{gap:0;padding-left:3px;padding-right:3px}.bottom-bar .tools>button,.bottom-bar #moreTools{margin:0}}
+/* Maintain icon contrast on the dark selected pen-type tile. */
+#penOptions .type-row button.chosen{background:#222;color:#fff;border-color:#222}
+#penOptions .type-row button.chosen img{filter:brightness(0) invert(1)}
+#penOptions .type-row button.chosen svg{stroke:#fff;color:#fff}
+/* Asset-based icons need an explicit light treatment on dark selected tiles. */
+.zone-pen-menu button[aria-pressed=true] img{filter:brightness(0) invert(1)}
+.zone-pen-menu button[aria-pressed=true] svg{stroke:#fff;color:#fff}
+/* Square selected tools aligned to the bottom edge. */
+.bottom-bar{bottom:0!important;padding-bottom:0}
+.bottom-bar .tools>button.active,.bottom-bar #pen.active{border-radius:2px!important;align-self:flex-end;margin-bottom:0}
+/* Selected tile has top and side edges only; no bottom line. */
+.bottom-bar .tools>button.active,.bottom-bar #pen.active{border:0!important;border-radius:2px 2px 0 0!important;box-shadow:inset 1px 0 #86aee0,inset -1px 0 #86aee0,inset 0 1px #86aee0!important}
+.bottom-bar .tools>button.active:after{display:none!important}
+.bottom-bar .tools>button.active,.bottom-bar #pen.active{border-radius:8px!important}
+/* Stroke previews communicate size without changing drawing behavior. */
+#penOptions .size-row{grid-template-columns:1fr 34px auto}
+.stroke-live-preview{display:grid;place-items:center;width:34px;height:20px;background:#555;border-radius:4px}
+.stroke-live-preview:before{content:'';width:26px;height:var(--preview-size,4px);max-height:14px;border-radius:12px;background:var(--preview-color,#fff)}
+.eraser-size-panel{grid-template-columns:1fr 24px auto}
+.eraser-live-preview{display:grid;place-items:center;width:24px;height:24px}
+.eraser-live-preview:before{content:'';width:var(--eraser-preview-size,6px);height:var(--eraser-preview-size,6px);border:1px solid #5a5a5a;background:#fff;border-radius:50%}
+.zone-stroke-preview{display:grid;place-items:center;flex:0 0 14px;width:14px;height:20px;border-radius:4px;background:#555}
+.zone-stroke-preview:before{content:'';width:var(--zone-preview-size,4px);height:var(--zone-preview-size,4px);border-radius:50%;background:var(--zone-preview-color,#fff)}
+.selection-actions{position:fixed;z-index:17;width:min(224px,calc(100vw - 16px));padding:5px;background:#fff;border:1px solid #d8d8d8;border-radius:10px;box-shadow:0 5px 18px #0003;color:#222}
+.selection-action-row{display:grid;grid-template-columns:repeat(4,minmax(44px,1fr));gap:3px}.selection-action-row button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-width:0;min-height:44px;padding:3px;border:0;border-radius:7px;background:#f1f1f1;color:#222;font-size:16px;line-height:1}.selection-action-row button small{font-size:10px}.selection-action-row button:disabled{opacity:.35}.selection-action-row button[aria-expanded=true]{background:#222;color:#fff}
+.selection-palette{padding:2px 0 5px}.selection-color-row{display:grid;grid-template-columns:repeat(4,minmax(44px,1fr));gap:2px}.selection-color-row button,.selection-color-row input{justify-self:center;width:44px;height:44px;min-height:44px;padding:9px;border:0;border-radius:50%;background:transparent;color:#222}.selection-color-row button.selection-color:before{content:'';display:block;width:22px;height:22px;border:1px solid #999;border-radius:50%;background:var(--color)}.selection-opacity{display:flex;align-items:center;gap:8px;padding:0 4px;font-size:11px}.selection-opacity input{flex:1;min-width:0;height:32px;accent-color:#222}
+/* Divider adapts to board brightness for contrast. */
+.board-split-lines span{background:#f2f2f2cc}
+.board-split-lines.light-board span{background:#151515cc}
+.left-actions #activityMenu .dock-tool-name{font-family:'Noto Sans Odia',system-ui,sans-serif}
+/* Stroke preview sits beside the slider; its line thickness follows the value. */
+#penOptions .size-row{display:grid;grid-template-columns:minmax(0,1fr) 34px auto;grid-template-rows:auto 32px;gap:2px 6px;align-items:center;padding:4px 2px}
+#penOptions .stroke-slider-label{grid-column:1/-1;grid-row:1}
+#penOptions #size{grid-column:1;grid-row:2;width:100%;height:32px;min-height:32px}
+#penOptions .stroke-live-preview{grid-column:2;grid-row:2;display:grid;place-items:center;width:34px;height:24px;min-width:34px;background:#eee!important;border:1px solid #ccc;border-radius:5px!important}
+#penOptions .stroke-live-preview:before{content:'';display:block;width:var(--preview-size,3px);height:var(--preview-size,3px);max-width:20px;max-height:20px;border-radius:50%;background:var(--preview-color,#222);opacity:var(--preview-opacity,1);box-shadow:0 0 0 1px #777}
+#penOptions .stroke-slider-value{grid-column:3;grid-row:2;font-size:11px;font-weight:600;color:#222}
+
+/* Keep the stroke preview fixed beside the slider without a numeric counter. */
+#penOptions .size-row{grid-template-columns:minmax(0,1fr) 34px}
+#penOptions .stroke-slider-value{display:none}
+
+/* Icon-only More menu; accessible button labels remain available. */
+.more-tools-panel > button > small{display:none!important}
+.more-tools-panel > button{display:grid;place-items:center;height:48px;min-height:48px;padding:6px;line-height:1}
+.more-tools-panel > button > span{font-size:22px;line-height:1}
+
+.class-timer-head{cursor:grab;touch-action:none;user-select:none}.class-timer-head:active{cursor:grabbing}.class-timer-head button{cursor:pointer}
+
+/* Compact, consistent pen controls with distinct selectable tools. */
+#penOptions{padding:8px;box-sizing:border-box}
+#penOptions .type-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;padding:0 0 7px}
+#penOptions .type-row button{display:grid;place-items:center;width:100%;min-width:0;height:42px;min-height:42px;padding:9px;border:1px solid #dedede;border-radius:9px;background:#fafafa;color:#333;box-shadow:none}
+#penOptions .type-row button.chosen{background:#222;border-color:#222;color:#fff}
+#penOptions .type-row button svg{display:block;width:21px;height:21px;stroke:currentColor!important}
+#penOptions .type-row button:focus-visible,#penOptions #size:focus-visible{outline:2px solid #6b8fca;outline-offset:2px}
+#penOptions .size-row{grid-template-columns:minmax(0,1fr) 32px;grid-template-rows:auto 32px;gap:2px 8px;padding:7px 1px;border-top:1px solid #ececec;border-bottom:1px solid #ececec}
+#penOptions .stroke-slider-label{font-size:11px;font-weight:600;color:#444}
+#penOptions #size{-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer;touch-action:pan-x}
+#penOptions #size::-webkit-slider-runnable-track{height:4px;border:0;border-radius:4px;background:#d3d3d3}
+#penOptions #size::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;margin-top:-6px;border:2px solid #fff;border-radius:50%;background:#242424;box-shadow:0 0 0 1px #555}
+#penOptions .stroke-live-preview{width:32px;min-width:32px;height:26px;background:#f5f5f5!important;border-color:#dedede;border-radius:7px!important}
+#penOptions .pen-row.type-row{gap:8px!important;grid-template-columns:repeat(4,minmax(0,1fr));justify-content:stretch}
+
+/* Keep adjacent popup actions visually distinct without enlarging the dock. */
+.more-tools-panel:not(.hidden),.extra-panel{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.more-tools-panel>button,.extra-panel>button{box-sizing:border-box;width:100%;min-width:0}
+#saathiMenu.open,.right-group-grid,.selection-action-row{gap:6px}
+.selection-action-row{grid-template-columns:repeat(4,minmax(0,1fr))}
+.zone-pen-menu,body>.board-split-controls:not(.hidden){gap:6px}
+.zone-color-menu,.selection-color-row{gap:4px}
+/* Match the eraser size control to the pen slider and round preview. */
+.eraser-size-panel{box-sizing:border-box;grid-template-columns:minmax(0,1fr) 32px;grid-template-rows:auto 32px;gap:2px 8px;padding:9px}
+.eraser-size-panel label{grid-column:1/-1;grid-row:1;font-size:11px;font-weight:600;color:#444}
+.eraser-size-panel output{display:none}
+.eraser-size-panel input{grid-column:1;grid-row:2;width:100%;height:32px;min-height:32px;-webkit-appearance:none;appearance:none;background:transparent;touch-action:pan-x}
+.eraser-size-panel input::-webkit-slider-runnable-track{height:4px;border:0;border-radius:4px;background:#d3d3d3}
+.eraser-size-panel input::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;margin-top:-6px;border:2px solid #fff;border-radius:50%;background:#242424;box-shadow:0 0 0 1px #555}
+.eraser-size-panel .eraser-live-preview{grid-column:2;grid-row:2;width:32px;height:26px;background:#f5f5f5;border:1px solid #dedede;border-radius:7px;box-sizing:border-box}
+.eraser-size-panel .eraser-live-preview:before{box-sizing:border-box}
+/* Scroll through shapes in a compact panel above the toolbar. */
+#shapesPanel{max-height:min(190px,calc(100dvh - 80px));overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;align-content:start;scrollbar-width:thin}
+#shapesPanel::-webkit-scrollbar{width:4px}#shapesPanel::-webkit-scrollbar-thumb{background:#b7b7b7;border-radius:4px}
+
+/* Six selection actions remain compact and easy to tap. */
+.selection-action-row{grid-template-columns:repeat(3,minmax(0,1fr))}
+
+.selection-action-row{grid-template-columns:repeat(4,minmax(0,1fr))}
+
+/* Shape pages swipe sideways and show their position with dots. */
+#shapesPanel{display:block;overflow:hidden;touch-action:auto}
+#shapesPanel.hidden{display:none}
+#shapesPanel .shape-pages{display:flex;width:100%;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;touch-action:pan-x;scrollbar-width:none}
+#shapesPanel .shape-pages::-webkit-scrollbar{display:none}
+#shapesPanel .shape-page{flex:0 0 100%;min-width:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:48px;gap:6px;box-sizing:border-box;scroll-snap-align:start}
+#shapesPanel .shape-page>button{box-sizing:border-box;width:100%;min-width:0;height:48px;min-height:48px;padding:6px}
+#shapesPanel .shape-page-dots{display:flex;justify-content:center;align-items:center;gap:2px;padding-top:3px}
+#shapesPanel .shape-page-dots .shape-page-dot{display:grid;place-items:center;box-sizing:border-box;width:24px;min-width:24px;height:22px;min-height:22px;padding:0;border:0;border-radius:0;background:transparent}
+#shapesPanel .shape-page-dot:before{content:'';display:block;width:6px;height:6px;border-radius:50%;background:#bcbcbc}
+#shapesPanel .shape-page-dot.active:before{background:#222}
+/* Matching compact pen and color controls in each split-board toolbar. */
+.zone-tool .zone-pen-trigger,.zone-tool .zone-color-trigger{box-sizing:border-box;display:grid;place-items:center;flex:0 0 28px;width:28px;height:28px;min-width:28px;min-height:28px;padding:0}
+.zone-tool .zone-pen-trigger svg,.zone-tool .zone-pen-trigger img{width:18px;height:18px}
+.zone-tool .zone-color-trigger:before{box-sizing:border-box;width:18px;height:18px}
+.saathi-activity-navigation{position:fixed;z-index:30;left:8px;bottom:calc(8px + env(safe-area-inset-bottom,0px));display:flex;gap:5px;padding:4px;background:#fff;border:1px solid #d8d8d8;border-radius:10px;box-shadow:0 4px 14px #0002}
+.saathi-activity-navigation.hidden{display:none}
+.saathi-activity-navigation button{display:flex;align-items:center;justify-content:center;gap:4px;min-width:62px;min-height:40px;padding:5px 8px;border:0;border-radius:7px;background:#f1f1f1;color:#222;font:600 11px system-ui,sans-serif}
+.saathi-activity-navigation svg{width:18px;height:18px;flex:none}
+/* Saathi activities have readable labels beneath their icons. */
+#saathiMenu.open{grid-template-columns:repeat(3,minmax(0,1fr))}
+#saathiMenu button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;box-sizing:border-box;min-width:0;min-height:56px;padding:5px 2px;text-align:center}
+#saathiMenu button small{display:block;max-width:100%;font:600 9px/1.2 system-ui,sans-serif;overflow-wrap:anywhere}
+#saathiMenu button small{font-size:8px;line-height:1.1;font-weight:500}
+
+/* Pathasala uses the full board area, with reachable horizontal lesson cards. */
+#lessons.view:not(.hidden){position:fixed;inset:0!important;width:100%;height:100dvh;box-sizing:border-box;display:flex;flex-direction:column;gap:8px;padding:clamp(10px,2vw,20px);padding-bottom:64px;overflow:hidden;background:#f7f8f7}
+#lessons .activity-content-label{flex:none;margin:0;font-size:12px;color:#555}
+#lessons .cards{display:flex;flex:1 1 auto;min-height:0;width:100%;height:auto;gap:10px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;overscroll-behavior-x:contain;padding:2px 2px 6px}
+#lessons .card{box-sizing:border-box;display:flex;flex-direction:column;flex:1 0 min(220px,75vw);min-width:0;width:auto;height:100%;padding:clamp(10px,2vh,18px);overflow-y:auto;scroll-snap-align:start;border-radius:14px}
+#lessons .card h2{font-size:clamp(15px,3vh,22px);line-height:1.15;margin:6px 0}
+#lessons .card p{font-size:clamp(11px,2vh,14px);line-height:1.3;margin:5px 0}
+#lessons .card .glyph{font-size:clamp(23px,7vh,48px);line-height:1.1;padding:clamp(6px,2vh,14px);margin:5px 0}
+#lessons .card button{margin-top:auto;min-height:40px;padding:6px 10px;font-size:12px}
+/* Class-wise Pathasala layout. */
+#lessons .pathasala-header{display:flex;justify-content:center;flex:none}
+#lessons .pathasala-header select{min-width:136px;min-height:40px;padding:7px 30px 7px 14px;border:1px solid #d8d8d8;border-radius:9px;background:#fff;color:#222;font:600 14px system-ui,sans-serif}
+#lessons .pathasala-content{flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
+#lessons .pathasala-subjects{width:min(720px,100%);display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(8px,2vw,16px)}
+#lessons .pathasala-subject{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-width:0;min-height:clamp(110px,32vh,190px);padding:12px 4px;border:1px solid #dedede;border-radius:14px;background:#fff;color:#242424}
+#lessons .pathasala-icon{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:#f0f1f0;color:#333}
+#lessons .pathasala-icon svg{width:24px;height:24px}
+#lessons .pathasala-subject strong{font-size:clamp(13px,2.4vw,18px)}#lessons .pathasala-subject small{font-size:11px;color:#666}
+#lessons .pathasala-detail{align-self:stretch;width:min(720px,100%);padding:12px;color:#222}#lessons .pathasala-detail h2{font-size:20px}#lessons .pathasala-detail p{color:#666;font-size:13px}#lessons .pathasala-subject-back{min-height:38px;padding:6px 10px;font-size:12px}
+/* Compact custom class picker. */
+#lessons .pathasala-picker{position:relative;z-index:4}
+#lessons .pathasala-picker-trigger{display:flex;align-items:center;justify-content:space-between;gap:18px;min-width:142px;min-height:40px;padding:7px 12px;border:1px solid #d8d8d8;border-radius:9px;background:#fff;color:#222;font:600 14px system-ui,sans-serif}
+#lessons .pathasala-picker-arrow{font-size:20px;line-height:1;color:#666}
+#lessons .pathasala-class-menu{position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%);display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;width:min(252px,calc(100vw - 28px));max-height:calc(100dvh - 100px);overflow-y:auto;padding:7px;box-sizing:border-box;background:#fff;border:1px solid #ddd;border-radius:12px;box-shadow:0 6px 20px #0002}
+#lessons .pathasala-class-option{min-width:0;min-height:40px;padding:5px;border:0;border-radius:7px;background:#f3f3f3;color:#222;font:600 12px system-ui,sans-serif}
+#lessons .pathasala-class-option[aria-pressed=true]{background:#242424;color:#fff}
+#lessons .pathasala-picker-trigger:focus-visible,#lessons .pathasala-class-option:focus-visible{outline:2px solid #738eb8;outline-offset:1px}
+/* Scroll subjects horizontally while keeping every card reachable. */
+#lessons .pathasala-subjects{display:flex;justify-content:flex-start;gap:12px;width:100%;max-width:none;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;scroll-snap-type:x proximity;padding:4px 2px 10px}
+#lessons .pathasala-subject{flex:0 0 clamp(132px,22vw,190px);scroll-snap-align:start}
+#lessons .pathasala-subject strong{text-align:center;line-height:1.2}
+/* Activity navigation replaces the board controls and handles subject back. */
+body.activity-not-board .left-actions{display:none!important}
+#lessons .pathasala-subject-back{display:none}
+
+.saathi-activity-navigation{left:env(safe-area-inset-left,0px);bottom:env(safe-area-inset-bottom,0px);border-left:0;border-bottom:0;border-radius:0 10px 0 0}
+
+/* Four subjects per swipeable page with page indicators. */
+#lessons .pathasala-carousel{width:min(860px,100%);min-width:0}
+#lessons .pathasala-subject-pages{display:flex;width:100%;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;touch-action:pan-x;scrollbar-width:none}
+#lessons .pathasala-subject-pages::-webkit-scrollbar{display:none}
+#lessons .pathasala-subject-page{flex:0 0 100%;min-width:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(5px,1.4vw,12px);padding:3px;box-sizing:border-box;scroll-snap-align:start}
+#lessons .pathasala-subject-page .pathasala-subject{width:100%;min-width:0;min-height:clamp(90px,30vh,180px)}
+#lessons .pathasala-subject-dots{display:flex;align-items:center;justify-content:center;padding-top:5px}
+#lessons .pathasala-subject-dots button{display:grid;place-items:center;width:24px;height:24px;min-height:24px;padding:0;border:0;background:transparent}
+#lessons .pathasala-subject-dots button:before{content:'';width:6px;height:6px;border-radius:50%;background:#bbb}
+#lessons .pathasala-subject-dots button.active:before{background:#222}
+/* Soft subject accents keep Pathasala calm and readable. */
+#lessons.view:not(.hidden){background:#f8fafb}
+#lessons .pathasala-picker-trigger{background:#fff;border-color:#d8e1e8;color:#283c4a}
+#lessons .pathasala-subject{border-color:#e2e8e7;background:#fff;box-shadow:0 3px 12px #243b350a}
+#lessons .pathasala-subject:nth-child(4n+1) .pathasala-icon{background:#eaf2fd;color:#416aa0}
+#lessons .pathasala-subject:nth-child(4n+2) .pathasala-icon{background:#fff2df;color:#a36c2d}
+#lessons .pathasala-subject:nth-child(4n+3) .pathasala-icon{background:#eaf5ef;color:#467d62}
+#lessons .pathasala-subject:nth-child(4n+4) .pathasala-icon{background:#f4edf9;color:#806198}
+#lessons .pathasala-subject-dots button.active:before{background:#597a92}
+#lessons .pathasala-class-option[aria-pressed=true]{background:#405f73;color:#fff}

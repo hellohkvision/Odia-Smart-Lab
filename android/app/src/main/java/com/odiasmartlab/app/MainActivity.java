@@ -57,6 +57,23 @@ public class MainActivity extends Activity {
     }
 
     private class BoardExport {
+        @JavascriptInterface public void closeApp() { runOnUiThread(() -> finish()); }
+        @JavascriptInterface public void sharePng(String data) {
+            if (data == null || !data.startsWith("data:image/png;base64,")) return;
+            try {
+                byte[] image = Base64.decode(data.substring(data.indexOf(',') + 1), Base64.DEFAULT);
+                java.io.File target = new java.io.File(getCacheDir(), "shared-board.png");
+                try (java.io.FileOutputStream out = new java.io.FileOutputStream(target)) { out.write(image); }
+                runOnUiThread(() -> {
+                    Uri uri = Uri.parse("content://" + getPackageName() + ".boardshare/board.png");
+                    Intent send = new Intent(Intent.ACTION_SEND);
+                    send.setType("image/png"); send.putExtra(Intent.EXTRA_STREAM, uri);
+                    send.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    try { startActivity(Intent.createChooser(send, "Share board")); }
+                    catch (android.content.ActivityNotFoundException e) { showBoardNotice("No sharing app available", true); }
+                });
+            } catch (Exception e) { showBoardNotice("Could not prepare image for sharing", true); }
+        }
         @JavascriptInterface public void savePng(String data) {
             if (data == null || !data.startsWith("data:image/png;base64,")) return;
             try { pendingBoard = Base64.decode(data.substring(data.indexOf(',') + 1), Base64.DEFAULT); }
