@@ -1,4 +1,4 @@
-// Odia alphabet exploration. All words and pictograms work without a network.
+// Alphabet exploration. Words and pictograms work without a network.
 (()=>{
  const words={
   'ଅ':[['ଅଜଗର','🐍'],['ଅଗ୍ନି','🔥']], 'ଆ':[['ଆମ୍ବ','🥭'],['ଆଳୁ','🥔']],
@@ -19,6 +19,21 @@
   'ଯ':[['ଯନ୍ତ୍ର','⚙️']], 'ର':[['ରାଜା','👑'],['ରସି','🪢']],
   'ଲ':[['ଲେମ୍ବୁ','🍋'],['ଲଙ୍କା','🌶️']], 'ଶ':[['ଶଙ୍ଖ','🐚'],['ଶାଗ','🥬']],
   'ସ':[['ସୂର୍ଯ୍ୟ','☀️'],['ସିଂହ','🦁']], 'ହ':[['ହାତୀ','🐘'],['ହାତ','✋']]
+ };
+ const englishWords={
+  A:[['Apple','🍎'],['Ant','🐜']], B:[['Ball','⚽'],['Book','📘']],
+  C:[['Cat','🐈'],['Car','🚗']], D:[['Dog','🐕'],['Drum','🥁']],
+  E:[['Elephant','🐘'],['Egg','🥚']], F:[['Fish','🐟'],['Flower','🌸']],
+  G:[['Goat','🐐'],['Grapes','🍇']], H:[['Hat','🎩'],['House','🏠']],
+  I:[['Ice','🧊'],['Insect','🐛']], J:[['Juice','🧃'],['Jeans','👖']],
+  K:[['Kite','🪁'],['Key','🔑']], L:[['Lion','🦁'],['Lemon','🍋']],
+  M:[['Mango','🥭'],['Moon','🌙']], N:[['Nose','👃'],['Noodles','🍜']],
+  O:[['Owl','🦉'],['Orange','🍊']], P:[['Parrot','🦜'],['Pencil','✏️']],
+  Q:[['Queen','👑'],['Question','❓']], R:[['Rabbit','🐇'],['Rose','🌹']],
+  S:[['Sun','☀️'],['Star','⭐']], T:[['Tiger','🐅'],['Tree','🌳']],
+  U:[['Umbrella','☂️'],['Unicorn','🦄']], V:[['Violin','🎻'],['Van','🚐']],
+  W:[['Watch','⌚'],['Watermelon','🍉']], X:[['X-ray','🩻'],['Xmas','🎄']],
+  Y:[['Yacht','🛥️'],['Yarn','🧶']], Z:[['Zebra','🦓'],['Zero','0️⃣']]
  };
  const notice=message=>{if(window.boardNotice)window.boardNotice(message);else document.querySelector('#status').textContent=message};
  let pending=null;
@@ -62,7 +77,10 @@
   return center<.35?['right','right']:center>.65?['left','left']:['left','right'];
  }
  function addWords(letter){
-  const entries=words[letter.text],area=boardArea();
+  const isEnglish=/^[A-Za-z]$/.test(letter.text);
+  const englishEntries=isEnglish?englishWords[letter.text.toUpperCase()]:null;
+  const entries=isEnglish?(englishEntries||[]).map(([text,picture])=>[letter.text===letter.text.toLowerCase()?text.toLowerCase():text,picture]):words[letter.text];
+  const area=boardArea();
   if(!entries?.length){notice('ଏହି ଅକ୍ଷର ପାଇଁ ଶବ୍ଦ ଏପର୍ଯ୍ୟନ୍ତ ଯୋଡ଼ା ଯାଇନାହିଁ।');return}
   if(!area)return;
   const source=letter.vocabSourceId||('letter-'+Date.now()+'-'+Math.random().toString(36).slice(2));
@@ -89,7 +107,7 @@
   redo=[];persist();render();
  }
  function start(e,item,fromPen){
-  cancel();if(!item||!['letter','vocabWord'].includes(item.kind)||(item.kind==='letter'&&/^[A-Za-z]$/.test(item.text)))return;
+  cancel();if(!item||!['letter','vocabWord'].includes(item.kind))return;
   const record={id:e.pointerId,x:e.clientX,y:e.clientY,item,fromPen,held:false,timer:null};pending=record;
   if(item.kind==='letter')record.timer=setTimeout(()=>{
    if(pending!==record||!strokes.includes(item))return;
