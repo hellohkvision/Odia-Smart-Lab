@@ -30,7 +30,7 @@ android {
         applicationId 'com.odiasmartlab.app'
         minSdk 23
         targetSdk 35
-        versionCode (project.findProperty('appVersionCode') ?: '1').toString().toInteger()
+        versionCode = (project.findProperty('appVersionCode') ?: '1').toString().toInteger()
         versionName '1.0'
     }
 }
