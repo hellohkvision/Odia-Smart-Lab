@@ -75,6 +75,17 @@ public class MainActivity extends Activity {
     }
 
     private class BoardExport {
+        @JavascriptInterface public void openOfficialBook(String url) {
+            if (url == null) return;
+            Uri uri = Uri.parse(url);
+            if (!"https".equals(uri.getScheme()) || !"osepa.odisha.gov.in".equals(uri.getHost()) || uri.getUserInfo() != null || (uri.getPort() != -1 && uri.getPort() != 443) || uri.getPath() == null || !uri.getPath().startsWith("/upload/ebooks/")) return;
+            runOnUiThread(() -> {
+                Intent intent = new Intent(MainActivity.this, PdfReaderActivity.class);
+                intent.putExtra("official_book_url", url);
+                startActivity(intent);
+            });
+        }
+
         @JavascriptInterface public void openPdfReader() {
             runOnUiThread(() -> startActivity(new Intent(MainActivity.this, PdfReaderActivity.class)));
         }

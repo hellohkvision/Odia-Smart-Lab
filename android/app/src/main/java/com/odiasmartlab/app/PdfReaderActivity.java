@@ -32,7 +32,8 @@ public class PdfReaderActivity extends Activity {
     private TextView pageLabel;
     private Button previous, next, layout;
     private int pageIndex, pageCount, generation;
-    private boolean twoPages, destroyed;
+    private boolean twoPages;
+    private volatile boolean destroyed;
     private Uri documentUri;
     private float touchX, touchY;
 
@@ -74,6 +75,8 @@ public class PdfReaderActivity extends Activity {
         controls.addView(close); controls.addView(previous); controls.addView(pageLabel); controls.addView(next); controls.addView(layout);
         root.addView(controls);
         setContentView(root);
+        String officialUrl = getIntent().getStringExtra("official_book_url");
+        if (officialUrl != null) { downloadBook(officialUrl); return; }
         Intent picker = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         picker.addCategory(Intent.CATEGORY_OPENABLE);
         picker.setType("application/pdf");
@@ -87,9 +90,12 @@ public class PdfReaderActivity extends Activity {
         super.onActivityResult(request, result, data);
         if (request != PICK_PDF) return;
         if (result != RESULT_OK || data == null || data.getData() == null) { finish(); return; }
-        documentUri = data.getData();
+        openPdf(data.getData());
+    }
+    private void openPdf(Uri uri) {
+        documentUri = uri;
         try {
-            descriptor = getContentResolver().openFileDescriptor(documentUri, "r");
+            descriptor = "file".equals(uri.getScheme()) ? ParcelFileDescriptor.open(new java.io.File(uri.getPath()), ParcelFileDescriptor.MODE_READ_ONLY) : getContentResolver().openFileDescriptor(uri, "r");
             if (descriptor == null) throw new IOException("Empty file");
             renderer = new PdfRenderer(descriptor);
             pageCount = renderer.getPageCount();
@@ -97,8 +103,61 @@ public class PdfReaderActivity extends Activity {
             pageIndex = Math.min(pageCount - 1, Math.max(0, getPreferences(MODE_PRIVATE).getInt(documentUri.toString(), 0)));
             image.post(this::showPage);
         } catch (IOException | SecurityException | IllegalArgumentException e) {
+            if ("file".equals(uri.getScheme()) && uri.getPath() != null) {
+                java.io.File file = new java.io.File(uri.getPath());
+                if (new java.io.File(getFilesDir(), "osepa-books").equals(file.getParentFile())) file.delete();
+            }
             Toast.makeText(this, "Cannot open this PDF", Toast.LENGTH_LONG).show(); finish();
         }
+    }
+    private void downloadBook(String address) {
+        Uri uri = Uri.parse(address);
+        if (!"https".equals(uri.getScheme()) || !"osepa.odisha.gov.in".equals(uri.getHost()) || uri.getUserInfo() != null || (uri.getPort() != -1 && uri.getPort() != 443) || uri.getPath() == null || !uri.getPath().startsWith("/upload/ebooks/")) {
+            Toast.makeText(this, "Invalid book address", Toast.LENGTH_LONG).show(); finish(); return;
+        }
+        previous.setEnabled(false); next.setEnabled(false); layout.setEnabled(false);
+        pageLabel.setText("Downloading…");
+        rendererThread.execute(() -> {
+            java.net.HttpURLConnection connection = null;
+            java.io.File partial = null;
+            try {
+                byte[] hash = java.security.MessageDigest.getInstance("SHA-256").digest(address.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                StringBuilder name = new StringBuilder(); for (byte b : hash) name.append(String.format(java.util.Locale.ROOT, "%02x", b & 255));
+                java.io.File dir = new java.io.File(getFilesDir(), "osepa-books");
+                if (!dir.isDirectory() && !dir.mkdirs()) throw new IOException("Cannot create book folder");
+                java.io.File target = new java.io.File(dir, name + ".pdf");
+                partial = new java.io.File(dir, name + ".part");
+                if (!target.isFile()) {
+                    connection = (java.net.HttpURLConnection) new java.net.URL(address).openConnection();
+                    connection.setInstanceFollowRedirects(false);
+                    connection.setConnectTimeout(20000); connection.setReadTimeout(30000);
+                    if (connection.getResponseCode() != 200) throw new IOException("Book server unavailable");
+                    long expected = -1, total = 0, max = 400L * 1024 * 1024;
+                    String lengthHeader = connection.getHeaderField("Content-Length");
+                    if (lengthHeader != null) try { expected = Long.parseLong(lengthHeader); } catch (NumberFormatException ignored) {}
+                    if (expected > max) throw new IOException("Book too large");
+                    try (java.io.InputStream in = connection.getInputStream(); java.io.FileOutputStream out = new java.io.FileOutputStream(partial)) {
+                        byte[] buffer = new byte[32768]; int count;
+                        while ((count = in.read(buffer)) != -1) {
+                            if (destroyed) throw new IOException("Download cancelled");
+                            total += count; if (total > max) throw new IOException("Book too large");
+                            out.write(buffer, 0, count);
+                            final long bytes = total;
+                            if (bytes % (1024 * 1024) < count) runOnUiThread(() -> { if (!destroyed) pageLabel.setText("Downloading " + (bytes / (1024 * 1024)) + " MB"); });
+                        }
+                        if (total < 5 || (expected >= 0 && total != expected)) throw new IOException("Incomplete download");
+                    }
+                    try (java.io.FileInputStream check = new java.io.FileInputStream(partial)) {
+                        if (check.read() != '%' || check.read() != 'P' || check.read() != 'D' || check.read() != 'F' || check.read() != '-') throw new IOException("Not a PDF");
+                    }
+                    if (!partial.renameTo(target)) throw new IOException("Cannot save book");
+                }
+                if (!destroyed) runOnUiThread(() -> { if (!destroyed) { layout.setEnabled(true); openPdf(Uri.fromFile(target)); } });
+            } catch (Exception e) {
+                if (partial != null) partial.delete();
+                runOnUiThread(() -> { if (!destroyed) { Toast.makeText(this, "Book download failed. Check internet and try again.", Toast.LENGTH_LONG).show(); finish(); } });
+            } finally { if (connection != null) connection.disconnect(); }
+        });
     }
     private void changePage(int direction) {
         if (renderer == null) return;
