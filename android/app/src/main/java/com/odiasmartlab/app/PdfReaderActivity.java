@@ -35,7 +35,9 @@ public class PdfReaderActivity extends Activity {
     private boolean twoPages;
     private volatile boolean destroyed;
     private Uri documentUri;
-    private float touchX, touchY;
+    private float touchX, touchY, lastX, lastY, zoom = 1f, panX, panY;
+    private boolean hadMultiTouch, moved;
+    private android.view.ScaleGestureDetector scaleDetector;
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
@@ -44,18 +46,53 @@ public class PdfReaderActivity extends Activity {
         root.setOrientation(LinearLayout.VERTICAL);
         root.setBackgroundColor(Color.rgb(235, 238, 235));
         image = new ImageView(this);
-        image.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        image.setScaleType(ImageView.ScaleType.MATRIX);
         image.setContentDescription("PDF page");
-        image.setOnTouchListener((v, event) -> {
-            if (event.getActionMasked() == MotionEvent.ACTION_DOWN) { touchX = event.getX(); touchY = event.getY(); return true; }
-            if (event.getActionMasked() == MotionEvent.ACTION_UP) {
-                float dx = event.getX() - touchX, dy = event.getY() - touchY;
-                if (Math.abs(dx) > 72 * getResources().getDisplayMetrics().density && Math.abs(dx) > Math.abs(dy) * 1.3f) {
-                    changePage(dx < 0 ? 1 : -1);
-                } else v.performClick();
+        scaleDetector = new android.view.ScaleGestureDetector(this, new android.view.ScaleGestureDetector.SimpleOnScaleGestureListener() {
+            @Override public boolean onScale(android.view.ScaleGestureDetector detector) {
+                float nextZoom = Math.max(1f, Math.min(4f, zoom * detector.getScaleFactor()));
+                float ratio = nextZoom / zoom;
+                float focusX = detector.getFocusX() - image.getWidth() / 2f;
+                float focusY = detector.getFocusY() - image.getHeight() / 2f;
+                panX = focusX - (focusX - panX) * ratio;
+                panY = focusY - (focusY - panY) * ratio;
+                zoom = nextZoom;
+                applyPageTransform();
                 return true;
             }
-            return true;
+        });
+        image.addOnLayoutChangeListener((view, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+            if (right - left != oldRight - oldLeft || bottom - top != oldBottom - oldTop) resetZoom();
+        });
+        image.setOnTouchListener((v, event) -> {
+            scaleDetector.onTouchEvent(event);
+            switch (event.getActionMasked()) {
+                case MotionEvent.ACTION_DOWN:
+                    touchX = lastX = event.getX(); touchY = lastY = event.getY();
+                    hadMultiTouch = false; moved = false; return true;
+                case MotionEvent.ACTION_POINTER_DOWN:
+                    hadMultiTouch = true; return true;
+                case MotionEvent.ACTION_POINTER_UP:
+                    hadMultiTouch = true;
+                    int remaining = event.getActionIndex() == 0 ? 1 : 0;
+                    if (remaining < event.getPointerCount()) { lastX = event.getX(remaining); lastY = event.getY(remaining); }
+                    return true;
+                case MotionEvent.ACTION_MOVE:
+                    if (event.getPointerCount() == 1 && !scaleDetector.isInProgress()) {
+                        float x = event.getX(), y = event.getY();
+                        if (Math.abs(x - touchX) > 8 || Math.abs(y - touchY) > 8) moved = true;
+                        if (zoom > 1.001f) { panX += x - lastX; panY += y - lastY; applyPageTransform(); }
+                        lastX = x; lastY = y;
+                    }
+                    return true;
+                case MotionEvent.ACTION_UP:
+                    float dx = event.getX() - touchX, dy = event.getY() - touchY;
+                    if (!hadMultiTouch && zoom <= 1.001f && Math.abs(dx) > 72 * getResources().getDisplayMetrics().density && Math.abs(dx) > Math.abs(dy) * 1.3f) changePage(dx < 0 ? 1 : -1);
+                    else if (!hadMultiTouch && !moved) v.performClick();
+                    return true;
+                case MotionEvent.ACTION_CANCEL: return true;
+                default: return true;
+            }
         });
         root.addView(image, new LinearLayout.LayoutParams(-1, 0, 1));
         LinearLayout controls = new LinearLayout(this);
@@ -71,7 +108,7 @@ public class PdfReaderActivity extends Activity {
         pageLabel.setPadding(12, 0, 12, 0);
         next = button("›", () -> changePage(1));
         next.setContentDescription("Next page");
-        layout = button("୨ ପୃଷ୍ଠା", () -> { twoPages = !twoPages; pageIndex = twoPages ? pageIndex / 2 * 2 : pageIndex; showPage(); });
+        layout = button("୨ ପୃଷ୍ଠା", () -> { twoPages = !twoPages; pageIndex = twoPages ? pageIndex / 2 * 2 : pageIndex; resetZoom(); showPage(); });
         controls.addView(close); controls.addView(previous); controls.addView(pageLabel); controls.addView(next); controls.addView(layout);
         root.addView(controls);
         setContentView(root);
@@ -159,11 +196,32 @@ public class PdfReaderActivity extends Activity {
             } finally { if (connection != null) connection.disconnect(); }
         });
     }
+    private void resetZoom() {
+        zoom = 1f; panX = 0f; panY = 0f;
+        applyPageTransform();
+    }
+    private void applyPageTransform() {
+        android.graphics.drawable.Drawable drawable = image.getDrawable();
+        if (drawable == null || image.getWidth() <= 0 || image.getHeight() <= 0) return;
+        int bitmapWidth = drawable.getIntrinsicWidth(), bitmapHeight = drawable.getIntrinsicHeight();
+        if (bitmapWidth <= 0 || bitmapHeight <= 0) return;
+        float fit = Math.min((float) image.getWidth() / bitmapWidth, (float) image.getHeight() / bitmapHeight);
+        float scale = fit * zoom;
+        float scaledWidth = bitmapWidth * scale, scaledHeight = bitmapHeight * scale;
+        float maxX = Math.max(0f, (scaledWidth - image.getWidth()) / 2f);
+        float maxY = Math.max(0f, (scaledHeight - image.getHeight()) / 2f);
+        panX = Math.max(-maxX, Math.min(maxX, panX));
+        panY = Math.max(-maxY, Math.min(maxY, panY));
+        android.graphics.Matrix matrix = new android.graphics.Matrix();
+        matrix.setScale(scale, scale);
+        matrix.postTranslate((image.getWidth() - scaledWidth) / 2f + panX, (image.getHeight() - scaledHeight) / 2f + panY);
+        image.setImageMatrix(matrix);
+    }
     private void changePage(int direction) {
         if (renderer == null) return;
         int target = Math.max(0, Math.min(pageCount - 1, pageIndex + direction * (twoPages ? 2 : 1)));
         if (twoPages) target = target / 2 * 2;
-        if (target != pageIndex) { pageIndex = target; showPage(); }
+        if (target != pageIndex) { pageIndex = target; resetZoom(); showPage(); }
     }
     private void showPage() {
         if (renderer == null || destroyed) return;
@@ -192,7 +250,7 @@ public class PdfReaderActivity extends Activity {
                     }
                 }
                 final Bitmap result = bitmap;
-                runOnUiThread(() -> { if (!destroyed && id == generation) image.setImageBitmap(result); else result.recycle(); });
+                runOnUiThread(() -> { if (!destroyed && id == generation) { image.setImageBitmap(result); applyPageTransform(); } else result.recycle(); });
             } catch (Exception | OutOfMemoryError error) {
                 if (bitmap != null) bitmap.recycle();
                 runOnUiThread(() -> { if (!destroyed && id == generation) Toast.makeText(this, "Unable to display page", Toast.LENGTH_SHORT).show(); });
