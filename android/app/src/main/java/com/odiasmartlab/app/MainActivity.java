@@ -17,6 +17,8 @@ public class MainActivity extends Activity {
     private static final int SAVE_BOARD = 1001;
     private static final int SAVE_DOCUMENT = 1002;
     private static final int OPEN_DOCUMENT = 1003;
+    private static final int SAVE_PDF = 1004;
+    private String pendingPdf;
     private byte[] pendingDocument;
     private WebView webView;
     private byte[] pendingBoard;
@@ -105,6 +107,25 @@ public class MainActivity extends Activity {
             });
         }
 
+        @JavascriptInterface public void savePdfFile(String pagesJson) {
+            if (pagesJson == null || pagesJson.length() > 16 * 1024 * 1024) {
+                showBoardNotice("PDF is too large to save", true);
+                return;
+            }
+            runOnUiThread(() -> {
+                pendingPdf = pagesJson;
+                Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("application/pdf");
+                intent.putExtra(Intent.EXTRA_TITLE, "odia-smart-lab-board.pdf");
+                try { startActivityForResult(intent, SAVE_PDF); }
+                catch (android.content.ActivityNotFoundException e) {
+                    pendingPdf = null;
+                    showBoardNotice("No file picker available", true);
+                }
+            });
+        }
+
         @JavascriptInterface public void sharePng(String data) {
             if (data == null || !data.startsWith("data:image/png;base64,")) return;
             try {
@@ -168,6 +189,49 @@ public class MainActivity extends Activity {
                 out.write(document);
                 showBoardNotice("Board file saved", false);
             } catch (Exception e) { showBoardNotice("Could not save board file", true); }
+            return;
+        }
+        if (requestCode == SAVE_PDF) {
+            String pagesJson = pendingPdf;
+            pendingPdf = null;
+            if (resultCode != RESULT_OK || data == null || data.getData() == null || pagesJson == null) return;
+            Uri target = data.getData();
+            new Thread(() -> {
+                android.graphics.pdf.PdfDocument pdf = new android.graphics.pdf.PdfDocument();
+                try {
+                    org.json.JSONArray pages = new org.json.JSONArray(pagesJson);
+                    if (pages.length() < 1 || pages.length() > 50) throw new java.io.IOException("Invalid page count");
+                    for (int i = 0; i < pages.length(); i++) {
+                        String page = pages.getString(i);
+                        String prefix = "data:image/jpeg;base64,";
+                        if (!page.startsWith(prefix)) throw new java.io.IOException("Invalid page");
+                        byte[] jpeg = Base64.decode(page.substring(prefix.length()), Base64.DEFAULT);
+                        if (jpeg.length > 8 * 1024 * 1024) throw new java.io.IOException("Page too large");
+                        android.graphics.BitmapFactory.Options bounds = new android.graphics.BitmapFactory.Options();
+                        bounds.inJustDecodeBounds = true;
+                        android.graphics.BitmapFactory.decodeByteArray(jpeg, 0, jpeg.length, bounds);
+                        if (bounds.outWidth < 1 || bounds.outHeight < 1 || bounds.outWidth > 2000 || bounds.outHeight > 2000)
+                            throw new java.io.IOException("Invalid page dimensions");
+                        android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(jpeg, 0, jpeg.length);
+                        if (bitmap == null) throw new java.io.IOException("Could not decode page");
+                        try {
+                            int width = 842;
+                            int height = Math.max(1, Math.min(1684, Math.round((float) width * bitmap.getHeight() / bitmap.getWidth())));
+                            android.graphics.pdf.PdfDocument.PageInfo info =
+                                new android.graphics.pdf.PdfDocument.PageInfo.Builder(width, height, i + 1).create();
+                            android.graphics.pdf.PdfDocument.Page pdfPage = pdf.startPage(info);
+                            pdfPage.getCanvas().drawBitmap(bitmap, null, new android.graphics.RectF(0, 0, width, height), null);
+                            pdf.finishPage(pdfPage);
+                        } finally { bitmap.recycle(); }
+                    }
+                    try (OutputStream out = getContentResolver().openOutputStream(target)) {
+                        if (out == null) throw new java.io.IOException("Unable to open output");
+                        pdf.writeTo(out);
+                    }
+                    showBoardNotice("PDF saved", false);
+                } catch (Exception e) { showBoardNotice("Could not save PDF. Please try again.", true); }
+                finally { pdf.close(); }
+            }).start();
             return;
         }
         if (requestCode != SAVE_BOARD) return;

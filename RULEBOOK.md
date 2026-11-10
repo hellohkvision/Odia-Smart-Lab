@@ -41,7 +41,7 @@ For narrow screens, core controls may remain visible while secondary controls mo
 - Support pen, marker, highlighter and brush choices, preset stroke widths, preset colors and a custom color. Do not add a separate highlighter toolbar button unless requested.
 - Finger and stylus input should work; avoid blocking drawing. Erasing handwriting must not erase the letter-tracing guide.
 - Keep undo and redo per page, autosave locally, and offer explicit PNG export. Device storage can be cleared; do not describe local autosave as cloud backup.
-- Preserve current pages and drawings when changing the UI. Do not clear content without confirmation. Clearly distinguish implemented functions from future proposals such as PDF export, shapes, text editing, object selection and realistic brush effects.
+- Preserve current pages and drawings when changing the UI. Do not clear content without confirmation. Clearly distinguish implemented functions from future proposals such as realistic brush effects. Save as offers editable board JSON and PNG, plus Android PDF export as rasterized pages.
 
 ## Implementation and review
 

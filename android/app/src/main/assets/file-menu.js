@@ -33,10 +33,35 @@
  function openFile(){close();if(window.AndroidBoard?.openBoardFile){window.AndroidBoard.openBoardFile();return}const input=document.createElement('input');input.type='file';input.accept='.json,application/json';input.onchange=()=>{const f=input.files?.[0];if(!f)return;if(f.size>4*1024*1024){notify('Board file is too large.',true);return}f.text().then(window.receiveBoardFile).catch(()=>notify('Could not read this file.',true))};input.click()}
  function saveAs(){close();let data;try{data=JSON.stringify(documentData())}catch(e){notify('Could not prepare board.',true);return}if(window.AndroidBoard?.saveBoardFile){window.AndroidBoard.saveBoardFile(data);return}const blob=new Blob([data],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='odia-smart-lab-board.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
  items.New.onclick=()=>{close();replaceBoard({format:'odia-smart-lab-board',version:1,pages:[{strokes:[],redo:[],guide:''}],index:0},'Start a new board?')};
- items.Open.onclick=openFile;items.Import.onclick=openFile;items['Save as'].onclick=saveAs;items.Save.onclick=()=>{close();try{const data=documentData();localStorage.setItem('odia-board-user-'+activeBoardUser,JSON.stringify({pages:data.pages,index:data.index}));notify('Board saved on this device. Use Save as for a portable copy.')}catch(e){notify('Could not save board on this device.',true)}};
+ items.Open.onclick=openFile;items.Import.onclick=openFile;items['Save as'].onclick=showSaveFormats;items.Save.onclick=()=>{close();try{const data=documentData();localStorage.setItem('odia-board-user-'+activeBoardUser,JSON.stringify({pages:data.pages,index:data.index}));notify('Board saved on this device. Use Save as for a portable copy.')}catch(e){notify('Could not save board on this device.',true)}};
  items.Export.onclick=()=>{close();document.getElementById('save').click()};
- const cloud=document.createElement('div');cloud.className='file-cloud-options hidden';const cloudOpen=document.createElement('button');cloudOpen.type='button';cloudOpen.textContent='Open from cloud';cloudOpen.onclick=openFile;const cloudSave=document.createElement('button');cloudSave.type='button';cloudSave.textContent='Save to cloud';cloudSave.onclick=saveAs;cloud.append(cloudOpen,cloudSave);items['Cloud Storage'].after(cloud);items['Cloud Storage'].onclick=()=>cloud.classList.toggle('hidden');
+ const cloud=document.createElement('div');cloud.className='file-cloud-options hidden';const cloudOpen=document.createElement('button');cloudOpen.type='button';cloudOpen.textContent='Open from cloud';cloudOpen.onclick=openFile;const cloudSave=document.createElement('button');cloudSave.type='button';cloudSave.textContent='Save to cloud';cloudSave.onclick=showSaveFormats;cloud.append(cloudOpen,cloudSave);items['Cloud Storage'].after(cloud);items['Cloud Storage'].onclick=()=>cloud.classList.toggle('hidden');
  items.Template.onclick=()=>{close();settings.click()};items.Settings.onclick=()=>{close();settings.click()};
  items['Send Email'].onclick=()=>{close();const out=document.createElement('canvas');out.width=canvas.width;out.height=canvas.height;const g=out.getContext('2d');g.fillStyle=getComputedStyle(canvas).backgroundColor;g.fillRect(0,0,out.width,out.height);g.drawImage(canvas,0,0);if(window.AndroidBoard?.emailPng)window.AndroidBoard.emailPng(out.toDataURL('image/png'));else notify('Email sharing is available in the Android app.')};
+ // Save as offers an editable project, all-pages PDF, or a current-page image.
+ const formats=document.createElement('dialog');formats.className='save-format-dialog';formats.setAttribute('aria-labelledby','saveFormatTitle');
+ formats.innerHTML='<h2 id="saveFormatTitle">Save as</h2><p>Choose a format</p><div class="save-format-options"><button type="button" data-format="pdf"><strong>PDF</strong><small>All pages · for sharing or printing</small></button><button type="button" data-format="board"><strong>Editable board</strong><small>All pages · open again in this app</small></button><button type="button" data-format="png"><strong>PNG image</strong><small>Current page · as an image</small></button></div><button type="button" class="save-format-cancel">Cancel</button>';
+ document.body.append(formats);formats.querySelector('.save-format-cancel').onclick=()=>formats.close();
+ function showSaveFormats(){close();if(!formats.open)formats.showModal()}
+ function imageForPage(page,w,h,scale,background){
+  const out=document.createElement('canvas'),ink=document.createElement('canvas');out.width=ink.width=Math.max(1,Math.round(w*scale));out.height=ink.height=Math.max(1,Math.round(h*scale));
+  const base=out.getContext('2d'),g=ink.getContext('2d');if(!base||!g)throw Error('Canvas unavailable');base.scale(scale,scale);g.scale(scale,scale);
+  base.fillStyle=background;base.fillRect(0,0,w,h);
+  if(page.guide){base.fillStyle='#dfe8da';base.font=Math.min(h*.6,w*.5)+'px "Noto Sans Odia", sans-serif';base.textAlign='center';base.textBaseline='middle';base.fillText(page.guide,w/2,h/2)}
+  for(const stroke of page.strokes||[])drawBoardStroke(g,stroke,w,h);base.drawImage(ink,0,0,w,h);
+  return out.toDataURL('image/jpeg',.86);
+ }
+ let pdfPreparing=false;
+ async function savePdf(){
+  if(pdfPreparing)return;if(drawing){notify('Finish writing before saving.',true);return}if(!window.AndroidBoard?.savePdfFile){notify('PDF export is available in the Android app.',true);return}
+  pdfPreparing=true;notify('Preparing PDF…');
+  try{const data=documentData();if(data.pages.length>50)throw Error('PDF supports up to 50 pages at a time.');const r=canvas.getBoundingClientRect();if(!r.width||!r.height)throw Error('Open the board before exporting.');const scale=Math.min(1,1600/r.width,1200/r.height),background=getComputedStyle(canvas).backgroundColor||'#ffffff',images=[];let bytes=0;
+   for(const page of data.pages){await new Promise(requestAnimationFrame);const image=imageForPage(page,r.width,r.height,scale,background);bytes+=image.length;if(bytes>16*1024*1024)throw Error('PDF is too large. Export fewer pages or use editable board format.');images.push(image)}
+   window.AndroidBoard.savePdfFile(JSON.stringify(images));
+  }catch(e){notify(e.message||'Could not prepare PDF.',true)}finally{pdfPreparing=false}
+ }
+ formats.querySelector('[data-format="board"]').onclick=()=>{formats.close();saveAs()};
+ formats.querySelector('[data-format="png"]').onclick=()=>{formats.close();document.getElementById('save').click()};
+ formats.querySelector('[data-format="pdf"]').onclick=()=>{formats.close();savePdf()};
  items['Recover previous'].onclick=()=>{close();try{const data=JSON.parse(localStorage.getItem('odia-board-recovery-'+activeBoardUser)||'null');if(!data){notify('No recovery copy is available.');return}replaceBoard(data,'Recover previous board?')}catch(e){notify('Could not open recovery copy.',true)}};
 })();
