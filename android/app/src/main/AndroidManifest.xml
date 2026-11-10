@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <application android:allowBackup="false" android:icon="@drawable/app_logo" android:roundIcon="@drawable/app_logo" android:label="ଓଡ଼ିଆ Smart Board" android:theme="@style/AppTheme" android:usesCleartextTraffic="false">
+    <application android:allowBackup="false" android:icon="@drawable/app_logo" android:roundIcon="@drawable/app_logo" android:label="ଓଡ଼ିଆ Smart Lab" android:theme="@style/AppTheme" android:usesCleartextTraffic="false">
         <provider android:name=".BoardShareProvider" android:authorities="${applicationId}.boardshare" android:exported="false" android:grantUriPermissions="true" />
         <activity android:name=".MainActivity" android:exported="true" android:configChanges="orientation|screenSize|keyboardHidden" android:screenOrientation="sensorLandscape">
             <intent-filter>
