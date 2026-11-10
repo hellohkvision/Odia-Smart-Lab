@@ -22,7 +22,17 @@ function drawBoardStroke(g,s,width,height){
   const w=Math.abs(p[1][0]-p[0][0])*width,h=Math.abs(p[1][1]-p[0][1])*height;
   g.fillStyle=s.color;g.font=Math.max(1,h*.78)+'px "Noto Sans Odia", sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(s.text,x+w/2,y+h/2,Math.max(1,w));g.restore();return;
  }
- if(s.text){g.fillStyle=s.color;g.font=s.size+'px sans-serif';g.textAlign='left';g.textBaseline='top';s.text.split('\n').forEach((line,i)=>g.fillText(line,p[0][0]*width,p[0][1]*height+i*s.size*1.4));g.restore();return}
+ if(s.text){
+  g.fillStyle=s.color;g.font=s.size+'px sans-serif';g.textAlign='left';g.textBaseline='top';
+  const lines=s.text.split('\n');let x=p[0][0]*width,y=p[0][1]*height;
+  if(p.length>=2){
+   const naturalWidth=Math.max(1,...lines.map(line=>g.measureText(line).width)),naturalHeight=Math.max(1,s.size*(1.2+(lines.length-1)*1.4));
+   const boxWidth=Math.max(1,Math.abs(p[1][0]-p[0][0])*width),boxHeight=Math.max(1,Math.abs(p[1][1]-p[0][1])*height);
+   x=Math.min(p[0][0],p[1][0])*width;y=Math.min(p[0][1],p[1][1])*height;
+   g.translate(x,y);g.scale(boxWidth/naturalWidth,boxHeight/naturalHeight);x=0;y=0;
+  }
+  lines.forEach((line,i)=>g.fillText(line,x,y+i*s.size*1.4));g.restore();return;
+ }
  g.beginPath();g.moveTo(p[0][0]*width,p[0][1]*height);
  if(p.length===1)g.lineTo(p[0][0]*width+.1,p[0][1]*height);
  else if(s.smooth&&p.length>2){

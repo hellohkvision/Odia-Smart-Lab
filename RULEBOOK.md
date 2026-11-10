@@ -39,7 +39,7 @@ For narrow screens, core controls may remain visible while secondary controls mo
 
 - Tapping Pen selects it and opens a compact, bottom-reachable popup. Put pen type, stroke width and color in that one popup. Use icons and visible selected states, with accessible labels.
 - Support pen, marker, highlighter and brush choices, preset stroke widths, preset colors and a custom color. Do not add a separate highlighter toolbar button unless requested.
-- Finger and stylus input should work; avoid blocking drawing. Erasing handwriting must not erase letter-tracing guides. Inserting an Odia letter preserves existing work and selects the new movable letter; selection handles support independent width and height resizing.
+- Finger and stylus input should work; avoid blocking drawing. Erasing handwriting must not erase letter-tracing guides. Inserting an Odia letter preserves existing work and selects the new movable letter. Selection supports moving and resizing existing text, dots, drawings, shapes, and letters; handles support independent width and height where applicable.
 - Keep undo and redo per page, autosave locally, and offer explicit PNG export. Device storage can be cleared; do not describe local autosave as cloud backup.
 - Preserve current pages and drawings when changing the UI. Do not clear content without confirmation. Clearly distinguish implemented functions from future proposals such as realistic brush effects. Save as offers editable board JSON and PNG, plus Android PDF export as rasterized pages.
 
