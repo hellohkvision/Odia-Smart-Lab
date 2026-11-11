@@ -35,7 +35,8 @@ public final class ReaderToolbar {
         background.addState(new int[]{android.R.attr.state_pressed}, surface(context, Color.rgb(230, 239, 233), 10));
         background.addState(new int[]{}, new android.graphics.drawable.ColorDrawable(Color.TRANSPARENT));
         button.setBackground(background);
-        button.setCompoundDrawablesWithIntrinsicBounds(new Icon(context, icon), null, null, null);
+        button.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
+        button.setForeground(new Icon(context, icon)); button.setForegroundGravity(Gravity.CENTER);
     }
     private static final class Icon extends Drawable {
         private final int size; private final String name;

@@ -150,7 +150,7 @@ public class PdfReaderActivity extends Activity {
         if (control.getParent() instanceof android.view.ViewGroup)
             ((android.view.ViewGroup) control.getParent()).removeView(control);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dp(width), dp(48));
-        if (control != pageLabel) params.setMargins(dp(1), 0, dp(1), 0);
+        if (control != pageLabel) params.setMargins(dp(2), 0, dp(2), 0);
         row.addView(control, params);
     }
     private LinearLayout pdfRow() {
@@ -160,18 +160,20 @@ public class PdfReaderActivity extends Activity {
     }
     private void arrangePdfControls(int width) {
         if (width <= 0) return;
-        boolean twoRows = width < dp(splitMode ? 268 : 318);
-        int nextLayout = (twoRows ? 1 : 0) + (splitMode ? 2 : 0);
+        boolean twoRows = width < dp(splitMode ? 276 : 328);
+        boolean tiny = width < dp(180);
+        int nextLayout = (twoRows ? 1 : 0) + (splitMode ? 2 : 0) + (tiny ? 4 : 0);
         if (toolbarLayout == nextLayout) return;
         toolbarLayout = nextLayout; pdfControls.removeAllViews();
+        int countWidth = tiny ? 48 : 64; pageLabel.setMinWidth(dp(countWidth)); pageLabel.setTextSize(tiny ? 10 : 12);
         LinearLayout first = pdfRow();
         if (!twoRows) {
             addPdfControl(first, closeReader, 48); addPdfControl(first, previous, 48);
-            addPdfControl(first, pageLabel, 64); addPdfControl(first, next, 48);
+            addPdfControl(first, pageLabel, countWidth); addPdfControl(first, next, 48);
             if (!splitMode) addPdfControl(first, layout, 48);
             addPdfControl(first, splitButton, 48);
         } else {
-            addPdfControl(first, previous, 48); addPdfControl(first, pageLabel, 64); addPdfControl(first, next, 48);
+            addPdfControl(first, previous, 48); addPdfControl(first, pageLabel, countWidth); addPdfControl(first, next, 48);
             LinearLayout second = pdfRow();
             addPdfControl(second, closeReader, 48);
             if (!splitMode) addPdfControl(second, layout, 48);

@@ -79,7 +79,7 @@ public final class PdfNotesBoard extends FrameLayout {
         toolParams.bottomMargin=dp(4);
         addView(tools, toolParams);
         addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob) -> {
-            int next = r-l >= dp(248) ? 5 : r-l >= dp(200) ? 4 : 3;
+            int next = r-l >= dp(268) ? 5 : r-l >= dp(216) ? 4 : 3;
             if (next != columns) configureTools(next);
         });
         configureTools(3);
@@ -101,7 +101,8 @@ public final class PdfNotesBoard extends FrameLayout {
         else addTool(more);
     }
     private void addTool(Button button) {
-        tools.addView(button, new LinearLayout.LayoutParams(dp(48), dp(48)));
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(dp(48), dp(48));
+        lp.setMargins(dp(2), 0, dp(2), 0); tools.addView(button, lp);
     }
     private void showMore() {
         PopupMenu menu = new PopupMenu(activity, more);
@@ -190,11 +191,7 @@ public final class PdfNotesBoard extends FrameLayout {
         return -1;
     }
     private void confirmClear() {
-        if (!ready || ink.strokes.isEmpty()) return;
-        new AlertDialog.Builder(activity).setTitle("Clear writing board?")
-            .setMessage("This clears notes for this PDF. You can undo the clear while the reader is open.")
-            .setPositiveButton("Clear", (dialog, which) -> ink.clear())
-            .setNegativeButton(android.R.string.cancel, null).show();
+        if (ready && !ink.strokes.isEmpty()) ink.clear();
     }
 
     public void openDocument(String key) {
