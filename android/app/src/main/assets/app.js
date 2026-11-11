@@ -31,7 +31,12 @@ function drawBoardStroke(g,s,width,height){
    const naturalWidth=Math.max(1,...lines.map(line=>g.measureText(line).width)),naturalHeight=Math.max(1,s.size*(1.2+(lines.length-1)*1.4));
    const boxWidth=Math.max(1,Math.abs(p[1][0]-p[0][0])*width),boxHeight=Math.max(1,Math.abs(p[1][1]-p[0][1])*height);
    x=Math.min(p[0][0],p[1][0])*width;y=Math.min(p[0][1],p[1][1])*height;
-   g.translate(x,y);g.scale(boxWidth/naturalWidth,boxHeight/naturalHeight);x=0;y=0;
+   if(s.kind==='vocabWord'){
+    // Fit words proportionally so short Odia words are not stretched sideways.
+    const scale=Math.min(boxWidth/naturalWidth,boxHeight/naturalHeight);
+    g.translate(x+(boxWidth-naturalWidth*scale)/2,y+(boxHeight-naturalHeight*scale)/2);g.scale(scale,scale);
+   }else{g.translate(x,y);g.scale(boxWidth/naturalWidth,boxHeight/naturalHeight)}
+   x=0;y=0;
   }
   lines.forEach((line,i)=>g.fillText(line,x,y+i*s.size*1.4));g.restore();return;
  }
