@@ -127,44 +127,67 @@ public final class PdfNotesBoard extends FrameLayout {
         pen.setContentDescription(!erasing ? "Pen selected, change color and size" : "Select pen and change color and size");
         eraser.setContentDescription(erasing ? "Eraser selected" : "Select eraser");
     }
+    private android.widget.PopupWindow penPopup;
     private void choosePen() {
         if (!ready) return;
-        final int[] selected = {inkColor}, size = {sizeChoice};
+        erasing = false; updateButtons();
+        if (penPopup != null && penPopup.isShowing()) { penPopup.dismiss(); return; }
         LinearLayout panel = new LinearLayout(activity);
-        panel.setOrientation(LinearLayout.VERTICAL); panel.setPadding(dp(16), dp(8), dp(16), 0);
-        TextView colorLabel = new TextView(activity); colorLabel.setText("Color"); panel.addView(colorLabel);
+        panel.setOrientation(LinearLayout.VERTICAL); panel.setPadding(dp(8),dp(6),dp(8),dp(6));
+        panel.setBackground(ReaderToolbar.surface(activity, Color.WHITE, 16));
+        int popupWidth = Math.min(dp(280), getResources().getDisplayMetrics().widthPixels - dp(16));
         LinearLayout colors = new LinearLayout(activity); colors.setGravity(Gravity.CENTER);
-        final int[] choices = {Color.WHITE, Color.YELLOW, Color.rgb(250, 100, 100), Color.rgb(100, 190, 255), Color.rgb(130, 230, 155)};
+        final int[] choices = {Color.WHITE, Color.YELLOW, Color.rgb(250,100,100), Color.rgb(100,190,255), Color.rgb(130,230,155)};
+        final String[] names = {"White","Yellow","Red","Blue","Green"};
         Button[] swatches = new Button[choices.length];
-        for (int i = 0; i < choices.length; i++) {
-            final int index = i;
-            Button b = new Button(activity); swatches[i] = b; b.setText("●"); b.setTextSize(24);
-            b.setTextColor(choices[i]); b.setBackgroundColor(Color.rgb(52, 58, 55));
-            b.setContentDescription(new String[]{"White", "Yellow", "Red", "Blue", "Green"}[i] + " pen");
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, dp(48), 1f); colors.addView(b, lp);
-            b.setOnClickListener(v -> {
-                selected[0] = choices[index];
-                for (int j = 0; j < swatches.length; j++) {
-                    swatches[j].setText(j == index ? "● ✓" : "●");
-                    swatches[j].setContentDescription(new String[]{"White", "Yellow", "Red", "Blue", "Green"}[j] + " pen" + (j == index ? ", selected" : ""));
-                }
-            });
+        Runnable updateColors = () -> {
+            for (int j=0;j<choices.length;j++) {
+                android.graphics.drawable.GradientDrawable circle = new android.graphics.drawable.GradientDrawable();
+                circle.setShape(android.graphics.drawable.GradientDrawable.OVAL); circle.setColor(choices[j]);
+                circle.setStroke(dp(j==indexOfColor(choices,inkColor)?3:1), j==indexOfColor(choices,inkColor)?Color.rgb(0,95,57):Color.rgb(190,198,193));
+                swatches[j].setBackground(circle); swatches[j].setText(j==indexOfColor(choices,inkColor)?"✓":"");
+                swatches[j].setTextColor(Color.rgb(0,65,39));
+                swatches[j].setContentDescription(names[j]+" pen"+(j==indexOfColor(choices,inkColor)?", selected":""));
+            }
+        };
+        for(int i=0;i<choices.length;i++) {
+            final int index=i; Button button=new Button(activity); swatches[i]=button;
+            button.setMinWidth(0);button.setMinimumWidth(0);button.setMinHeight(0);button.setMinimumHeight(0);
+            button.setPadding(0,0,0,0);button.setElevation(0);button.setTextSize(16);
+            LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(dp(48),dp(48));lp.setMargins(0,0,0,0);colors.addView(button,lp);
+            button.setOnClickListener(v->{inkColor=choices[index];updateColors.run();});
         }
-        for (int j = 0; j < choices.length; j++) if (choices[j] == selected[0]) { swatches[j].setText("● ✓"); swatches[j].setContentDescription(new String[]{"White", "Yellow", "Red", "Blue", "Green"}[j] + " pen, selected"); }
-        panel.addView(colors);
-        TextView widthLabel = new TextView(activity); widthLabel.setText("Pen size"); panel.addView(widthLabel);
-        SeekBar width = new SeekBar(activity); width.setMax(2); width.setProgress(sizeChoice);
-        width.setContentDescription("Pen size: thin, medium, or thick");
-        width.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override public void onProgressChanged(SeekBar bar, int value, boolean user) { size[0] = value; widthLabel.setText("Pen size: " + new String[]{"Thin", "Medium", "Thick"}[value]); }
-            @Override public void onStartTrackingTouch(SeekBar bar) {}
-            @Override public void onStopTrackingTouch(SeekBar bar) {}
-        });
-        widthLabel.setText("Pen size: " + new String[]{"Thin", "Medium", "Thick"}[sizeChoice]);
-        panel.addView(width);
-        new AlertDialog.Builder(activity).setTitle("Pen").setView(panel)
-            .setPositiveButton("Use pen", (dialog, which) -> { inkColor = selected[0]; sizeChoice = size[0]; erasing = false; updateButtons(); })
-            .setNegativeButton(android.R.string.cancel, null).show();
+        updateColors.run();panel.addView(colors);
+        View divider=new View(activity);divider.setBackgroundColor(Color.rgb(226,230,227));
+        panel.addView(divider,new LinearLayout.LayoutParams(-1,dp(1)));
+        LinearLayout sizes=new LinearLayout(activity);sizes.setGravity(Gravity.CENTER);
+        Button[] widths=new Button[3];
+        Runnable updateSizes=()->{
+            for(int j=0;j<widths.length;j++){
+                widths[j].setSelected(j==sizeChoice);
+                widths[j].setBackground(ReaderToolbar.surface(activity,j==sizeChoice?Color.rgb(227,242,231):Color.WHITE,10));
+                widths[j].setContentDescription(new String[]{"Thin","Medium","Thick"}[j]+" pen"+(j==sizeChoice?", selected":""));
+            }
+        };
+        for(int i=0;i<3;i++){
+            final int index=i;Button button=new Button(activity);widths[i]=button;
+            button.setText("●");button.setTextSize(new int[]{9,15,23}[i]);button.setTextColor(Color.rgb(0,83,51));
+            button.setMinWidth(0);button.setMinimumWidth(0);button.setMinHeight(0);button.setMinimumHeight(0);button.setPadding(0,0,0,0);button.setElevation(0);
+            sizes.addView(button,new LinearLayout.LayoutParams(0,dp(48),1f));
+            button.setOnClickListener(v->{sizeChoice=index;updateSizes.run();});
+        }
+        updateSizes.run();panel.addView(sizes);
+        penPopup=new android.widget.PopupWindow(panel,popupWidth,android.view.ViewGroup.LayoutParams.WRAP_CONTENT,true);
+        penPopup.setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(Color.TRANSPARENT));
+        penPopup.setOutsideTouchable(true);penPopup.setElevation(dp(8));
+        panel.measure(View.MeasureSpec.makeMeasureSpec(popupWidth,View.MeasureSpec.EXACTLY),View.MeasureSpec.makeMeasureSpec(0,View.MeasureSpec.UNSPECIFIED));
+        int[] location=new int[2];pen.getLocationOnScreen(location);
+        int left=Math.max(dp(8),Math.min(location[0],getResources().getDisplayMetrics().widthPixels-popupWidth-dp(8)));
+        penPopup.showAsDropDown(pen,left-location[0],-pen.getHeight()-panel.getMeasuredHeight()-dp(6));
+    }
+    private int indexOfColor(int[] colors,int color) {
+        for(int i=0;i<colors.length;i++)if(colors[i]==color)return i;
+        return -1;
     }
     private void confirmClear() {
         if (!ready || ink.strokes.isEmpty()) return;
@@ -225,7 +248,7 @@ public final class PdfNotesBoard extends FrameLayout {
             }
         });
     }
-    public void close() { closed = true; }
+    public void close() { closed = true; if (penPopup != null) penPopup.dismiss(); }
 
     private static final class Stroke {
         final int color; final float width; final boolean erase; final ArrayList<float[]> points = new ArrayList<>();
