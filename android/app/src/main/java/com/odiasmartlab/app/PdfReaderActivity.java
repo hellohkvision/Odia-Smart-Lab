@@ -6,8 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.pdf.PdfRenderer;
-import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.StateListDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
@@ -32,11 +30,13 @@ public class PdfReaderActivity extends Activity {
     private PdfRenderer renderer;
     private ImageView image;
     private TextView pageLabel;
-    private Button previous, next, layout, splitButton;
+    private Button closeReader, previous, next, layout, splitButton;
+    private LinearLayout pdfControls;
     private PdfNotesBoard notesBoard;
     private int pageIndex, pageCount;
     private volatile int generation;
-    private boolean twoPages, splitMode, compactToolbar;
+    private boolean twoPages, splitMode;
+    private int toolbarLayout = -1;
     private volatile boolean destroyed;
     private Uri documentUri;
     private float touchX, touchY, lastX, lastY, zoom = 1f, panX, panY;
@@ -104,48 +104,34 @@ public class PdfReaderActivity extends Activity {
         });
         LinearLayout readingArea = new LinearLayout(this);
         readingArea.setOrientation(LinearLayout.HORIZONTAL);
-        readingArea.addView(image, new LinearLayout.LayoutParams(0, -1, 1f));
+        LinearLayout pdfPane = new LinearLayout(this);
+        pdfPane.setOrientation(LinearLayout.VERTICAL);
+        pdfPane.addView(image, new LinearLayout.LayoutParams(-1, 0, 1f));
+        readingArea.addView(pdfPane, new LinearLayout.LayoutParams(0, -1, 1f));
         notesBoard = new PdfNotesBoard(this);
         notesBoard.setVisibility(View.GONE);
         readingArea.addView(notesBoard, new LinearLayout.LayoutParams(0, -1, 1f));
         root.addView(readingArea, new LinearLayout.LayoutParams(-1, 0, 1f));
-        LinearLayout controls = new LinearLayout(this);
-        controls.setGravity(Gravity.CENTER);
-        controls.setPadding(dp(8), dp(5), dp(8), dp(5));
-        controls.setBackgroundColor(Color.WHITE);
-        Button close = button("←  ଫେରନ୍ତୁ", () -> finish());
-        close.setContentDescription("Back to books");
-        previous = button("‹", () -> changePage(-1));
-        previous.setContentDescription("Previous page");
-        pageLabel = new TextView(this);
-        pageLabel.setTextColor(Color.rgb(42, 48, 46));
-        pageLabel.setGravity(Gravity.CENTER); pageLabel.setTextSize(14);
-        pageLabel.setTypeface(null, android.graphics.Typeface.BOLD);
-        pageLabel.setMinWidth(dp(92)); pageLabel.setPadding(dp(8), 0, dp(8), 0);
-        next = button("›", () -> changePage(1)); next.setContentDescription("Next page");
-        layout = button("୨ ପୃଷ୍ଠା", () -> { if (splitMode || renderer == null) return; twoPages = !twoPages; pageIndex = twoPages ? pageIndex / 2 * 2 : pageIndex; resetZoom(); showPage(); });
-        layout.setContentDescription("Toggle one or two pages");
-        splitButton = button("✎", this::toggleSplit);
-        splitButton.setContentDescription("Open writing board beside PDF"); splitButton.setEnabled(false);
-        addControl(controls, close, 96); addControl(controls, previous, 48);
-        controls.addView(pageLabel, new LinearLayout.LayoutParams(-2, dp(48)));
-        addControl(controls, next, 48); addControl(controls, layout, 90); addControl(controls, splitButton, 52);
-        controls.addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob) -> {
-            boolean narrow = r - l < dp(500);
-            if (narrow == compactToolbar) return;
-            compactToolbar = narrow;
-            controls.setPadding(dp(narrow ? 2 : 8), dp(5), dp(narrow ? 2 : 5), dp(5));
-            resizeControl(close, narrow ? 48 : 96, narrow ? 1 : 3);
-            resizeControl(previous, 48, narrow ? 1 : 3);
-            resizeControl(next, 48, narrow ? 1 : 3);
-            resizeControl(layout, narrow ? 48 : 90, narrow ? 1 : 3);
-            resizeControl(splitButton, narrow ? 48 : 52, narrow ? 1 : 3);
-            pageLabel.setMinWidth(dp(narrow ? 48 : 92));
-            pageLabel.setPadding(dp(narrow ? 2 : 8), 0, dp(narrow ? 2 : 8), 0);
-            close.setText(narrow ? "←" : "←  ଫେରନ୍ତୁ");
-            updateLayoutLabel();
+
+        pdfControls = new LinearLayout(this); pdfControls.setOrientation(LinearLayout.VERTICAL);
+        pdfControls.setGravity(Gravity.CENTER); pdfControls.setPadding(dp(2), dp(4), dp(2), dp(4));
+        pdfControls.setBackgroundColor(Color.WHITE);
+        closeReader = iconButton("back", "Back to books", this::finish);
+        previous = iconButton("previous", "Previous page", () -> changePage(-1));
+        next = iconButton("next", "Next page", () -> changePage(1));
+        layout = iconButton("pages", "Toggle one or two pages", () -> {
+            if (splitMode || renderer == null) return;
+            twoPages = !twoPages; pageIndex = twoPages ? pageIndex / 2 * 2 : pageIndex; resetZoom(); showPage();
         });
-        root.addView(controls, new LinearLayout.LayoutParams(-1, -2));
+        splitButton = iconButton("pen", "Open writing board beside PDF", this::toggleSplit);
+        splitButton.setEnabled(false);
+        pageLabel = new TextView(this);
+        pageLabel.setTextColor(Color.rgb(42, 48, 46)); pageLabel.setGravity(Gravity.CENTER);
+        pageLabel.setTextSize(11); pageLabel.setSingleLine(true);
+        pageLabel.setTypeface(null, android.graphics.Typeface.BOLD); pageLabel.setMinWidth(dp(52));
+        pdfControls.addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob) -> arrangePdfControls(r-l));
+        pdfPane.addView(pdfControls, new LinearLayout.LayoutParams(-1, -2));
+        arrangePdfControls(dp(800));
         setContentView(root);
         String officialUrl = getIntent().getStringExtra("official_book_url");
         if (officialUrl != null) { downloadBook(officialUrl); return; }
@@ -156,28 +142,44 @@ public class PdfReaderActivity extends Activity {
         catch (Exception e) { Toast.makeText(this, "Cannot open document picker", Toast.LENGTH_LONG).show(); finish(); }
     }
     private int dp(int value) { return Math.round(value * getResources().getDisplayMetrics().density); }
-    private GradientDrawable controlBackground(int fill) {
-        GradientDrawable shape = new GradientDrawable(); shape.setColor(fill); shape.setCornerRadius(dp(10)); shape.setStroke(dp(1), Color.rgb(221, 225, 223)); return shape;
+    private Button iconButton(String icon, String description, Runnable action) {
+        Button button = new Button(this); ReaderToolbar.apply(button, icon, description);
+        button.setOnClickListener(v -> action.run()); return button;
     }
-    private Button button(String label, Runnable action) {
-        Button b = new Button(this); b.setText(label); b.setTextSize(14); b.setAllCaps(false);
-        b.setMinWidth(0); b.setMinimumWidth(0); b.setMinHeight(0); b.setMinimumHeight(0); b.setPadding(dp(8), 0, dp(8), 0); b.setElevation(0);
-        StateListDrawable states = new StateListDrawable();
-        states.addState(new int[]{-android.R.attr.state_enabled}, controlBackground(Color.rgb(249, 249, 249)));
-        states.addState(new int[]{android.R.attr.state_pressed}, controlBackground(Color.rgb(225, 232, 229)));
-        states.addState(new int[]{}, controlBackground(Color.rgb(246, 247, 246))); b.setBackground(states);
-        b.setTextColor(new android.content.res.ColorStateList(new int[][]{new int[]{-android.R.attr.state_enabled}, new int[]{}}, new int[]{Color.rgb(180, 185, 182), Color.rgb(35, 43, 40)}));
-        b.setOnClickListener(v -> action.run()); return b;
+    private void addPdfControl(LinearLayout row, View control, int width) {
+        if (control.getParent() instanceof android.view.ViewGroup)
+            ((android.view.ViewGroup) control.getParent()).removeView(control);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dp(width), dp(48));
+        if (control != pageLabel) params.setMargins(dp(1), 0, dp(1), 0);
+        row.addView(control, params);
     }
-    private void addControl(LinearLayout parent, Button button, int width) {
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dp(width), dp(48)); params.setMargins(dp(3), 0, dp(3), 0); parent.addView(button, params);
+    private LinearLayout pdfRow() {
+        LinearLayout row = new LinearLayout(this); row.setGravity(Gravity.CENTER);
+        pdfControls.addView(row, new LinearLayout.LayoutParams(-1, dp(48))); return row;
     }
-    private void resizeControl(Button button, int width, int margin) {
-        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) button.getLayoutParams();
-        params.width = dp(width); params.setMargins(dp(margin), 0, dp(margin), 0); button.setLayoutParams(params);
+    private void arrangePdfControls(int width) {
+        if (width <= 0) return;
+        boolean twoRows = width < dp(splitMode ? 256 : 306);
+        int nextLayout = (twoRows ? 1 : 0) + (splitMode ? 2 : 0);
+        if (toolbarLayout == nextLayout) return;
+        toolbarLayout = nextLayout; pdfControls.removeAllViews();
+        LinearLayout first = pdfRow();
+        if (!twoRows) {
+            addPdfControl(first, closeReader, 48); addPdfControl(first, previous, 48);
+            addPdfControl(first, pageLabel, 52); addPdfControl(first, next, 48);
+            if (!splitMode) addPdfControl(first, layout, 48);
+            addPdfControl(first, splitButton, 48);
+        } else {
+            addPdfControl(first, previous, 48); addPdfControl(first, pageLabel, 52); addPdfControl(first, next, 48);
+            LinearLayout second = pdfRow();
+            addPdfControl(second, closeReader, 48);
+            if (!splitMode) addPdfControl(second, layout, 48);
+            addPdfControl(second, splitButton, 48);
+        }
     }
     private void updateLayoutLabel() {
-        layout.setText(compactToolbar ? (twoPages ? "1" : "2") : (twoPages ? "୧ ପୃଷ୍ଠା" : "୨ ପୃଷ୍ଠା"));
+        layout.setSelected(twoPages);
+        layout.setContentDescription(twoPages ? "Switch to single page" : "Switch to two pages");
     }
     private void toggleSplit() {
         if (renderer == null) return;
@@ -186,9 +188,8 @@ public class PdfReaderActivity extends Activity {
         notesBoard.setVisibility(splitMode ? View.VISIBLE : View.GONE);
         layout.setEnabled(!splitMode);
         splitButton.setSelected(splitMode);
-        splitButton.setTextColor(splitMode ? Color.rgb(0, 100, 58) : Color.rgb(35, 43, 40));
-        splitButton.setBackground(controlBackground(splitMode ? Color.rgb(219, 240, 225) : Color.rgb(246, 247, 246)));
         splitButton.setContentDescription(splitMode ? "Close writing board" : "Open writing board beside PDF");
+        toolbarLayout = -1; arrangePdfControls(pdfControls.getWidth());
         updateLayoutLabel(); resetZoom();
         image.post(this::showPage);
     }

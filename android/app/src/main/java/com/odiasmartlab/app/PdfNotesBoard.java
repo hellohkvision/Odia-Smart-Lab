@@ -16,7 +16,8 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
-import android.widget.GridLayout;
+import android.widget.FrameLayout;
+import android.widget.PopupMenu;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -39,14 +40,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /** A separate, locally saved notes board for one PDF. */
-public final class PdfNotesBoard extends LinearLayout {
+public final class PdfNotesBoard extends FrameLayout {
     private final Activity activity;
     // Serialize reads and writes across reader instances, including a quick close/reopen.
     private static final ExecutorService io = Executors.newSingleThreadExecutor();
     private final Handler main = new Handler(Looper.getMainLooper());
     private final InkView ink;
-    private final GridLayout tools;
-    private final Button pen, eraser, undo, redo, clear;
+    private final LinearLayout tools;
+    private final Button pen, eraser, undo, redo, clear, more;
     private final TextView status;
     private volatile boolean closed;
     private File notesFile;
@@ -56,26 +57,29 @@ public final class PdfNotesBoard extends LinearLayout {
     public PdfNotesBoard(Activity activity) {
         super(activity);
         this.activity = activity;
-        setOrientation(VERTICAL);
         setBackgroundColor(Color.rgb(17, 20, 19));
         ink = new InkView();
-        addView(ink, new LayoutParams(LayoutParams.MATCH_PARENT, 0, 1f));
+        addView(ink, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         status = new TextView(activity);
-        status.setGravity(Gravity.CENTER);
-        status.setTextColor(Color.WHITE);
-        status.setTextSize(12);
+        status.setGravity(Gravity.CENTER); status.setTextColor(Color.WHITE); status.setTextSize(12);
         status.setText("Loading notes…");
-        addView(status, new LayoutParams(LayoutParams.MATCH_PARENT, dp(24)));
-        tools = new GridLayout(activity);
-        tools.setBackgroundColor(Color.WHITE);
-        pen = makeButton("Pen", "Pen color and size", () -> choosePen());
-        eraser = makeButton("Erase", "Eraser", () -> { erasing = true; updateButtons(); });
-        undo = makeButton("Undo", "Undo last board change", () -> ink.undo());
-        redo = makeButton("Redo", "Redo last board change", () -> ink.redo());
-        clear = makeButton("Clear", "Clear writing board", () -> confirmClear());
-        addView(tools, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-        tools.addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob) -> {
-            int next = r - l >= dp(240) ? 5 : 3;
+        FrameLayout.LayoutParams statusParams = new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, dp(32), Gravity.TOP);
+        addView(status, statusParams);
+        tools = new LinearLayout(activity);
+        tools.setOrientation(LinearLayout.HORIZONTAL); tools.setGravity(Gravity.CENTER);
+        tools.setBackground(ReaderToolbar.surface(activity, Color.WHITE, 18));
+        tools.setElevation(dp(5));
+        pen = makeButton("pen", "Pen color and size", () -> choosePen());
+        eraser = makeButton("eraser", "Eraser", () -> { erasing = true; updateButtons(); });
+        undo = makeButton("undo", "Undo last board change", () -> ink.undo());
+        redo = makeButton("redo", "Redo last board change", () -> ink.redo());
+        clear = makeButton("clear", "Clear writing board", () -> confirmClear());
+        more = makeButton("more", "More writing tools", this::showMore);
+        FrameLayout.LayoutParams toolParams = new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, dp(48), Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
+        toolParams.bottomMargin=dp(4);
+        addView(tools, toolParams);
+        addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob) -> {
+            int next = r-l >= dp(248) ? 5 : r-l >= dp(200) ? 4 : 3;
             if (next != columns) configureTools(next);
         });
         configureTools(3);
@@ -83,35 +87,43 @@ public final class PdfNotesBoard extends LinearLayout {
     }
 
     private int dp(float n) { return Math.round(n * getResources().getDisplayMetrics().density); }
-    private Button makeButton(String text, String description, Runnable action) {
-        Button b = new Button(activity);
-        b.setText(text); b.setTextSize(11); b.setAllCaps(false);
-        b.setMinWidth(dp(48)); b.setMinimumWidth(dp(48));
-        b.setMinHeight(dp(48)); b.setMinimumHeight(dp(48));
-        b.setPadding(dp(2), 0, dp(2), 0);
-        b.setContentDescription(description);
-        b.setOnClickListener(v -> action.run());
-        return b;
+    private Button makeButton(String icon, String description, Runnable action) {
+        Button button = new Button(activity);
+        ReaderToolbar.apply(button, icon, description);
+        button.setOnClickListener(v -> action.run());
+        return button;
     }
     private void configureTools(int count) {
-        columns = count; tools.removeAllViews(); tools.setColumnCount(count);
-        for (Button button : new Button[]{pen, eraser, undo, redo, clear}) {
-            GridLayout.LayoutParams lp = new GridLayout.LayoutParams();
-            lp.width = 0; lp.height = dp(48);
-            lp.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
-            lp.setGravity(Gravity.FILL);
-            tools.addView(button, lp);
-        }
+        columns = count; tools.removeAllViews();
+        addTool(pen); addTool(eraser);
+        if (count >= 4) addTool(undo);
+        if (count == 5) { addTool(redo); addTool(clear); }
+        else addTool(more);
+    }
+    private void addTool(Button button) {
+        tools.addView(button, new LinearLayout.LayoutParams(dp(48), dp(48)));
+    }
+    private void showMore() {
+        PopupMenu menu = new PopupMenu(activity, more);
+        if (columns < 4) menu.getMenu().add(0,1,0,"Undo").setEnabled(undo.isEnabled());
+        menu.getMenu().add(0,2,1,"Redo").setEnabled(redo.isEnabled());
+        menu.getMenu().add(0,3,2,"Clear").setEnabled(clear.isEnabled());
+        menu.setOnMenuItemClickListener(item -> {
+            switch(item.getItemId()) {
+                case 1: undo.performClick(); return true;
+                case 2: redo.performClick(); return true;
+                case 3: clear.performClick(); return true;
+                default: return false;
+            }
+        });
+        menu.show();
     }
     private void updateButtons() {
-        pen.setEnabled(ready); eraser.setEnabled(ready);
+        pen.setEnabled(ready); eraser.setEnabled(ready); more.setEnabled(ready);
         undo.setEnabled(ready && !ink.undoStates.isEmpty());
         redo.setEnabled(ready && !ink.redoStates.isEmpty());
         clear.setEnabled(ready && !ink.strokes.isEmpty());
-        pen.setText(!erasing ? "● Pen" : "Pen");
-        eraser.setText(erasing ? "● Erase" : "Erase");
-        pen.setTextColor(!erasing ? Color.rgb(0, 103, 63) : Color.DKGRAY);
-        eraser.setTextColor(erasing ? Color.rgb(0, 103, 63) : Color.DKGRAY);
+        pen.setSelected(ready && !erasing); eraser.setSelected(ready && erasing);
         pen.setContentDescription(!erasing ? "Pen selected, change color and size" : "Select pen and change color and size");
         eraser.setContentDescription(erasing ? "Eraser selected" : "Select eraser");
     }
