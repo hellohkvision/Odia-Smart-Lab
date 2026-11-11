@@ -204,8 +204,19 @@
  const groups=[['ସ୍ୱରବର୍ଣ୍ଣ · Vowels',['ଅ','ଆ','ଇ','ଈ','ଉ','ଊ','ଋ','ଏ','ଐ','ଓ','ଔ']],['ବ୍ୟଞ୍ଜନବର୍ଣ୍ଣ · Consonants',['କ','ଖ','ଗ','ଘ','ଙ','ଚ','ଛ','ଜ','ଝ','ଞ','ଟ','ଠ','ଡ','ଢ','ଣ','ତ','ଥ','ଦ','ଧ','ନ','ପ','ଫ','ବ','ଭ','ମ','ଯ','ର','ଲ','ଳ','ଶ','ଷ','ସ','ହ']],['ଅନ୍ୟାନ୍ୟ · Additional',['ଡ଼','ଢ଼','ୟ','ୱ','କ୍ଷ','ଜ୍ଞ','ଶ୍ର','ଂ','ଃ','ଁ']]];
  const area=document.querySelector('#alphabet .panel'),grid=document.getElementById('letters');area.querySelector('h2').textContent='ଓଡ଼ିଆ ବର୍ଣ୍ଣମାଳା · Odia alphabet';area.querySelector('p').textContent='Choose a letter to practice on the writing board.';
  const shelf=document.createElement('div');shelf.className='alphabet-shelf';grid.replaceWith(shelf);
+ const examples=document.createElement('div');examples.className='alphabet-examples';examples.hidden=true;examples.setAttribute('aria-live','polite');shelf.before(examples);
+ function showExamples(letter,button){
+  shelf.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
+  examples.replaceChildren();const title=document.createElement('strong');title.textContent=letter+' · ଉଦାହରଣ';examples.append(title);
+  const list=document.createElement('div');list.className='alphabet-example-list';
+  const entries=window.getOdiaAlphabetExamples?.(letter)||[];
+  if(!entries.length){const empty=document.createElement('span');empty.textContent='ଉଦାହରଣ ଉପଲବ୍ଧ ନାହିଁ';list.append(empty)}
+  for(const [word,picture] of entries){const card=document.createElement('div');card.className='alphabet-example-card';const icon=document.createElement('span');icon.className='alphabet-example-icon';icon.setAttribute('aria-hidden','true');icon.textContent=picture;const name=document.createElement('span');name.textContent=word;card.append(icon,name);list.append(card)}
+  examples.append(list);examples.hidden=false;
+ }
+ area.querySelector('p').textContent='ଅକ୍ଷର ଛୁଇଁ ଉଦାହରଣ ଦେଖନ୍ତୁ · Tap a letter to see examples.';
  const existing=new Set([...document.querySelectorAll('#quickLetters button')].map(b=>b.textContent));
- for(const [title,letters] of groups){const section=document.createElement('section');section.className='alphabet-group';const heading=document.createElement('h3');heading.textContent=title;const cells=document.createElement('div');cells.className='alphabet-cells';for(const letter of letters){const b=document.createElement('button');b.textContent=letter;b.setAttribute('aria-label','Practice '+letter);b.onclick=()=>practice(letter);cells.append(b);if(!existing.has(letter)){const quick=document.createElement('button');quick.textContent=letter;quick.setAttribute('aria-label','Practice '+letter);quick.onclick=()=>practice(letter);document.querySelector('#quickLetters').append(quick);existing.add(letter)}}section.append(heading,cells);shelf.append(section)}
+ for(const [title,letters] of groups){const section=document.createElement('section');section.className='alphabet-group';const heading=document.createElement('h3');heading.textContent=title;const cells=document.createElement('div');cells.className='alphabet-cells';for(const letter of letters){const b=document.createElement('button');b.textContent=letter;b.setAttribute('aria-label','Examples for '+letter);b.setAttribute('aria-pressed','false');b.onclick=()=>showExamples(letter,b);cells.append(b);if(!existing.has(letter)){const quick=document.createElement('button');quick.textContent=letter;quick.setAttribute('aria-label','Practice '+letter);quick.onclick=()=>practice(letter);document.querySelector('#quickLetters').append(quick);existing.add(letter)}}section.append(heading,cells);shelf.append(section)}
  if(document.fonts)document.fonts.ready.then(()=>render());
 })();
 // Switch the board's quick letter shelf between Odia and English without changing app language.

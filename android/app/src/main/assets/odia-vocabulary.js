@@ -77,6 +77,7 @@
  for(const [letter,entries] of Object.entries(remainingOdia)){if(!words[letter])words[letter]=[];words[letter].push(...entries)}
  for(const [letter,entries] of Object.entries(extraEnglish))englishWords[letter].push(...entries);
  for(const [letter,entries] of Object.entries(extraOdia))words[letter].push(...entries);
+ window.getOdiaAlphabetExamples=letter=>(words[letter]||[]).map(entry=>entry.slice());
  const notice=message=>{if(window.boardNotice)window.boardNotice(message);else document.querySelector('#status').textContent=message};
  let pending=null;
  function cancel(){if(pending){clearTimeout(pending.timer);pending=null}}

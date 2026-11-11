@@ -905,3 +905,18 @@ html,body,button,a,input,select,textarea,[role='button']{-webkit-tap-highlight-c
  .bottom-bar{height:60px!important;min-height:60px!important}
  .bottom-bar .tools>button,.bottom-bar #moreTools{height:54px!important;min-height:54px!important}
 }
+
+/* Compact, scrollable alphabet with examples in the same screen. */
+#alphabet .panel{box-sizing:border-box;width:100%!important;min-width:0!important;max-width:none;height:100%;overflow:auto!important;padding:clamp(10px,2vw,20px)}
+#alphabet .alphabet-shelf{display:flex;flex-wrap:wrap;align-items:flex-start;gap:12px;width:100%;height:auto!important}
+#alphabet .alphabet-group{flex:1 1 250px;min-width:0;height:auto!important}
+#alphabet .alphabet-group:nth-child(2){flex:2 1 460px}
+#alphabet .alphabet-cells{display:grid;grid-auto-flow:row;grid-template-columns:repeat(auto-fill,minmax(54px,1fr));grid-template-rows:none!important;grid-auto-rows:56px;grid-auto-columns:auto;height:auto!important;gap:6px}
+#alphabet .alphabet-cells button{box-sizing:border-box;width:100%;height:56px;min-height:48px;padding:4px;font-size:25px;border-radius:10px}
+#alphabet .alphabet-cells button[aria-pressed=true]{background:#e5f2e8;border:2px solid #176656;color:#104b30}
+#alphabet .alphabet-examples{margin:8px 0 12px;padding:10px;border:1px solid #dce8df;border-radius:12px;background:#f8fbf8}
+#alphabet .alphabet-examples[hidden]{display:none}
+#alphabet .alphabet-examples>strong{display:block;margin-bottom:6px;color:#174c35;font-size:15px}
+#alphabet .alphabet-example-list{display:flex;gap:8px;overflow-x:auto}
+#alphabet .alphabet-example-card{display:flex;align-items:center;gap:7px;flex:0 0 auto;min-height:48px;padding:6px 12px;border:1px solid #e0e8e1;border-radius:10px;background:#fff;font-size:16px;color:#173e34}
+#alphabet .alphabet-example-icon{font-family:system-ui,sans-serif;font-size:24px}
