@@ -81,6 +81,7 @@
 (()=>{
  const button=document.createElement('button');iconPaths.select='M5 3l13 11-6 .6L9 20z';toolIcon(button,'select','Select and move');button.id='selectTool';button.setAttribute('aria-pressed','false');dock.insertBefore(button,$('#pen'));
  let selecting=false,selected=null,drag=null,history=Object.create(null),replaying=false;
+ const touchPoints=new Map(),ignoredTouches=new Set();let pinch=null;
  const copy=x=>JSON.parse(JSON.stringify(x));
  const snapshot=()=>({strokes:copy(strokes),guide});
  const key=()=>activeBoardUser+':'+pageIndex;
@@ -126,10 +127,49 @@
   for(const [x,y] of Object.values(handles)){ctx.beginPath();ctx.arc(x,y,6,0,Math.PI*2);ctx.fill();ctx.stroke()}
   ctx.restore();
  };
- function setMode(on){selecting=on;button.classList.toggle('active',on);button.setAttribute('aria-pressed',String(on));if(on){shapeMode=null;closePanels();extraPanel.classList.add('hidden');$('#pen').classList.remove('active');$('#eraser').classList.remove('active');insertButton.classList.remove('active');}else{selected=null;drag=null}render();}
+ function setMode(on){if(!on){touchPoints.clear();ignoredTouches.clear();pinch=null}selecting=on;button.classList.toggle('active',on);button.setAttribute('aria-pressed',String(on));if(on){shapeMode=null;closePanels();extraPanel.classList.add('hidden');$('#pen').classList.remove('active');$('#eraser').classList.remove('active');insertButton.classList.remove('active');}else{selected=null;drag=null}render();}
  button.onclick=()=>setMode(!selecting);
  window.selectBoardItem=item=>{if(!item||!strokes.includes(item))return;setMode(true);selected=item;render()};
  [$('#pen'),$('#eraser'),insertButton,textButton].forEach(el=>el.addEventListener('click',()=>setMode(false)));
+ // Two fingers resize the selected object; the gesture is one undoable edit.
+ canvas.addEventListener('pointerdown',e=>{
+  if(!selecting||e.pointerType!=='touch')return;
+  touchPoints.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(touchPoints.size!==2||!selected||!strokes.includes(selected))return;
+  const ids=[...touchPoints.keys()],a=touchPoints.get(ids[0]),b=touchPoints.get(ids[1]),distance=Math.hypot(a.x-b.x,a.y-b.y);
+  if(distance<8)return;
+  e.preventDefault();e.stopImmediatePropagation();
+  window.odiaVocabEnd?.({pointerId:ids[0],type:'pointercancel'});
+  const bounds=selectionBounds(selected);
+  pinch={ids,item:selected,distance,midX:(a.x+b.x)/2,midY:(a.y+b.y)/2,points:copy(selected.points),size:selected.size,bounds,
+   beforePoints:drag&&!drag.lasso?copy(drag.points):copy(selected.points),beforeSize:drag&&!drag.lasso?drag.size:selected.size};
+  drag=null;canvas.setPointerCapture(e.pointerId);
+ },true);
+ canvas.addEventListener('pointermove',e=>{
+  if(e.pointerType!=='touch'||!touchPoints.has(e.pointerId))return;
+  touchPoints.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(!pinch||!pinch.ids.includes(e.pointerId))return;
+  e.preventDefault();e.stopImmediatePropagation();
+  const a=touchPoints.get(pinch.ids[0]),b=touchPoints.get(pinch.ids[1]);if(!a||!b)return;
+  const r=canvas.getBoundingClientRect(),factor=Math.max(.1,Math.min(10,Math.hypot(a.x-b.x,a.y-b.y)/pinch.distance));
+  const dx=((a.x+b.x)/2-pinch.midX)/r.width,dy=((a.y+b.y)/2-pinch.midY)/r.height;
+  const cx=(pinch.bounds.left+pinch.bounds.right)/2,cy=(pinch.bounds.top+pinch.bounds.bottom)/2;
+  if(pinch.points.length===1&&!pinch.item.text){pinch.item.points=copy(pinch.points);pinch.item.points[0][0]+=dx;pinch.item.points[0][1]+=dy;pinch.item.size=Math.max(1,Math.min(500,(Number(pinch.size)||4)*factor))}
+  else{const source=pinch.points.length===1&&pinch.item.text?[pinch.points[0],[pinch.bounds.right,pinch.bounds.bottom]]:pinch.points;pinch.item.points=source.map(p=>[cx+(p[0]-cx)*factor+dx,cy+(p[1]-cy)*factor+dy]);if(pinch.item.kind==='letter')pinch.item.size=Math.max(1,(Number(pinch.size)||4)*factor)}
+  render();
+ },true);
+ function finishPinch(e){
+  if(e.pointerType!=='touch')return;
+  touchPoints.delete(e.pointerId);
+  if(ignoredTouches.has(e.pointerId)){ignoredTouches.delete(e.pointerId);e.stopImmediatePropagation();return}
+  if(!pinch||!pinch.ids.includes(e.pointerId))return;
+  e.stopImmediatePropagation();const edit=pinch;pinch=null;
+  for(const id of edit.ids)if(id!==e.pointerId&&touchPoints.has(id))ignoredTouches.add(id);
+  if(e.type!=='pointerup'){edit.item.points=edit.beforePoints;edit.item.size=edit.beforeSize}
+  else if(JSON.stringify(edit.item.points)!==JSON.stringify(edit.beforePoints)||edit.item.size!==edit.beforeSize){redo=[];persist()}
+  render();
+ }
+ for(const type of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(type,finishPinch,true);
  canvas.addEventListener('pointerdown',e=>{
   if(!selecting||!e.isPrimary||e.button!==0)return;e.stopImmediatePropagation();e.preventDefault();
   const p=point(e),r=canvas.getBoundingClientRect(),tx=16/r.width,ty=16/r.height;
