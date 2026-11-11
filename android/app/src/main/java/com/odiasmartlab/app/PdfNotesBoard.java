@@ -307,6 +307,13 @@ public final class PdfNotesBoard extends FrameLayout {
             if (bitmap != null) canvas.drawBitmap(bitmap,0,0,null);
             if (current != null) drawStroke(canvas,current);
             canvas.restoreToCount(layer);
+            // Show the eraser contact on the dark board while the user is erasing.
+            if (current != null && current.erase && !current.points.isEmpty()) {
+                float[] last = current.points.get(current.points.size()-1);
+                Paint cursor = new Paint(Paint.ANTI_ALIAS_FLAG);
+                cursor.setColor(Color.WHITE); cursor.setStyle(Paint.Style.FILL);
+                canvas.drawCircle(last[0]*getWidth(), last[1]*getHeight(), dp(12), cursor);
+            }
         }
         private void addPoint(float x,float y) {
             if (current == null || getWidth()<=0 || getHeight()<=0) return;
