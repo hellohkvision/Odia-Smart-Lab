@@ -78,6 +78,7 @@
  for(const [letter,entries] of Object.entries(extraEnglish))englishWords[letter].push(...entries);
  for(const [letter,entries] of Object.entries(extraOdia))words[letter].push(...entries);
  window.getOdiaAlphabetExamples=letter=>(words[letter]||[]).map(entry=>entry.slice());
+ window.getEnglishAlphabetExamples=letter=>(englishWords[String(letter).toUpperCase()]||[]).map(entry=>entry.slice());
  const notice=message=>{if(window.boardNotice)window.boardNotice(message);else document.querySelector('#status').textContent=message};
  let pending=null;
  function cancel(){if(pending){clearTimeout(pending.timer);pending=null}}
@@ -177,14 +178,23 @@
   strokes.push({kind:'vocabPicture',text:word.picture,points:pointBox(box,area),color:word.color,size:pictureSize*.8,alpha:1});
   redo=[];persist();render();
  }
- function start(e,item,fromPen){
+ // Holding a board letter shows its pictures.
+ function addLetterPictures(letter){
+  const text=letter.text||'',isEnglish=/^[A-Za-z]$/.test(text),isHindi=/[\u0900-\u097f]/.test(text);
+  const entries=isEnglish?(englishWords[text.toUpperCase()]||[]):isHindi?(window.getHindiAlphabetExamples?.(text)||[]):(words[text]||[]);
+  const area=boardArea();if(!area)return;if(!entries.length){notice('Examples are not available for this letter yet.');return}
+  const source=letter.vocabSourceId||('letter-'+Date.now()+'-'+Math.random().toString(36).slice(2));let added=0;const pictureSize=Math.max(42,Math.min(76,area.r.height*.14));
+  const existing=new Set(strokes.filter(s=>s.kind==='vocabPicture'&&s.vocabSourceId===source).map(s=>s.text));
+  for(const [,picture] of entries){if(!picture||existing.has(picture))continue;const box=place(letter,pictureSize,pictureSize,'right',area);if(!box)continue;letter.vocabSourceId=source;strokes.push({kind:'vocabPicture',text:picture,vocabSourceId:source,points:pointBox(box,area),color:letter.color,size:pictureSize*.8,alpha:1});existing.add(picture);added++}
+  if(added){redo=[];persist();render()}else notice(existing.size?'Pictures are already on the board.':'Make some space on the board.');
+ } function start(e,item,fromPen){
   cancel();if(!item||!['letter','vocabWord'].includes(item.kind))return;
   const record={id:e.pointerId,x:e.clientX,y:e.clientY,item,fromPen,held:false,timer:null};pending=record;
   if(item.kind==='letter')record.timer=setTimeout(()=>{
    if(pending!==record||!strokes.includes(item))return;
    record.held=true;
    if(fromPen){activeInk.delete(record.id);drawing=activeInk.size>0;if(inkFrame){cancelAnimationFrame(inkFrame);inkFrame=0}render()}
-   addWords(item);
+   addLetterPictures(item);
   },650);
  }
  function move(e){if(pending&&pending.id===e.pointerId&&Math.hypot(e.clientX-pending.x,e.clientY-pending.y)>12)cancel()}
@@ -201,7 +211,7 @@
  // The selection tool is normally activated when a letter is inserted. When the
  // pen is active, preserve normal writing unless the pointer is held on a letter.
  canvas.addEventListener('pointerdown',e=>{
-  if(!e.isPrimary||e.button!==0||shapeMode||erase||(e.pointerType==='touch'&&e.width>=34&&e.height>=25)||document.querySelector('#selectTool')?.getAttribute('aria-pressed')==='true')return;
+  if(!e.isPrimary||e.button!==0||shapeMode||erase||(window.wideTouchEraserEnabled!==false&&e.pointerType==='touch'&&e.width>=34&&e.height>=25)||document.querySelector('#selectTool')?.getAttribute('aria-pressed')==='true')return;
   const area=boardArea();if(!area)return;const x=e.clientX-area.r.left,y=e.clientY-area.r.top;
   const item=[...strokes].reverse().find(s=>['letter','vocabWord'].includes(s.kind)&&(()=>{const b=bounds(s,area);return b&&x>=b.left&&x<=b.right&&y>=b.top&&y<=b.bottom})());
   if(item)start(e,item,true);

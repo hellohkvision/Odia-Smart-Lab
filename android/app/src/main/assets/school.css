@@ -920,3 +920,22 @@ html,body,button,a,input,select,textarea,[role='button']{-webkit-tap-highlight-c
 #alphabet .alphabet-example-list{display:flex;gap:8px;overflow-x:auto}
 #alphabet .alphabet-example-card{display:flex;align-items:center;gap:7px;flex:0 0 auto;min-height:48px;padding:6px 12px;border:1px solid #e0e8e1;border-radius:10px;background:#fff;font-size:16px;color:#173e34}
 #alphabet .alphabet-example-icon{font-family:system-ui,sans-serif;font-size:24px}
+
+/* Board pattern uses contrasting ink against the selected surface. */
+#canvas[data-paper="plain"]{background-image:none}
+#canvas[data-paper="ruled"]{background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 38px,var(--board-pattern-color,rgba(255,255,255,.42)) 38px,var(--board-pattern-color,rgba(255,255,255,.42)) 40px);background-size:auto 40px}
+#canvas[data-paper="dots"]{background-image:radial-gradient(var(--board-pattern-color,rgba(255,255,255,.42)) 1.2px,transparent 1.3px);background-size:24px 24px}
+/* Only the board canvas receives the chosen dot or square grid pattern. */
+#canvas[data-paper="grid"]{background-image:linear-gradient(to right,var(--board-pattern-color,rgba(255,255,255,.6)) 1px,transparent 1px),linear-gradient(to bottom,var(--board-pattern-color,rgba(255,255,255,.6)) 1px,transparent 1px);background-size:32px 32px}
+#canvas[data-paper="dots"]{background-image:radial-gradient(var(--board-pattern-color,rgba(255,255,255,.6)) 1.8px,transparent 2px);background-size:24px 24px}
+/* High-contrast patterns remain visible on classroom screens. */
+#canvas[data-paper="grid"]{background-image:linear-gradient(to right,var(--board-pattern-color,rgba(255,255,255,.75)) 2px,transparent 2px),linear-gradient(to bottom,var(--board-pattern-color,rgba(255,255,255,.75)) 2px,transparent 2px)!important;background-size:32px 32px!important}
+#canvas[data-paper="dots"]{background-image:radial-gradient(circle,var(--board-pattern-color,rgba(255,255,255,.75)) 2.5px,transparent 2.7px)!important;background-size:24px 24px!important}
+#canvas[data-paper='ruled']{background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 38px,var(--board-pattern-color,rgba(255,255,255,.78)) 38px,var(--board-pattern-color,rgba(255,255,255,.78)) 40px)!important;background-size:auto 40px!important}
+
+/* Keep writing lines inset from each edge of the board. */
+#canvas[data-paper='ruled']{background-size:calc(100% - 48px) calc(100% - 48px)!important;background-position:center center!important;background-repeat:no-repeat!important}
+
+#canvas[data-paper="both"]{background-image:radial-gradient(circle,var(--board-pattern-color,rgba(255,255,255,.78)) 2px,transparent 2.3px),repeating-linear-gradient(to bottom,transparent 0,transparent 38px,var(--board-pattern-color,rgba(255,255,255,.78)) 38px,var(--board-pattern-color,rgba(255,255,255,.78)) 40px)!important;background-size:24px 24px,calc(100% - 48px) calc(100% - 48px)!important;background-position:0 0,center!important;background-repeat:repeat,no-repeat!important}
+.alphabet-language-switches{display:flex;gap:6px;margin:8px 0;flex-wrap:wrap}.alphabet-language-switches button{min-height:38px;padding:5px 12px;border:1px solid #ddd;border-radius:8px;background:#f5f5f5;color:#333;font-size:12px;font-weight:600}.alphabet-language-switches button[aria-pressed=true]{background:#222;border-color:#222;color:#fff}.alphabet-group[hidden]{display:none!important}
+.alphabet-example-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}.alphabet-example-heading strong{color:#174c35;font-size:15px}.alphabet-practice-button{min-height:38px;padding:5px 14px;border:0;border-radius:8px;background:#222;color:#fff;font-size:12px;font-weight:600}

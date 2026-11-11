@@ -52,7 +52,8 @@ public final class PdfNotesBoard extends FrameLayout {
     private volatile boolean closed;
     private File notesFile;
     private boolean ready, erasing;
-    private int inkColor = Color.WHITE, sizeChoice = 1, columns;
+    private int inkColor = Color.WHITE, columns;
+    private int penSize = 9;
 
     public PdfNotesBoard(Activity activity) {
         super(activity);
@@ -161,23 +162,25 @@ public final class PdfNotesBoard extends FrameLayout {
         updateColors.run();panel.addView(colors);
         View divider=new View(activity);divider.setBackgroundColor(Color.rgb(226,230,227));
         panel.addView(divider,new LinearLayout.LayoutParams(-1,dp(1)));
-        LinearLayout sizes=new LinearLayout(activity);sizes.setGravity(Gravity.CENTER);
-        Button[] widths=new Button[3];
-        Runnable updateSizes=()->{
-            for(int j=0;j<widths.length;j++){
-                widths[j].setSelected(j==sizeChoice);
-                widths[j].setBackground(ReaderToolbar.surface(activity,j==sizeChoice?Color.rgb(227,242,231):Color.WHITE,10));
-                widths[j].setContentDescription(new String[]{"Thin","Medium","Thick"}[j]+" pen"+(j==sizeChoice?", selected":""));
-            }
+        LinearLayout sizes=new LinearLayout(activity);sizes.setGravity(Gravity.CENTER_VERTICAL);
+        TextView sizeLabel=new TextView(activity);sizeLabel.setText("Stroke size");sizeLabel.setTextSize(12);sizeLabel.setTextColor(Color.rgb(48,55,51));
+        panel.addView(sizeLabel);
+        SeekBar slider=new SeekBar(activity);slider.setMax(23);slider.setProgress(penSize-1);slider.setContentDescription("Pen stroke size");
+        if(android.os.Build.VERSION.SDK_INT>=21){slider.setProgressTintList(android.content.res.ColorStateList.valueOf(Color.rgb(35,54,45)));slider.setThumbTintList(android.content.res.ColorStateList.valueOf(Color.rgb(35,54,45)));}
+        sizes.addView(slider,new LinearLayout.LayoutParams(0,dp(44),1f));
+        View preview=new View(activity){
+            private final Paint dot=new Paint(Paint.ANTI_ALIAS_FLAG);
+            @Override protected void onDraw(Canvas canvas){super.onDraw(canvas);dot.setColor(inkColor);canvas.drawCircle(getWidth()/2f,getHeight()/2f,dp(2)+dp(7)*(penSize-1)/23f,dot);}
         };
-        for(int i=0;i<3;i++){
-            final int index=i;Button button=new Button(activity);widths[i]=button;
-            button.setText("●");button.setTextSize(new int[]{9,15,23}[i]);button.setTextColor(Color.rgb(0,83,51));
-            button.setMinWidth(0);button.setMinimumWidth(0);button.setMinHeight(0);button.setMinimumHeight(0);button.setPadding(0,0,0,0);button.setElevation(0);
-            sizes.addView(button,new LinearLayout.LayoutParams(0,dp(48),1f));
-            button.setOnClickListener(v->{sizeChoice=index;updateSizes.run();});
-        }
-        updateSizes.run();panel.addView(sizes);
+        preview.setBackground(ReaderToolbar.surface(activity,Color.rgb(238,241,239),8));preview.setContentDescription("Stroke preview");
+        LinearLayout.LayoutParams previewParams=new LinearLayout.LayoutParams(dp(32),dp(32));previewParams.setMargins(dp(6),0,0,0);sizes.addView(preview,previewParams);
+        slider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+            @Override public void onProgressChanged(SeekBar bar,int progress,boolean fromUser){penSize=progress+1;preview.invalidate();}
+            @Override public void onStartTrackingTouch(SeekBar bar){}
+            @Override public void onStopTrackingTouch(SeekBar bar){}
+        });
+        for(Button swatch:swatches)swatch.setOnClickListener(v->{int index=java.util.Arrays.asList(swatches).indexOf(v);if(index>=0){inkColor=choices[index];updateColors.run();preview.invalidate();}});
+        panel.addView(sizes);
         penPopup=new android.widget.PopupWindow(panel,popupWidth,android.view.ViewGroup.LayoutParams.WRAP_CONTENT,true);
         penPopup.setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(Color.TRANSPARENT));
         penPopup.setOutsideTouchable(true);penPopup.setElevation(dp(8));
@@ -342,7 +345,7 @@ public final class PdfNotesBoard extends FrameLayout {
                 case MotionEvent.ACTION_DOWN:
                     pointer=event.getPointerId(0);
                     float base=Math.min(getWidth(),getHeight());
-                    float width=erasing?dp(24)/base:new float[]{.005f,.009f,.016f}[sizeChoice];
+                    float width=erasing?dp(24)/base:penSize * .001f;
                     current=new Stroke(inkColor,width,erasing); addPoint(event.getX(),event.getY()); invalidate(); return true;
                 case MotionEvent.ACTION_MOVE:
                     int index=event.findPointerIndex(pointer); if(index<0 || current==null)return true;

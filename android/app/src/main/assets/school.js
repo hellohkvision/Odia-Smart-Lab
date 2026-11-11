@@ -142,7 +142,7 @@
   const left=bounds.left*r.width,top=bounds.top*r.height,w=(bounds.right-bounds.left)*r.width,h=(bounds.bottom-bounds.top)*r.height;
   ctx.save();ctx.strokeStyle='#176656';ctx.lineWidth=1.5;ctx.setLineDash([5,4]);ctx.strokeRect(left-8,top-8,Math.max(16,w+16),Math.max(16,h+16));ctx.setLineDash([]);
   ctx.fillStyle='#fff';ctx.strokeStyle='#252525';ctx.lineWidth=2;
-  for(const [x,y] of Object.values(handles)){ctx.beginPath();ctx.arc(x,y,6,0,Math.PI*2);ctx.fill();ctx.stroke()}
+  if(!(isGroup(selected)?selected.members.some(x=>x.locked):selected.locked))for(const [x,y] of Object.values(handles)){ctx.beginPath();ctx.arc(x,y,6,0,Math.PI*2);ctx.fill();ctx.stroke()}
   ctx.restore();
  };
  function setMode(on){if(!on){touchPoints.clear();ignoredTouches.clear();pinch=null}selecting=on;button.classList.toggle('active',on);button.setAttribute('aria-pressed',String(on));if(on){shapeMode=null;closePanels();extraPanel.classList.add('hidden');$('#pen').classList.remove('active');$('#eraser').classList.remove('active');insertButton.classList.remove('active');}else{selected=null;drag=null}render();}
@@ -153,7 +153,7 @@
  canvas.addEventListener('pointerdown',e=>{
   if(!selecting||e.pointerType!=='touch')return;
   touchPoints.set(e.pointerId,{x:e.clientX,y:e.clientY});
-  if(touchPoints.size!==2||!validSelection(selected))return;
+  if(touchPoints.size!==2||!validSelection(selected)||(isGroup(selected)?selected.members.some(x=>x.locked):selected.locked))return;
   const ids=[...touchPoints.keys()],a=touchPoints.get(ids[0]),b=touchPoints.get(ids[1]),distance=Math.hypot(a.x-b.x,a.y-b.y);
   if(distance<8)return;
   e.preventDefault();e.stopImmediatePropagation();
@@ -193,14 +193,14 @@
  canvas.addEventListener('pointerdown',e=>{
   if(!selecting||!e.isPrimary||e.button!==0)return;e.stopImmediatePropagation();e.preventDefault();
   const p=point(e),r=canvas.getBoundingClientRect(),tx=16/r.width,ty=16/r.height;
-  if(validSelection(selected)){
+  if(validSelection(selected)&&!(isGroup(selected)?selected.members.some(x=>x.locked):selected.locked)){
    const bounds=selectionBounds(selected),handles=selectionHandles(bounds,r);let handle=null;
    for(const name of ['corner','width','height'])if(Math.hypot(e.clientX-r.left-handles[name][0],e.clientY-r.top-handles[name][1])<=20){handle=name;break}
    if(handle){drag={id:e.pointerId,start:p,points:copy(selected.points),size:selected.size,bounds,handle,groupStates:isGroup(selected)?memberStates(selected):null};canvas.setPointerCapture(e.pointerId);render();return}
   }
   const keepGroup=isGroup(selected)&&validSelection(selected)&&(()=>{const b=selectionBounds(selected);return p[0]>=b.left&&p[0]<=b.right&&p[1]>=b.top&&p[1]<=b.bottom})();
   if(!keepGroup)selected=[...strokes].reverse().find(s=>s.kind!=='regionFill'&&(s.color!=='#fffef9'||!!s.text)&&s.points?.length>0&&(()=>{const b=selectionBounds(s);return p[0]>=b.left-tx&&p[0]<=b.right+tx&&p[1]>=b.top-ty&&p[1]<=b.bottom+ty})())||null;
-  if(selected){drag={id:e.pointerId,start:p,points:copy(selected.points),size:selected.size,handle:null,bounds:selectionBounds(selected),groupStates:isGroup(selected)?memberStates(selected):null};if(!isGroup(selected))window.odiaVocabStart?.(e,selected)}else drag={id:e.pointerId,lasso:[p]};canvas.setPointerCapture(e.pointerId);render();
+  if(selected){if(!(isGroup(selected)?selected.members.some(x=>x.locked):selected.locked))drag={id:e.pointerId,start:p,points:copy(selected.points),size:selected.size,handle:null,bounds:selectionBounds(selected),groupStates:isGroup(selected)?memberStates(selected):null};if(!isGroup(selected))window.odiaVocabStart?.(e,selected)}else drag={id:e.pointerId,lasso:[p]};canvas.setPointerCapture(e.pointerId);render();
  },true);
  canvas.addEventListener('pointermove',e=>{
   if(!selecting)return;window.odiaVocabMove?.(e);e.stopImmediatePropagation();if(!drag||drag.id!==e.pointerId)return;
@@ -223,14 +223,38 @@
   render();
  },true);
  function insideLasso(point,polygon){let inside=false;for(let i=0,j=polygon.length-1;i<polygon.length;j=i++){const a=polygon[i],b=polygon[j];if((a[1]>point[1])!==(b[1]>point[1])&&point[0]<(b[0]-a[0])*(point[1]-a[1])/(b[1]-a[1])+a[0])inside=!inside}return inside}
+ // Use actual stroke segments, not just bounding-box corners: a crossing line or
+ // an overlapping dot belongs to the selection even if it extends outside it.
+ function lassoTouches(item,path,r){
+  const points=item.points;if(!Array.isArray(points)||!points.length)return false;
+  const scale=p=>[p[0]*r.width,p[1]*r.height],poly=path.map(scale),line=points.map(scale),radius=Math.max(1,(Number(item.size)||1)/2);
+  const dist=(p,a,b)=>{const dx=b[0]-a[0],dy=b[1]-a[1],len=dx*dx+dy*dy,t=len?Math.max(0,Math.min(1,((p[0]-a[0])*dx+(p[1]-a[1])*dy)/len)):0;return Math.hypot(p[0]-(a[0]+t*dx),p[1]-(a[1]+t*dy))};
+  const crossing=(a,b,c,d)=>{const cross=(p,q,s)=>(q[0]-p[0])*(s[1]-p[1])-(q[1]-p[1])*(s[0]-p[0]);const x=cross(a,b,c),y=cross(a,b,d),z=cross(c,d,a),w=cross(c,d,b);return ((x<=0&&y>=0)||(x>=0&&y<=0))&&((z<=0&&w>=0)||(z>=0&&w<=0))&&Math.max(Math.min(a[0],b[0]),Math.min(c[0],d[0]))<=Math.min(Math.max(a[0],b[0]),Math.max(c[0],d[0]))&&Math.max(Math.min(a[1],b[1]),Math.min(c[1],d[1]))<=Math.min(Math.max(a[1],b[1]),Math.max(c[1],d[1]))};
+  const overlaps=(a,b,c,d,pad)=>crossing(a,b,c,d)||Math.min(dist(a,c,d),dist(b,c,d),dist(c,a,b),dist(d,a,b))<=pad;
+  const boxed=['image','svg','letter','sticky','vocabWord','vocabPicture','regionFill'].includes(item.kind);
+  if(boxed){const b=selectionBounds(item);if(!b)return false;const corners=[[b.left,b.top],[b.right,b.top],[b.right,b.bottom],[b.left,b.bottom]].map(scale);if(corners.some(p=>insideLasso(p,poly)))return true;if(poly.some(p=>p[0]>=corners[0][0]&&p[0]<=corners[2][0]&&p[1]>=corners[0][1]&&p[1]<=corners[2][1]))return true;for(let i=0;i<4;i++)for(let j=0;j<poly.length;j++)if(overlaps(corners[i],corners[(i+1)%4],poly[j],poly[(j+1)%poly.length],0))return true;return false}
+  if(line.some(p=>insideLasso(p,poly)))return true;
+  for(let i=0;i<line.length;i++){const a=line[i],b=line[Math.min(i+1,line.length-1)];for(let j=0;j<poly.length;j++)if(overlaps(a,b,poly[j],poly[(j+1)%poly.length],radius))return true}
+  // A filled closed shape may surround the entire selection without crossing it.
+  return !!item.fillColor&&line.length>=3&&poly.some(p=>insideLasso(p,line));
+ }
  function end(e){if(!selecting)return;window.odiaVocabEnd?.(e);e.stopImmediatePropagation();if(!drag||drag.id!==e.pointerId)return;
-  if(drag.lasso){const path=drag.lasso,r=canvas.getBoundingClientRect();if(e.type==='pointerup'&&path.length>=6&&Math.hypot((path[0][0]-path[path.length-1][0])*r.width,(path[0][1]-path[path.length-1][1])*r.height)<40){selected=createSelection(strokes.filter(item=>(item.color!=='#fffef9'||!!item.text)&&(()=>{const b=selectionBounds(item);if(!b)return false;return [[b.left,b.top],[b.right,b.top],[b.right,b.bottom],[b.left,b.bottom],[(b.left+b.right)/2,(b.top+b.bottom)/2]].every(p=>insideLasso(p,path))})()))}drag=null;render();return}
+  if(drag.lasso){const path=drag.lasso,r=canvas.getBoundingClientRect();if(e.type==='pointerup'&&path.length>=6&&Math.hypot((path[0][0]-path[path.length-1][0])*r.width,(path[0][1]-path[path.length-1][1])*r.height)<40){selected=createSelection(strokes.filter(item=>(item.color!=='#fffef9'||!!item.text)&&lassoTouches(item,path,r)))}drag=null;render();return}
   if(e.type==='pointercancel'||e.type==='lostpointercapture'){selected.points=drag.points;selected.size=drag.size;restoreMembers(drag.groupStates)}else if(JSON.stringify(selected.points)!==JSON.stringify(drag.points)||selected.size!==drag.size)persist();drag=null;render();}
  canvas.addEventListener('pointerup',end,true);canvas.addEventListener('pointercancel',end,true);canvas.addEventListener('lostpointercapture',end,true);
  function selectedClosed(){if(isGroup(selected))return false;if(selected?.kind==='svg')return true;if(!selected||!Array.isArray(selected.points)||selected.points.length<3)return false;const a=selected.points[0],b=selected.points[selected.points.length-1];return Math.hypot(a[0]-b[0],a[1]-b[1])<0.01}
- window.boardSelectionInfo=()=>selecting&&validSelection(selected)?{closed:selectedClosed(),fillColor:selected.fillColor||null,fillOpacity:Number.isFinite(selected.fillOpacity)?selected.fillOpacity:1,borderColor:selected.color}:null;
+ window.boardSelectionInfo=()=>selecting&&validSelection(selected)?{kind:selected.kind,text:selected.text,locked:isGroup(selected)?selected.members.every(x=>x.locked):!!selected.locked,closed:selectedClosed(),fillColor:selected.fillColor||null,fillOpacity:Number.isFinite(selected.fillOpacity)?selected.fillOpacity:1,borderColor:selected.color}:null;
  window.boardSelectionAction=(action,value)=>{
   if(!selecting||!validSelection(selected)){document.querySelector('#status').textContent='Select a drawing or shape first.';return false}
+  if(action==='lock'){const members=isGroup(selected)?selected.members:[selected],next=!members.every(x=>x.locked);members.forEach(x=>x.locked=next);redo=[];persist();render();return true}
+  if(isGroup(selected)?selected.members.some(x=>x.locked):selected.locked)return false;
+  if(action==='noteText'){if(selected.kind!=='sticky'||typeof value!=='string')return false;selected.text=value.slice(0,300);redo=[];persist();render();return true}
+  if(action==='front'||action==='back'){
+   const members=new Set(isGroup(selected)?selected.members:[selected]);
+   const moving=strokes.filter(item=>members.has(item)),remaining=strokes.filter(item=>!members.has(item));
+   strokes=action==='front'?remaining.concat(moving):moving.concat(remaining);
+   redo=[];persist();render();return true;
+  }
   if(isGroup(selected)){
    if(action==='duplicate'){const clones=selected.members.map(item=>{const clone=copy(item);clone.points=clone.points.map(p=>[p[0]+.03,p[1]+.03]);return clone});strokes.push(...clones);selected=createSelection(clones)}
    else if(action==='delete'){const items=new Set(selected.members);strokes=strokes.filter(item=>!items.has(item));selected=null}
@@ -278,12 +302,13 @@
  const groups=[['ସ୍ୱରବର୍ଣ୍ଣ · Vowels',['ଅ','ଆ','ଇ','ଈ','ଉ','ଊ','ଋ','ଏ','ଐ','ଓ','ଔ']],['ବ୍ୟଞ୍ଜନବର୍ଣ୍ଣ · Consonants',['କ','ଖ','ଗ','ଘ','ଙ','ଚ','ଛ','ଜ','ଝ','ଞ','ଟ','ଠ','ଡ','ଢ','ଣ','ତ','ଥ','ଦ','ଧ','ନ','ପ','ଫ','ବ','ଭ','ମ','ଯ','ର','ଲ','ଳ','ଶ','ଷ','ସ','ହ']],['ଅନ୍ୟାନ୍ୟ · Additional',['ଡ଼','ଢ଼','ୟ','ୱ','କ୍ଷ','ଜ୍ଞ','ଶ୍ର','ଂ','ଃ','ଁ']]];
  const area=document.querySelector('#alphabet .panel'),grid=document.getElementById('letters');area.querySelector('h2').textContent='ଓଡ଼ିଆ ବର୍ଣ୍ଣମାଳା · Odia alphabet';area.querySelector('p').textContent='Choose a letter to practice on the writing board.';
  const shelf=document.createElement('div');shelf.className='alphabet-shelf';grid.replaceWith(shelf);
+ let alphabetLanguage='odia';
  const examples=document.createElement('div');examples.className='alphabet-examples';examples.hidden=true;examples.setAttribute('aria-live','polite');shelf.before(examples);
  function showExamples(letter,button){
   shelf.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
-  examples.replaceChildren();const title=document.createElement('strong');title.textContent=letter+' · ଉଦାହରଣ';examples.append(title);
+  examples.replaceChildren();const heading=document.createElement('div');heading.className='alphabet-example-heading';const title=document.createElement('strong');title.textContent=letter+' · Examples';const practiceButton=document.createElement('button');practiceButton.type='button';practiceButton.className='alphabet-practice-button';practiceButton.textContent='Practice';practiceButton.setAttribute('aria-label','Practice '+letter+' on board');practiceButton.onclick=()=>practice(letter);heading.append(title,practiceButton);examples.append(heading);
   const list=document.createElement('div');list.className='alphabet-example-list';
-  const entries=window.getOdiaAlphabetExamples?.(letter)||[];
+  const entries=alphabetLanguage==='odia'?(window.getOdiaAlphabetExamples?.(letter)||[]):alphabetLanguage==='english'?(window.getEnglishAlphabetExamples?.(letter)||[]):(hindiExamples[letter]||[]);
   if(!entries.length){const empty=document.createElement('span');empty.textContent='ଉଦାହରଣ ଉପଲବ୍ଧ ନାହିଁ';list.append(empty)}
   for(const [word,picture] of entries){const card=document.createElement('div');card.className='alphabet-example-card';const icon=document.createElement('span');icon.className='alphabet-example-icon';icon.setAttribute('aria-hidden','true');icon.textContent=picture;const name=document.createElement('span');name.textContent=word;card.append(icon,name);list.append(card)}
   examples.append(list);examples.hidden=false;
@@ -291,6 +316,12 @@
  area.querySelector('p').textContent='ଅକ୍ଷର ଛୁଇଁ ଉଦାହରଣ ଦେଖନ୍ତୁ · Tap a letter to see examples.';
  const existing=new Set([...document.querySelectorAll('#quickLetters button')].map(b=>b.textContent));
  for(const [title,letters] of groups){const section=document.createElement('section');section.className='alphabet-group';const heading=document.createElement('h3');heading.textContent=title;const cells=document.createElement('div');cells.className='alphabet-cells';for(const letter of letters){const b=document.createElement('button');b.textContent=letter;b.setAttribute('aria-label','Examples for '+letter);b.setAttribute('aria-pressed','false');b.onclick=()=>showExamples(letter,b);cells.append(b);if(!existing.has(letter)){const quick=document.createElement('button');quick.textContent=letter;quick.setAttribute('aria-label','Practice '+letter);quick.onclick=()=>practice(letter);document.querySelector('#quickLetters').append(quick);existing.add(letter)}}section.append(heading,cells);shelf.append(section)}
+ const hindiExamples={'अ':[['अनार','🍎']],'आ':[['आम','🥭']],'इ':[['इमली','🌿']],'ई':[['ईंट','🧱']],'उ':[['उल्लू','🦉']],'क':[['कमल','🪷']],'ख':[['खरगोश','🐇']],'ग':[['गाय','🐄']],'घ':[['घर','🏠']],'च':[['चम्मच','🥄']],'ज':[['जहाज','🚢']],'ट':[['टमाटर','🍅']],'त':[['तरबूज','🍉']],'द':[['दाँत','🦷']],'न':[['नल','🚰']],'प':[['पतंग','🪁']],'फ':[['फल','🍎']],'ब':[['बकरी','🐐']],'म':[['मछली','🐟']],'स':[['सूरज','☀️']],'ह':[['हाथी','🐘']]};
+ window.getHindiAlphabetExamples=letter=>(hindiExamples[letter]||[]).map(entry=>entry.slice());
+ const existingGroups=[...shelf.children];existingGroups.forEach(group=>group.dataset.alphabetLang='odia');
+ function addLanguage(lang,title,letters){const group=document.createElement('section');group.className='alphabet-group';group.dataset.alphabetLang=lang;group.hidden=true;const heading=document.createElement('h3');heading.textContent=title;const cells=document.createElement('div');cells.className='alphabet-cells';for(const letter of letters){const b=document.createElement('button');b.type='button';b.textContent=letter;b.setAttribute('aria-label','Examples for '+letter);b.setAttribute('aria-pressed','false');b.onclick=()=>showExamples(letter,b);cells.append(b)}group.append(heading,cells);shelf.append(group)}
+ addLanguage('english','English · A–Z',[...'ABCDEFGHIJKLMNOPQRSTUVWXYZ']);addLanguage('hindi','हिन्दी · स्वर',['अ','आ','इ','ई','उ','ऊ','ऋ','ए','ऐ','ओ','औ','अं','अः']);addLanguage('hindi','हिन्दी · व्यंजन',['क','ख','ग','घ','ङ','च','छ','ज','झ','ञ','ट','ठ','ड','ढ','ण','त','थ','द','ध','न','प','फ','ब','भ','म','य','र','ल','व','श','ष','स','ह','क्ष','त्र','ज्ञ']);
+ const switches=document.createElement('div');switches.className='alphabet-language-switches';switches.setAttribute('role','group');switches.setAttribute('aria-label','Alphabet language');for(const [lang,label] of [['odia','ଓଡ଼ିଆ'],['english','English'],['hindi','हिन्दी']]){const b=document.createElement('button');b.type='button';b.textContent=label;b.setAttribute('aria-pressed',String(lang==='odia'));b.onclick=()=>{alphabetLanguage=lang;switches.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));shelf.querySelectorAll('.alphabet-group').forEach(group=>group.hidden=group.dataset.alphabetLang!==lang);examples.hidden=true;examples.replaceChildren();area.scrollTop=0};switches.append(b)}area.querySelector('h2').textContent='Alphabet';area.querySelector('h2').after(switches);
  if(document.fonts)document.fonts.ready.then(()=>render());
 })();
 // Switch the board's quick letter shelf between Odia and English without changing app language.
@@ -332,7 +363,7 @@
  const wrap=document.createElement('fieldset');wrap.className='board-background-options';const legend=document.createElement('legend');legend.textContent='Board color';wrap.append(legend);const row=document.createElement('div');row.className='board-background-row';wrap.append(row);boardSettings.append(wrap);
  let selected='#121212';
  try{const saved=localStorage.getItem('odia-board-background');if(/^#[0-9a-f]{6}$/i.test(saved||''))selected=saved.toLowerCase()}catch{}
- function apply(value){selected=value;canvas.style.backgroundColor=value;row.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.color===value)));}
+ function apply(value){if(selected!==value)window.cancelBoardContacts?.();selected=value;canvas.style.backgroundColor=value;const surface=document.querySelector('#whiteboard .board');if(surface)surface.style.backgroundColor=value;canvas.style.setProperty('background-color',value,'important');requestAnimationFrame(()=>render());const rgb=value.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);if(rgb){const luminance=(parseInt(rgb[1],16)*299+parseInt(rgb[2],16)*587+parseInt(rgb[3],16)*114)/1000;canvas.style.setProperty('--board-pattern-color',luminance>150?'rgba(20, 30, 35, .68)':'rgba(255, 255, 255, .78)');const ink=/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(color);if(ink){const difference=Math.max(Math.abs(parseInt(rgb[1],16)-parseInt(ink[1],16)),Math.abs(parseInt(rgb[2],16)-parseInt(ink[2],16)),Math.abs(parseInt(rgb[3],16)-parseInt(ink[3],16)));if(difference<35){color=luminance>150?'#242d3a':'#ffffff';colorInput.value=color;colors.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String((b.getAttribute('aria-label')||'').toLowerCase().includes(color.toLowerCase())||(color==='#ffffff'&&(b.getAttribute('aria-label')||'').toLowerCase().includes('white')))));sizeInput.dispatchEvent(new Event('input',{bubbles:true}))}}}row.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.color===value)));}
  for(const [label,value] of choices){const b=document.createElement('button');b.type='button';b.dataset.color=value;b.setAttribute('aria-label',label+' board background');b.title=label;b.style.setProperty('--swatch',value);b.onclick=()=>{apply(value);try{localStorage.setItem('odia-board-background',value)}catch{document.querySelector('#status').textContent='Could not save board color on this device.'}};row.append(b)}
  const custom=document.createElement('input');custom.type='color';custom.className='board-custom-color';custom.setAttribute('aria-label','Choose any board background color');custom.title='Choose any board color';row.append(custom);
  function syncCustom(){custom.value=selected;custom.classList.toggle('is-selected',!choices.some(([,value])=>value===selected));}
@@ -475,6 +506,13 @@
  for(const [action,label,symbol] of [['duplicate','Copy selected','⧉'],['delete','Delete selected','⌫']]){
   const b=document.createElement('button');b.type='button';b.setAttribute('aria-label',label);b.innerHTML='<span aria-hidden="true">'+symbol+'</span><small>'+label+'</small>';b.onclick=()=>{window.boardSelectionAction(action);closeMore()};morePanel.append(b);
  }
+})();
+// Sticky notes are inserted from the secondary tools and edited from selection.
+(()=>{
+ const dialog=document.createElement('dialog');dialog.className='board-app-settings';dialog.innerHTML='<h2>Sticky note</h2><label>Note<textarea maxlength="300" rows="4" style="display:block;width:100%;box-sizing:border-box;margin:8px 0" aria-label="Sticky note text"></textarea></label><button type="button" data-note="save">Save note</button> <button type="button" data-note="cancel">Cancel</button>';document.body.append(dialog);const input=dialog.querySelector('textarea');let editing=false;
+ window.openStickyNote=edit=>{editing=!!edit;input.value=editing?(window.boardSelectionInfo()?.text||''):'';dialog.showModal();input.focus()};
+ dialog.querySelector('[data-note="cancel"]').onclick=()=>dialog.close();dialog.querySelector('[data-note="save"]').onclick=()=>{const text=input.value.trim();if(!text){input.focus();return}if(editing)window.boardSelectionAction('noteText',text);else{const item={kind:'sticky',text,fillColor:'#fff2a8',color:'#252525',size:18,points:[[.34,.27],[.66,.63]]};strokes.push(item);redo=[];persist();render();window.selectBoardItem?.(item)}dialog.close()};
+ const button=document.createElement('button');button.type='button';button.setAttribute('aria-label','Sticky note');button.innerHTML='<span aria-hidden="true">▤</span><small>Note</small>';button.onclick=()=>{closeMore();window.openStickyNote(false)};morePanel.append(button);
 })();
 // Place existing More actions directly in the right toolbar.
 (()=>{
@@ -654,13 +692,13 @@
  const row=document.createElement('div');row.className='selection-action-row';let colorMode='fill';
  function action(label,icon,handler){const b=document.createElement('button');b.type='button';b.setAttribute('aria-label',label);b.innerHTML='<span aria-hidden="true">'+icon+'</span><small>'+label+'</small>';b.onclick=handler;row.append(b);return b}
  function closePalette(){palette.classList.add('hidden');fill.setAttribute('aria-expanded','false');border.setAttribute('aria-expanded','false')}
- const fill=action('Fill','◒',()=>openColors('fill'));const border=action('Border','▣',()=>openColors('border'));action('Copy','⧉',()=>{closePalette();window.boardSelectionAction('duplicate')});action('Delete','⌫',()=>{closePalette();window.boardSelectionAction('delete')});fill.setAttribute('aria-expanded','false');border.setAttribute('aria-expanded','false');
+ const fill=action('Fill','◒',()=>openColors('fill'));const border=action('Border','▣',()=>openColors('border'));const edit=action('Edit','✎',()=>window.openStickyNote?.(true));action('Copy','⧉',()=>{closePalette();window.boardSelectionAction('duplicate')});const front=action('Front','⇧',()=>{closePalette();window.boardSelectionAction('front')});front.setAttribute('aria-label','Bring to front');const back=action('Back','⇩',()=>{closePalette();window.boardSelectionAction('back')});back.setAttribute('aria-label','Send to back');const lock=action('Lock','🔒',()=>{closePalette();window.boardSelectionAction('lock')});action('Delete','⌫',()=>{closePalette();window.boardSelectionAction('delete')});fill.setAttribute('aria-expanded','false');border.setAttribute('aria-expanded','false');
  const colors=document.createElement('div');colors.className='selection-color-row';const none=document.createElement('button');none.type='button';none.textContent='∅';none.setAttribute('aria-label','No fill');none.onclick=()=>window.boardSelectionAction('fill',null);colors.append(none);
  for(const [label,value] of [['White','#ffffff'],['Black','#242d3a'],['Red','#d25343'],['Yellow','#d49d24'],['Blue','#4877c3'],['Green','#155c50']]){const b=document.createElement('button');b.type='button';b.className='selection-color';b.style.setProperty('--color',value);b.setAttribute('aria-label',label+' color');b.onclick=()=>window.boardSelectionAction(colorMode,value);colors.append(b)}
  const custom=document.createElement('input');custom.type='color';custom.setAttribute('aria-label','Custom selected object color');custom.oninput=()=>window.boardSelectionAction(colorMode,custom.value);colors.append(custom);
  const opacityLabel=document.createElement('label');opacityLabel.className='selection-opacity';opacityLabel.textContent='Opacity';const opacity=document.createElement('input');opacity.type='range';opacity.min='0';opacity.max='100';opacity.step='5';opacity.setAttribute('aria-label','Fill opacity');opacity.onchange=()=>window.boardSelectionAction('opacity',Number(opacity.value)/100);opacityLabel.append(opacity);palette.append(colors,opacityLabel);panel.append(palette,row);document.body.append(panel);
  function openColors(mode){const info=window.boardSelectionInfo();if(!info)return;if(mode==='fill'&&!info.closed)return;const same=!palette.classList.contains('hidden')&&colorMode===mode;colorMode=mode;palette.classList.toggle('hidden',same);none.hidden=mode!=='fill';opacityLabel.hidden=mode!=='fill';custom.value=(mode==='fill'?info.fillColor:info.borderColor)||'#ffffff';opacity.value=String(Math.round(info.fillOpacity*100));fill.setAttribute('aria-expanded',String(!same&&mode==='fill'));border.setAttribute('aria-expanded',String(!same&&mode==='border'));}
- function update(){const info=window.boardSelectionInfo(),visible=!!info&&!document.body.classList.contains('activity-not-board')&&!document.body.classList.contains('split-mode');panel.classList.toggle('hidden',!visible);fill.disabled=!info?.closed;if(!visible){closePalette();return}const bar=bottomBar.getBoundingClientRect(),anchor=select.getBoundingClientRect();panel.style.bottom=Math.max(4,innerHeight-bar.top+4)+'px';const width=panel.getBoundingClientRect().width;panel.style.left=Math.max(8,Math.min(anchor.left+anchor.width/2-width/2,innerWidth-width-8))+'px'}
+ function update(){const info=window.boardSelectionInfo(),visible=!!info&&!document.body.classList.contains('activity-not-board')&&!document.body.classList.contains('split-mode');panel.classList.toggle('hidden',!visible);fill.disabled=!info?.closed||!!info?.locked;edit.style.display=info?.kind==='sticky'?'':'none';lock.setAttribute('aria-label',info?.locked?'Unlock object':'Lock object');lock.querySelector('small').textContent=info?.locked?'Unlock':'Lock';lock.querySelector('span').textContent=info?.locked?'🔓':'🔒';for(const b of row.querySelectorAll('button'))if(b!==lock&&b!==fill)b.disabled=!!info?.locked;if(!visible){closePalette();return}const bar=bottomBar.getBoundingClientRect(),anchor=select.getBoundingClientRect();panel.style.bottom=Math.max(4,innerHeight-bar.top+4)+'px';const width=panel.getBoundingClientRect().width;panel.style.left=Math.max(8,Math.min(anchor.left+anchor.width/2-width/2,innerWidth-width-8))+'px'}
  document.addEventListener('boardselectionchange',update);window.addEventListener('resize',update);new MutationObserver(update).observe(document.body,{attributes:true,attributeFilter:['class']});update();
 })();
 // Keep history and clear actions next to More, including after rotation.
@@ -820,23 +858,32 @@
 (()=>{
  const select=document.getElementById('paper');if(!select||!boardSettings.contains(select))return;
  const choices=document.createElement('div');choices.className='board-pattern-choices';choices.setAttribute('role','group');choices.setAttribute('aria-label','Board style');
- for(const value of ['plain','dots','ruled']){const option=[...select.options].find(o=>o.value===value);if(!option)continue;const b=document.createElement('button');b.type='button';b.textContent=option.textContent;b.dataset.value=value;b.onclick=()=>{select.value=value;select.dispatchEvent(new Event('change',{bubbles:true}))};choices.append(b)}
- function sync(){choices.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.value===select.value)))}
+ if(![...select.options].some(o=>o.value==='both')){const option=document.createElement('option');option.value='both';option.textContent='Dots and lines';select.append(option)}
+ function sync(){const value=select.value;choices.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(value==='both'||b.dataset.value===value)))}
+ for(const [value,label] of [['dots','Dots'],['ruled','Lines']]){const b=document.createElement('button');b.type='button';b.textContent=label;b.dataset.value=value;b.onclick=()=>{const current=select.value,wasOn=current==='both'||current===value,other=value==='dots'?'ruled':'dots',otherOn=current==='both'||current===other;select.value=wasOn?(otherOn?other:'plain'):(otherOn?'both':value);select.dispatchEvent(new Event('change',{bubbles:true}))};choices.append(b)}
  select.hidden=true;select.after(choices);
  select.addEventListener('change',()=>{sync();try{localStorage.setItem('odia-board-pattern',select.value)}catch{}});
- try{const saved=localStorage.getItem('odia-board-pattern');if(['plain','dots','ruled'].includes(saved)){select.value=saved;select.dispatchEvent(new Event('change',{bubbles:true}))}}catch{}
+ try{const saved=localStorage.getItem('odia-board-pattern');if(['plain','dots','grid','ruled','both'].includes(saved)){select.value=saved==='grid'?'ruled':saved;select.dispatchEvent(new Event('change',{bubbles:true}))}}catch{}
  sync();
 })();
 // Shared colour wheel replaces the native colour dialog in all board palettes.
 (()=>{
  const dialog=document.createElement('dialog');dialog.className='app-color-dialog';dialog.setAttribute('aria-labelledby','app-color-title');dialog.innerHTML='<h2 id="app-color-title">Choose colour</h2><canvas class="app-color-wheel" width="240" height="240" aria-label="Colour wheel"></canvas><label class="app-color-light">Lightness <input type="range" min="0" max="100" value="50" aria-label="Colour lightness"></label><div class="app-color-values"><span class="app-color-preview" aria-hidden="true"></span><label>HEX <input class="app-color-hex" type="text" maxlength="7" spellcheck="false" aria-label="Hex colour"></label></div><div class="app-color-actions"><button type="button" data-action="cancel">Cancel</button><button type="button" data-action="apply">Apply</button></div>';document.body.append(dialog);
- const wheel=dialog.querySelector('canvas'),g=wheel.getContext('2d'),slider=dialog.querySelector('[type=range]'),hex=dialog.querySelector('.app-color-hex'),preview=dialog.querySelector('.app-color-preview');let target=null,h=0,sat=1,light=.5;
+ const wheel=dialog.querySelector('canvas'),g=wheel.getContext('2d'),slider=dialog.querySelector('[type=range]'),hex=dialog.querySelector('.app-color-hex'),preview=dialog.querySelector('.app-color-preview');let target=null,h=0,sat=1,light=.5,originalColor=null,applied=false;
  function hslToHex(h,s,l){const a=s*Math.min(l,1-l),f=n=>{const k=(n+h/30)%12;return Math.round(255*(l-a*Math.max(-1,Math.min(k-3,9-k,1)))).toString(16).padStart(2,'0')};return '#'+f(0)+f(8)+f(4)}
  function fromHex(value){if(!/^#[0-9a-f]{6}$/i.test(value))return;const r=parseInt(value.slice(1,3),16)/255,gr=parseInt(value.slice(3,5),16)/255,b=parseInt(value.slice(5,7),16)/255,max=Math.max(r,gr,b),min=Math.min(r,gr,b),d=max-min;light=(max+min)/2;sat=d?d/(1-Math.abs(2*light-1)):0;h=!d?0:max===r?60*((gr-b)/d%6):max===gr?60*((b-r)/d+2):60*((r-gr)/d+4);if(h<0)h+=360;slider.value=String(Math.round(light*100))}
  function paint(){const size=wheel.width,c=size/2,img=g.createImageData(size,size);for(let y=0;y<size;y++)for(let x=0;x<size;x++){const dx=x-c,dy=y-c,dist=Math.hypot(dx,dy)/c,i=(y*size+x)*4;if(dist>1)continue;let angle=(Math.atan2(dy,dx)*180/Math.PI+360)%360;const col=hslToHex(angle,Math.min(1,dist),light);img.data[i]=parseInt(col.slice(1,3),16);img.data[i+1]=parseInt(col.slice(3,5),16);img.data[i+2]=parseInt(col.slice(5,7),16);img.data[i+3]=255}g.putImageData(img,0,0);const a=h*Math.PI/180;g.beginPath();g.arc(c+Math.cos(a)*sat*(c-4),c+Math.sin(a)*sat*(c-4),6,0,2*Math.PI);g.strokeStyle='#fff';g.lineWidth=3;g.stroke();g.strokeStyle='#333';g.lineWidth=1;g.stroke()}
- function sync(draw=true){const value=hslToHex(h,sat,light);hex.value=value;preview.style.background=value;if(draw)paint()}
+ function sync(draw=true){const value=hslToHex(h,sat,light);hex.value=value;preview.style.background=value;if(target?.classList.contains('board-custom-color')){target.value=value;target.dispatchEvent(new Event('input',{bubbles:true}))}if(draw)paint()}
  function choose(e){const r=wheel.getBoundingClientRect(),dx=(e.clientX-r.left)/r.width*2-1,dy=(e.clientY-r.top)/r.height*2-1;sat=Math.min(1,Math.hypot(dx,dy));h=(Math.atan2(dy,dx)*180/Math.PI+360)%360;sync()}
- wheel.addEventListener('pointerdown',e=>{wheel.setPointerCapture(e.pointerId);choose(e)});wheel.addEventListener('pointermove',e=>{if(wheel.hasPointerCapture(e.pointerId))choose(e)});slider.oninput=()=>{light=Number(slider.value)/100;sync()};hex.addEventListener('input',()=>{if(/^#[0-9a-f]{6}$/i.test(hex.value)){fromHex(hex.value);preview.style.background=hex.value;paint()}});
- dialog.querySelector('[data-action=cancel]').onclick=()=>dialog.close();dialog.querySelector('[data-action=apply]').onclick=()=>{if(!target||!/^#[0-9a-f]{6}$/i.test(hex.value)){hex.focus();return}target.value=hex.value;target.dispatchEvent(new Event('input',{bubbles:true}));target.dispatchEvent(new Event('change',{bubbles:true}));dialog.close()};
- document.addEventListener('click',e=>{const input=e.target.closest('input[type=color]');if(!input)return;e.preventDefault();e.stopImmediatePropagation();target=input;fromHex(input.value);sync();if(!dialog.open)dialog.showModal()},true);
+ wheel.addEventListener('pointerdown',e=>{wheel.setPointerCapture(e.pointerId);choose(e)});wheel.addEventListener('pointermove',e=>{if(wheel.hasPointerCapture(e.pointerId))choose(e)});slider.oninput=()=>{light=Number(slider.value)/100;sync()};hex.addEventListener('input',()=>{if(/^#[0-9a-f]{6}$/i.test(hex.value)){fromHex(hex.value);preview.style.background=hex.value;if(target?.classList.contains('board-custom-color')){target.value=hex.value;target.dispatchEvent(new Event('input',{bubbles:true}))}paint()}});
+ dialog.querySelector('[data-action=cancel]').onclick=()=>dialog.close();dialog.querySelector('[data-action=apply]').onclick=()=>{if(!target||!/^#[0-9a-f]{6}$/i.test(hex.value)){hex.focus();return}applied=true;target.value=hex.value;target.dispatchEvent(new Event('input',{bubbles:true}));target.dispatchEvent(new Event('change',{bubbles:true}));dialog.close()};
+ dialog.addEventListener('close',()=>{if(!applied&&target?.classList.contains('board-custom-color')&&originalColor){target.value=originalColor;target.dispatchEvent(new Event('input',{bubbles:true}))}target=null});
+ document.addEventListener('click',e=>{const input=e.target.closest('input[type=color]');if(!input)return;e.preventDefault();e.stopImmediatePropagation();target=input;originalColor=input.value;applied=false;fromHex(input.value);sync();if(!dialog.open)dialog.showModal()},true);
 })();
+// Explicitly refresh board patterns after a style change in Android WebView.
+(()=>{
+ function updateBoardPattern(){const pattern=canvas.dataset.paper||'plain',ink=getComputedStyle(canvas).getPropertyValue('--board-pattern-color').trim()||'rgba(255,255,255,.78)';let image='none',size='auto',position='center',repeat='no-repeat';if(pattern==='ruled'||pattern==='both'){const lines='repeating-linear-gradient(to bottom, transparent 0px, transparent 38px, '+ink+' 38px, '+ink+' 40px)';image=lines;size='calc(100% - 48px) calc(100% - 48px)';if(pattern==='both'){image='radial-gradient(circle, '+ink+' 2px, transparent 2.3px), '+lines;size='24px 24px, calc(100% - 48px) calc(100% - 48px)';position='0 0, center';repeat='repeat, no-repeat'}}else if(pattern==='dots'){image='radial-gradient(circle, '+ink+' 2.5px, transparent 2.7px)';size='24px 24px';position='0 0';repeat='repeat'}canvas.style.setProperty('background-image',image,'important');canvas.style.setProperty('background-size',size,'important');canvas.style.setProperty('background-position',position,'important');canvas.style.setProperty('background-repeat',repeat,'important');render()}
+ new MutationObserver(updateBoardPattern).observe(canvas,{attributes:true,attributeFilter:['data-paper']});document.querySelector('.board-background-row')?.addEventListener('click',()=>queueMicrotask(updateBoardPattern));document.querySelector('.board-background-row')?.addEventListener('input',()=>queueMicrotask(updateBoardPattern));updateBoardPattern();
+})();
+// Saathi destinations follow the requested teaching order.
+(()=>{const nav=document.getElementById('saathiMenu');for(const id of ['lessons','alphabet','whiteboard']){const button=nav?.querySelector('[data-tab="'+id+'"]');if(button)nav.append(button)}})();

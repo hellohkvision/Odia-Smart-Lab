@@ -19,6 +19,7 @@ public class MainActivity extends Activity {
     private static final int OPEN_DOCUMENT = 1003;
     private static final int SAVE_PDF = 1004;
     private static final int OPEN_SVG = 1005;
+    private static final int OPEN_IMAGE = 1006;
     private String pendingPdf;
     private byte[] pendingDocument;
     private WebView webView;
@@ -93,13 +94,28 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface public void closeApp() { runOnUiThread(() -> finish()); }
 
-        @JavascriptInterface public void emailPng(String data) { sharePng(data); }
+        @JavascriptInterface public void emailPng(String data) {
+            if (data == null || !data.startsWith("data:image/png;base64,")) return;
+            try {
+                byte[] image = Base64.decode(data.substring(data.indexOf(',') + 1), Base64.DEFAULT);
+                java.io.File target = new java.io.File(getCacheDir(), "shared-board.png");
+                try (java.io.FileOutputStream out = new java.io.FileOutputStream(target)) { out.write(image); }
+                runOnUiThread(() -> {
+                    Uri uri = Uri.parse("content://" + getPackageName() + ".boardshare/board.png");
+                    Intent send = new Intent(Intent.ACTION_SEND); send.setType("message/rfc822");
+                    send.putExtra(Intent.EXTRA_SUBJECT, "Odia Smart Lab board"); send.putExtra(Intent.EXTRA_STREAM, uri);
+                    send.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    try { startActivity(Intent.createChooser(send, "Send board by email")); }
+                    catch (android.content.ActivityNotFoundException e) { showBoardNotice("No email app available", true); }
+                });
+            } catch (Exception e) { showBoardNotice("Could not prepare email attachment", true); }
+        }
 
         @JavascriptInterface public void openBoardFile() {
             runOnUiThread(() -> {
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.setType("application/json");
+                intent.setType("*/*");
                 try { startActivityForResult(intent, OPEN_DOCUMENT); }
                 catch (android.content.ActivityNotFoundException e) { showBoardNotice("No file picker available", true); }
             });
@@ -108,9 +124,19 @@ public class MainActivity extends Activity {
         @JavascriptInterface public void openSvgFile() {
             runOnUiThread(() -> {
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                intent.addCategory(Intent.CATEGORY_OPENABLE); intent.setType("image/svg+xml");
+                intent.addCategory(Intent.CATEGORY_OPENABLE); intent.setType("*/*");
                 try { startActivityForResult(intent, OPEN_SVG); }
                 catch (android.content.ActivityNotFoundException e) { showBoardNotice("No file picker available", true); }
+            });
+        }
+        @JavascriptInterface public void openImageFile() {
+            runOnUiThread(() -> {
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("image/*");
+                intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"image/png", "image/jpeg", "image/webp"});
+                try { startActivityForResult(intent, OPEN_IMAGE); }
+                catch (android.content.ActivityNotFoundException e) { showBoardNotice("No image picker available", true); }
             });
         }
         @JavascriptInterface public void saveBoardFile(String json) {
@@ -124,8 +150,8 @@ public class MainActivity extends Activity {
                 pendingDocument = data;
                 Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.setType("application/json");
-                intent.putExtra(Intent.EXTRA_TITLE, "odia-smart-lab-board.json");
+                intent.setType("application/octet-stream");
+                intent.putExtra(Intent.EXTRA_TITLE, "odia-smart-lab-board.wbd");
                 try { startActivityForResult(intent, SAVE_DOCUMENT); }
                 catch (android.content.ActivityNotFoundException e) { pendingDocument = null; showBoardNotice("No file picker available", true); }
             });
@@ -183,6 +209,48 @@ public class MainActivity extends Activity {
 
     @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == OPEN_IMAGE) {
+            if (resultCode != RESULT_OK || data == null || data.getData() == null) return;
+            Uri uri = data.getData();
+            new Thread(() -> {
+                try (java.io.InputStream in = getContentResolver().openInputStream(uri); java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream()) {
+                    if (in == null) throw new java.io.IOException("Unable to open image");
+                    String type = getContentResolver().getType(uri);
+                    if (!"image/png".equals(type) && !"image/jpeg".equals(type) && !"image/webp".equals(type)) throw new java.io.IOException("Unsupported image");
+                    byte[] buffer = new byte[8192]; int count, total = 0;
+                    while ((count = in.read(buffer)) != -1) { total += count; if (total > 40 * 1024 * 1024) throw new java.io.IOException("Image exceeds 40 MB"); out.write(buffer, 0, count); }
+                    byte[] source = out.toByteArray();
+                    android.graphics.BitmapFactory.Options bounds = new android.graphics.BitmapFactory.Options();
+                    bounds.inJustDecodeBounds = true;
+                    android.graphics.BitmapFactory.decodeByteArray(source, 0, source.length, bounds);
+                    if (bounds.outWidth < 1 || bounds.outHeight < 1 || (long) bounds.outWidth * bounds.outHeight > 100000000L) throw new java.io.IOException("Image dimensions too large");
+                    android.graphics.BitmapFactory.Options options = new android.graphics.BitmapFactory.Options();
+                    options.inSampleSize = 1;
+                    while (Math.max(bounds.outWidth / options.inSampleSize, bounds.outHeight / options.inSampleSize) > 2000) options.inSampleSize *= 2;
+                    android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(source, 0, source.length, options);
+                    if (bitmap == null) throw new java.io.IOException("Could not decode image");
+                    byte[] encoded;
+                    try {
+                        float scale = Math.min(1f, 1600f / Math.max(bitmap.getWidth(), bitmap.getHeight()));
+                        if (scale < 1f) { android.graphics.Bitmap resized = android.graphics.Bitmap.createScaledBitmap(bitmap, Math.max(1, Math.round(bitmap.getWidth() * scale)), Math.max(1, Math.round(bitmap.getHeight() * scale)), true); if (resized != bitmap) { bitmap.recycle(); bitmap = resized; } }
+                        java.io.ByteArrayOutputStream compressed = new java.io.ByteArrayOutputStream();
+                        for (int attempt = 0; attempt < 4; attempt++) {
+                            int quality = 85;
+                            do { compressed.reset(); if (!bitmap.compress(android.graphics.Bitmap.CompressFormat.WEBP, quality, compressed)) throw new java.io.IOException("Could not compress image"); quality -= 10; } while (compressed.size() > 700 * 1024 && quality >= 45);
+                            if (compressed.size() <= 700 * 1024) break;
+                            android.graphics.Bitmap resized = android.graphics.Bitmap.createScaledBitmap(bitmap, Math.max(1, bitmap.getWidth() * 3 / 4), Math.max(1, bitmap.getHeight() * 3 / 4), true);
+                            if (resized == bitmap) break;
+                            bitmap.recycle(); bitmap = resized;
+                        }
+                        if (compressed.size() > 700 * 1024) throw new java.io.IOException("Image could not be compressed enough");
+                        encoded = compressed.toByteArray();
+                    } finally { bitmap.recycle(); }
+                    String image = "data:image/webp;base64," + Base64.encodeToString(encoded, Base64.NO_WRAP);
+                    runOnUiThread(() -> webView.evaluateJavascript("window.receiveBoardImage && window.receiveBoardImage(" + org.json.JSONObject.quote(image) + ")", null));
+                } catch (Exception e) { showBoardNotice("Could not import image. Use PNG, JPEG or WebP up to 40 MB.", true); }
+            }).start();
+            return;
+        }
         if (requestCode == OPEN_SVG) {
             if (resultCode != RESULT_OK || data == null || data.getData() == null) return;
             Uri uri = data.getData();

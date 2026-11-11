@@ -12,6 +12,7 @@ function ensureInkSurfaces(width,height){
 function drawBoardStroke(g,s,width,height){
  const p=s.points;if(!Array.isArray(p)||!p.length)return;
  if(s.kind==='svg'){window.drawImportedSvg?.(g,s,width,height);return}
+ if(s.kind==='image'){window.drawImportedImage?.(g,s,width,height);return}
  if(s.kind==='regionFill'){window.drawRegionFill?.(g,s,width,height);return}
  g.save();
  if(Number.isInteger(s.zoneIndex)&&Number.isInteger(s.zoneCount)&&s.zoneCount>1&&s.zoneIndex>=0&&s.zoneIndex<s.zoneCount){
@@ -19,6 +20,7 @@ function drawBoardStroke(g,s,width,height){
  }
  g.globalAlpha=s.alpha??1;g.globalCompositeOperation=s.color==='#fffef9'?'destination-out':'source-over';
  g.lineCap='round';g.lineJoin='round';g.strokeStyle=s.color;g.lineWidth=s.size;
+ if(s.kind==='sticky'&&p.length>=2){const x=Math.min(p[0][0],p[1][0])*width,y=Math.min(p[0][1],p[1][1])*height,w=Math.abs(p[1][0]-p[0][0])*width,h=Math.abs(p[1][1]-p[0][1])*height;g.fillStyle=s.fillColor||'#fff2a8';g.fillRect(x,y,w,h);g.strokeStyle='#b6a75f';g.lineWidth=1;g.strokeRect(x,y,w,h);g.fillStyle='#252525';g.font=Math.max(10,Math.min(22,h/6))+'px sans-serif';g.textAlign='left';g.textBaseline='top';g.save();g.beginPath();g.rect(x+6,y+6,Math.max(0,w-12),Math.max(0,h-12));g.clip();String(s.text||'').split('\n').forEach((line,i)=>g.fillText(line,x+8,y+8+i*Math.max(14,Math.min(28,h/5)),Math.max(1,w-16)));g.restore();g.restore();return}
  if(s.kind==='letter'&&s.text&&p.length>=2){
   const x=Math.min(p[0][0],p[1][0])*width,y=Math.min(p[0][1],p[1][1])*height;
   const w=Math.abs(p[1][0]-p[0][0])*width,h=Math.abs(p[1][1]-p[0][1])*height;
@@ -63,6 +65,12 @@ function paintBoard(){
  for(const stroke of activeInk.values())drawBoardStroke(work,stroke,r.width,r.height);
  if(current.length)drawBoardStroke(work,{points:current,color:color,size:+$('#size').value,alpha:1},r.width,r.height);
  ctx.setTransform(d,0,0,d,0,0);ctx.clearRect(0,0,r.width,r.height);
+ // Draw the background and guides into the board itself for Android WebView.
+ ctx.save();ctx.fillStyle=canvas.style.backgroundColor||'#121212';ctx.fillRect(0,0,r.width,r.height);
+ const pattern=canvas.dataset.paper||'plain',guideColor=canvas.style.getPropertyValue('--board-pattern-color')||'rgba(255,255,255,.78)';ctx.strokeStyle=guideColor;ctx.fillStyle=guideColor;ctx.lineWidth=1.5;
+ if(pattern==='ruled'||pattern==='both'){ctx.beginPath();for(let y=62;y<r.height-24;y+=40){ctx.moveTo(24,y);ctx.lineTo(Math.max(24,r.width-24),y)}ctx.stroke()}
+ if(pattern==='dots'||pattern==='both'){for(let y=24;y<r.height-24;y+=24)for(let x=24;x<r.width-24;x+=24){ctx.beginPath();ctx.arc(x,y,1.5,0,Math.PI*2);ctx.fill()}}
+ ctx.restore();
  if(guide){ctx.fillStyle='#dfe8da';ctx.font=`${Math.min(r.height*.6,r.width*.5)}px "Noto Sans Odia", sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(guide,r.width/2,r.height/2)}
  for(const stroke of strokes)if(stroke.kind==='letter')drawBoardStroke(ctx,stroke,r.width,r.height);
  ctx.drawImage(workingInk,0,0,r.width,r.height);
@@ -82,10 +90,13 @@ function appendInkSamples(stroke,e){
  }
 }
 function point(e){const r=canvas.getBoundingClientRect();return[(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height]}
-canvas.onpointerdown=e=>{if(e.button!==0||activeInk.has(e.pointerId)||shapeMode||document.querySelector('#selectTool')?.getAttribute('aria-pressed')==='true')return;e.preventDefault();const p=point(e),zones=window.boardZoneOptions||[],count=window.boardZoneCount||1,zoneIndex=Math.min(count-1,Math.max(0,Math.floor(p[0]*count))),zone=zones[zoneIndex],broad=e.pointerType==='touch'&&e.width>=34&&e.height>=25,tool=count>1&&zone?zone.type:penType,ink=count>1&&zone?zone.color:color,width=count>1&&zone?zone.size:+$('#size').value,erasing=erase||broad;canvas.setPointerCapture(e.pointerId);activeInk.set(e.pointerId,{points:[p],smooth:true,zoneIndex:count>1?zoneIndex:null,zoneCount:count,color:erasing?'#fffef9':ink,size:erasing?(window.eraserSize||20):width*(tool==='marker'?1.6:tool==='brush'?1.3:1),alpha:!erasing&&tool==='highlighter'?.3:1});drawing=true;if(erasing&&window.showEraserContact)window.showEraserContact(e,window.eraserSize||20);scheduleInkRender()};
+canvas.onpointerdown=e=>{if(e.button!==0||activeInk.has(e.pointerId)||shapeMode||document.querySelector('#selectTool')?.getAttribute('aria-pressed')==='true')return;e.preventDefault();const p=point(e),zones=window.boardZoneOptions||[],count=window.boardZoneCount||1,zoneIndex=Math.min(count-1,Math.max(0,Math.floor(p[0]*count))),zone=zones[zoneIndex],broad=window.wideTouchEraserEnabled!==false&&e.pointerType==='touch'&&e.width>=34&&e.height>=25,tool=count>1&&zone?zone.type:penType,ink=count>1&&zone?zone.color:color,width=count>1&&zone?zone.size:+$('#size').value,erasing=erase||broad;canvas.setPointerCapture(e.pointerId);activeInk.set(e.pointerId,{points:[p],smooth:true,zoneIndex:count>1?zoneIndex:null,zoneCount:count,color:erasing?'#fffef9':ink,size:erasing?(window.eraserSize||20):width*(tool==='marker'?1.6:tool==='brush'?1.3:1),alpha:!erasing&&tool==='highlighter'?.3:1});drawing=true;if(erasing&&window.showEraserContact)window.showEraserContact(e,window.eraserSize||20);scheduleInkRender()};
 canvas.onpointermove=e=>{const stroke=activeInk.get(e.pointerId);if(!stroke)return;appendInkSamples(stroke,e);if(stroke.color==='#fffef9'&&window.showEraserContact)window.showEraserContact(e,stroke.size);scheduleInkRender()};
-function finish(e){const stroke=activeInk.get(e.pointerId);if(!stroke)return;if(e.type==='pointerup')appendInkSamples(stroke,e);activeInk.delete(e.pointerId);if(inkFrame){cancelAnimationFrame(inkFrame);inkFrame=0}if(e.type!=='pointercancel'){strokes.push(stroke);redo=[];persist()}drawing=activeInk.size>0;if(window.hideEraserContact)window.hideEraserContact();render()}
+function finish(e){const stroke=activeInk.get(e.pointerId);if(!stroke)return;if(e.type==='pointerup')appendInkSamples(stroke,e);activeInk.delete(e.pointerId);if(inkFrame){cancelAnimationFrame(inkFrame);inkFrame=0}if(e.type==='pointerup'){strokes.push(stroke);redo=[];persist()}drawing=activeInk.size>0;if(window.hideEraserContact)window.hideEraserContact();render()}
 canvas.onpointerup=finish;canvas.onpointercancel=finish;canvas.onlostpointercapture=finish;new ResizeObserver(render).observe(canvas);
+// Discard interrupted contacts so an automatic eraser cannot linger across app changes.
+window.cancelBoardContacts=()=>{if(!activeInk.size)return;activeInk.clear();drawing=false;if(inkFrame){cancelAnimationFrame(inkFrame);inkFrame=0}window.hideEraserContact?.();render()};
+window.addEventListener('blur',window.cancelBoardContacts);document.addEventListener('visibilitychange',()=>{if(document.hidden)window.cancelBoardContacts()});
 for(const c of ['#155c50','#242d3a','#d25343','#d49d24','#4877c3','#9665b1']){const b=document.createElement('button');b.style.background=c;b.setAttribute('aria-label','Use color '+c);b.setAttribute('aria-pressed',String(c===color));b.onclick=()=>{color=c;document.querySelectorAll('.colors button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));$('#pen').click()};$('.colors').append(b)}
 $('#pen').onclick=()=>{erase=false;highlighter=penType==='highlighter';$('#pen').classList.add('active');$('#eraser').classList.remove('active')};$('#eraser').onclick=()=>{erase=true;highlighter=false;$('#eraser').classList.add('active');$('#pen').classList.remove('active')};function updateHistory(){$('#undo').disabled=!strokes.length;$('#redo').disabled=!redo.length}$('#undo').onclick=()=>{if(drawing||!strokes.length)return;redo.push(strokes.pop());persist();render()};$('#redo').onclick=()=>{if(drawing||!redo.length)return;strokes.push(redo.pop());persist();render()};updateHistory();$('#paper').onchange=()=>{canvas.dataset.paper=$('#paper').value};$('#freewrite').onclick=()=>{guide='';$('#boardtitle').textContent='ଲେଖନ୍ତୁ · Write and practice';persist();render()};$('#clear').onclick=()=>{if(strokes.length||guide){strokes=[];redo=[];guide='';$('#boardtitle').textContent='ଲେଖନ୍ତୁ · Write and practice';persist();render()}};
 $('#save').onclick=()=>{const out=document.createElement('canvas');out.width=canvas.width;out.height=canvas.height;const c=out.getContext('2d');c.fillStyle=getComputedStyle(canvas).backgroundColor;c.fillRect(0,0,out.width,out.height);c.drawImage(canvas,0,0);if(window.AndroidBoard){AndroidBoard.savePng(out.toDataURL('image/png'))}else{const a=document.createElement('a');a.download='odia-smart-lab-board.png';a.href=out.toDataURL();a.click()}};
