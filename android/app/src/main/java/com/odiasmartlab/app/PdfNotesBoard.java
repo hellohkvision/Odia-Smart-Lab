@@ -131,7 +131,7 @@ public final class PdfNotesBoard extends FrameLayout {
         if (!ready) return;
         final int[] selected = {inkColor}, size = {sizeChoice};
         LinearLayout panel = new LinearLayout(activity);
-        panel.setOrientation(VERTICAL); panel.setPadding(dp(16), dp(8), dp(16), 0);
+        panel.setOrientation(LinearLayout.VERTICAL); panel.setPadding(dp(16), dp(8), dp(16), 0);
         TextView colorLabel = new TextView(activity); colorLabel.setText("Color"); panel.addView(colorLabel);
         LinearLayout colors = new LinearLayout(activity); colors.setGravity(Gravity.CENTER);
         final int[] choices = {Color.WHITE, Color.YELLOW, Color.rgb(250, 100, 100), Color.rgb(100, 190, 255), Color.rgb(130, 230, 155)};
