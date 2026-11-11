@@ -33,9 +33,9 @@ public final class ReaderToolbar {
         StateListDrawable background = new StateListDrawable();
         background.addState(new int[]{android.R.attr.state_selected}, surface(context, Color.rgb(0, 83, 51), 10));
         background.addState(new int[]{android.R.attr.state_pressed}, surface(context, Color.rgb(230, 239, 233), 10));
-        background.addState(new int[]{}, surface(context, Color.WHITE, 10));
+        background.addState(new int[]{}, new android.graphics.drawable.ColorDrawable(Color.TRANSPARENT));
         button.setBackground(background);
-        button.setCompoundDrawablesWithIntrinsicBounds(null, new Icon(context, icon), null, null);
+        button.setCompoundDrawablesWithIntrinsicBounds(new Icon(context, icon), null, null, null);
     }
     private static final class Icon extends Drawable {
         private final int size; private final String name;

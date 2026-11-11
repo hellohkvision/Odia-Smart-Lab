@@ -127,8 +127,8 @@ public class PdfReaderActivity extends Activity {
         splitButton.setEnabled(false);
         pageLabel = new TextView(this);
         pageLabel.setTextColor(Color.rgb(42, 48, 46)); pageLabel.setGravity(Gravity.CENTER);
-        pageLabel.setTextSize(11); pageLabel.setSingleLine(true);
-        pageLabel.setTypeface(null, android.graphics.Typeface.BOLD); pageLabel.setMinWidth(dp(52));
+        pageLabel.setTextSize(12); pageLabel.setSingleLine(true);
+        pageLabel.setTypeface(null, android.graphics.Typeface.BOLD); pageLabel.setMinWidth(dp(64));
         pdfControls.addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob) -> arrangePdfControls(r-l));
         pdfPane.addView(pdfControls, new LinearLayout.LayoutParams(-1, -2));
         arrangePdfControls(dp(800));
@@ -155,22 +155,23 @@ public class PdfReaderActivity extends Activity {
     }
     private LinearLayout pdfRow() {
         LinearLayout row = new LinearLayout(this); row.setGravity(Gravity.CENTER);
-        pdfControls.addView(row, new LinearLayout.LayoutParams(-1, dp(48))); return row;
+        row.setBackground(ReaderToolbar.surface(this, Color.WHITE, 16));
+        pdfControls.addView(row, new LinearLayout.LayoutParams(-2, dp(48))); return row;
     }
     private void arrangePdfControls(int width) {
         if (width <= 0) return;
-        boolean twoRows = width < dp(splitMode ? 256 : 306);
+        boolean twoRows = width < dp(splitMode ? 268 : 318);
         int nextLayout = (twoRows ? 1 : 0) + (splitMode ? 2 : 0);
         if (toolbarLayout == nextLayout) return;
         toolbarLayout = nextLayout; pdfControls.removeAllViews();
         LinearLayout first = pdfRow();
         if (!twoRows) {
             addPdfControl(first, closeReader, 48); addPdfControl(first, previous, 48);
-            addPdfControl(first, pageLabel, 52); addPdfControl(first, next, 48);
+            addPdfControl(first, pageLabel, 64); addPdfControl(first, next, 48);
             if (!splitMode) addPdfControl(first, layout, 48);
             addPdfControl(first, splitButton, 48);
         } else {
-            addPdfControl(first, previous, 48); addPdfControl(first, pageLabel, 52); addPdfControl(first, next, 48);
+            addPdfControl(first, previous, 48); addPdfControl(first, pageLabel, 64); addPdfControl(first, next, 48);
             LinearLayout second = pdfRow();
             addPdfControl(second, closeReader, 48);
             if (!splitMode) addPdfControl(second, layout, 48);
