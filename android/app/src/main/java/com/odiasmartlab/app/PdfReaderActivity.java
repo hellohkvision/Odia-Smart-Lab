@@ -6,6 +6,8 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.pdf.PdfRenderer;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
@@ -42,6 +44,7 @@ public class PdfReaderActivity extends Activity {
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setBackgroundColor(Color.rgb(235, 238, 235));
@@ -97,20 +100,24 @@ public class PdfReaderActivity extends Activity {
         root.addView(image, new LinearLayout.LayoutParams(-1, 0, 1));
         LinearLayout controls = new LinearLayout(this);
         controls.setGravity(Gravity.CENTER);
+        controls.setPadding(dp(8), dp(5), dp(8), dp(5));
         controls.setBackgroundColor(Color.WHITE);
-        Button close = button("ଫେରନ୍ତୁ", () -> finish());
+        Button close = button("←  ଫେରନ୍ତୁ", () -> finish());
+        close.setContentDescription("Back to books");
         previous = button("‹", () -> changePage(-1));
         previous.setContentDescription("Previous page");
         pageLabel = new TextView(this);
-        pageLabel.setTextColor(Color.rgb(0, 70, 45));
-        pageLabel.setGravity(Gravity.CENTER);
-        pageLabel.setTextSize(17);
-        pageLabel.setPadding(12, 0, 12, 0);
-        next = button("›", () -> changePage(1));
-        next.setContentDescription("Next page");
+        pageLabel.setTextColor(Color.rgb(42, 48, 46));
+        pageLabel.setGravity(Gravity.CENTER); pageLabel.setTextSize(14);
+        pageLabel.setTypeface(null, android.graphics.Typeface.BOLD);
+        pageLabel.setMinWidth(dp(92)); pageLabel.setPadding(dp(8), 0, dp(8), 0);
+        next = button("›", () -> changePage(1)); next.setContentDescription("Next page");
         layout = button("୨ ପୃଷ୍ଠା", () -> { twoPages = !twoPages; pageIndex = twoPages ? pageIndex / 2 * 2 : pageIndex; resetZoom(); showPage(); });
-        controls.addView(close); controls.addView(previous); controls.addView(pageLabel); controls.addView(next); controls.addView(layout);
-        root.addView(controls);
+        layout.setContentDescription("Toggle one or two pages");
+        addControl(controls, close, 96); addControl(controls, previous, 48);
+        controls.addView(pageLabel, new LinearLayout.LayoutParams(-2, dp(44)));
+        addControl(controls, next, 48); addControl(controls, layout, 90);
+        root.addView(controls, new LinearLayout.LayoutParams(-1, -2));
         setContentView(root);
         String officialUrl = getIntent().getStringExtra("official_book_url");
         if (officialUrl != null) { downloadBook(officialUrl); return; }
@@ -120,8 +127,26 @@ public class PdfReaderActivity extends Activity {
         try { startActivityForResult(picker, PICK_PDF); }
         catch (Exception e) { Toast.makeText(this, "Cannot open document picker", Toast.LENGTH_LONG).show(); finish(); }
     }
+    private int dp(int value) { return Math.round(value * getResources().getDisplayMetrics().density); }
+    private GradientDrawable controlBackground(int fill) {
+        GradientDrawable shape = new GradientDrawable(); shape.setColor(fill); shape.setCornerRadius(dp(10)); shape.setStroke(dp(1), Color.rgb(221, 225, 223)); return shape;
+    }
     private Button button(String label, Runnable action) {
-        Button b = new Button(this); b.setText(label); b.setMinHeight((int)(48 * getResources().getDisplayMetrics().density)); b.setOnClickListener(v -> action.run()); return b;
+        Button b = new Button(this); b.setText(label); b.setTextSize(14); b.setAllCaps(false);
+        b.setMinWidth(0); b.setMinimumWidth(0); b.setMinHeight(0); b.setMinimumHeight(0); b.setPadding(dp(8), 0, dp(8), 0); b.setElevation(0);
+        StateListDrawable states = new StateListDrawable();
+        states.addState(new int[]{-android.R.attr.state_enabled}, controlBackground(Color.rgb(249, 249, 249)));
+        states.addState(new int[]{android.R.attr.state_pressed}, controlBackground(Color.rgb(225, 232, 229)));
+        states.addState(new int[]{}, controlBackground(Color.rgb(246, 247, 246))); b.setBackground(states);
+        b.setTextColor(new android.content.res.ColorStateList(new int[][]{new int[]{-android.R.attr.state_enabled}, new int[]{}}, new int[]{Color.rgb(180, 185, 182), Color.rgb(35, 43, 40)}));
+        b.setOnClickListener(v -> action.run()); return b;
+    }
+    private void addControl(LinearLayout parent, Button button, int width) {
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dp(width), dp(44)); params.setMargins(dp(3), 0, dp(3), 0); parent.addView(button, params);
+    }
+    @Override public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
     }
     @Override protected void onActivityResult(int request, int result, Intent data) {
         super.onActivityResult(request, result, data);

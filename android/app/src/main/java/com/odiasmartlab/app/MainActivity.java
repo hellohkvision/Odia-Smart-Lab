@@ -18,6 +18,7 @@ public class MainActivity extends Activity {
     private static final int SAVE_DOCUMENT = 1002;
     private static final int OPEN_DOCUMENT = 1003;
     private static final int SAVE_PDF = 1004;
+    private static final int OPEN_SVG = 1005;
     private String pendingPdf;
     private byte[] pendingDocument;
     private WebView webView;
@@ -104,6 +105,14 @@ public class MainActivity extends Activity {
             });
         }
 
+        @JavascriptInterface public void openSvgFile() {
+            runOnUiThread(() -> {
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE); intent.setType("image/svg+xml");
+                try { startActivityForResult(intent, OPEN_SVG); }
+                catch (android.content.ActivityNotFoundException e) { showBoardNotice("No file picker available", true); }
+            });
+        }
         @JavascriptInterface public void saveBoardFile(String json) {
             if (json == null || json.length() > 4 * 1024 * 1024) {
                 showBoardNotice("Board file is too large to save", true);
@@ -174,7 +183,20 @@ public class MainActivity extends Activity {
 
     @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == OPEN_DOCUMENT) {
+        if (requestCode == OPEN_SVG) {
+            if (resultCode != RESULT_OK || data == null || data.getData() == null) return;
+            Uri uri = data.getData();
+            new Thread(() -> {
+                try (java.io.InputStream in = getContentResolver().openInputStream(uri); java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream()) {
+                    if (in == null) throw new java.io.IOException("Unable to open SVG");
+                    byte[] buffer = new byte[8192]; int count, total = 0;
+                    while ((count = in.read(buffer)) != -1) { total += count; if (total > 1024 * 1024) throw new java.io.IOException("SVG too large"); out.write(buffer, 0, count); }
+                    String svg = out.toString("UTF-8");
+                    runOnUiThread(() -> webView.evaluateJavascript("window.receiveSvgFile && window.receiveSvgFile(" + org.json.JSONObject.quote(svg) + ")", null));
+                } catch (Exception e) { showBoardNotice("Could not open SVG file", true); }
+            }).start();
+            return;
+        }        if (requestCode == OPEN_DOCUMENT) {
             if (resultCode != RESULT_OK || data == null || data.getData() == null) return;
             Uri uri = data.getData();
             new Thread(() -> {

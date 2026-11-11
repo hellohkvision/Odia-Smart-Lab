@@ -866,3 +866,28 @@ body.activity-not-board .left-actions{display:none!important}
 .practice-strip .practice-language-switch{flex:0 0 auto;min-width:48px;min-height:48px;padding:6px;border:1px solid #d6d6d6;border-radius:8px;background:#f2f2f2;color:#173f38;font-size:14px;font-weight:700}
 .practice-strip .practice-language-switch[aria-pressed="true"]{background:#155c50;color:#fff;border-color:#155c50}
 .practice-strip .practice-language-switch:focus-visible{outline:2px solid #e8b94d;outline-offset:2px}
+
+/* Keep letter selection compact without the free-writing button. */
+.practice-strip #freewrite{display:none!important}
+
+.board-exit-dialog{box-sizing:border-box;width:min(320px,calc(100vw - 32px));padding:18px;border:1px solid #ddd;border-radius:14px;background:#fff;color:#222;box-shadow:0 12px 36px #0003}
+.board-exit-dialog::backdrop{background:#0006}.board-exit-dialog h2{font-size:17px;margin:0 0 6px}.board-exit-dialog p{font-size:12px;line-height:1.4;color:#666;margin:0 0 16px}.board-exit-dialog>div{display:flex;justify-content:flex-end;gap:6px;flex-wrap:wrap}.board-exit-dialog button{min-height:40px;padding:7px 10px;border:1px solid #ddd;border-radius:8px;background:#f5f5f5;color:#222;font-size:12px}.board-exit-dialog button.exit-save{background:#222;border-color:#222;color:#fff}
+/* Remove Android WebView's blue touch flash; keyboard focus remains visible. */
+html,body,button,a,input,select,textarea,[role='button']{-webkit-tap-highlight-color:transparent}
+
+/* Compact book options while retaining four cards per swipeable page. */
+#lessons .pathasala-carousel{width:min(620px,100%)}
+#lessons .pathasala-subject-page .pathasala-subject{min-height:clamp(76px,22vh,120px);padding:8px 4px;gap:4px}
+#lessons .pathasala-subject .pathasala-icon{width:34px;height:34px;border-radius:9px}
+#lessons .pathasala-subject .pathasala-icon svg{width:20px;height:20px}
+#lessons .pathasala-subject strong{font-size:clamp(11px,1.7vw,14px)!important;line-height:1.2}
+#lessons .pathasala-book-sections{width:min(560px,100%);text-align:center;color:#25313a}
+#lessons .pathasala-book-sections h2{font-size:clamp(14px,2.2vw,18px);margin:0 0 14px;line-height:1.3}
+#lessons .pathasala-book-sections p{font-size:13px;color:#69747a}
+#lessons .pathasala-section-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+#lessons .pathasala-section-card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;min-width:0;min-height:100px;padding:10px 4px;border:1px solid #e0e6e7;border-radius:12px;background:#fff;color:#25313a}
+#lessons .pathasala-section-card span{display:grid;place-items:center;width:36px;height:36px;border-radius:10px;background:#eaf2fd;color:#416aa0}
+#lessons .pathasala-section-card:nth-child(2) span{background:#fff2df;color:#a36c2d}#lessons .pathasala-section-card:nth-child(3) span{background:#eaf5ef;color:#467d62}
+#lessons .pathasala-section-card svg{width:21px;height:21px}#lessons .pathasala-section-card strong{font-size:12px}
+.board-pattern-choices{display:flex;gap:5px;width:100%}.board-pattern-choices button{flex:1;min-width:0;min-height:40px;padding:5px;border:1px solid #ddd;border-radius:8px;background:#f5f5f5;color:#333;font-size:11px}.board-pattern-choices button[aria-pressed=true]{background:#222;color:#fff;border-color:#222}
+.app-color-dialog{box-sizing:border-box;width:min(290px,calc(100vw - 24px));max-height:calc(100dvh - 20px);overflow:auto;padding:12px;border:1px solid #ddd;border-radius:14px;background:#fff;color:#222;box-shadow:0 10px 32px #0003}.app-color-dialog::backdrop{background:#0007}.app-color-dialog h2{font-size:14px;margin:0 0 8px}.app-color-wheel{display:block;width:min(160px,38vh);height:min(160px,38vh);margin:0 auto 8px;border-radius:50%;touch-action:none;background:transparent}.app-color-light{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:600}.app-color-light input{flex:1;min-width:0;accent-color:#333}.app-color-values{display:flex;align-items:center;gap:8px;margin-top:6px}.app-color-preview{width:30px;height:30px;border-radius:50%;border:1px solid #aaa;flex:none}.app-color-values label{display:flex;align-items:center;gap:6px;font-size:11px}.app-color-hex{width:90px;min-height:32px;padding:4px;border:1px solid #ddd;border-radius:6px;color:#222;background:#fff;font-size:12px}.app-color-actions{display:flex;justify-content:flex-end;gap:6px;margin-top:10px}.app-color-actions button{min-height:36px;padding:5px 14px;border:1px solid #ddd;border-radius:7px;background:#f4f4f4;font-size:12px}.app-color-actions [data-action=apply]{background:#222;color:#fff;border-color:#222}
