@@ -891,3 +891,17 @@ html,body,button,a,input,select,textarea,[role='button']{-webkit-tap-highlight-c
 #lessons .pathasala-section-card svg{width:21px;height:21px}#lessons .pathasala-section-card strong{font-size:12px}
 .board-pattern-choices{display:flex;gap:5px;width:100%}.board-pattern-choices button{flex:1;min-width:0;min-height:40px;padding:5px;border:1px solid #ddd;border-radius:8px;background:#f5f5f5;color:#333;font-size:11px}.board-pattern-choices button[aria-pressed=true]{background:#222;color:#fff;border-color:#222}
 .app-color-dialog{box-sizing:border-box;width:min(290px,calc(100vw - 24px));max-height:calc(100dvh - 20px);overflow:auto;padding:12px;border:1px solid #ddd;border-radius:14px;background:#fff;color:#222;box-shadow:0 10px 32px #0003}.app-color-dialog::backdrop{background:#0007}.app-color-dialog h2{font-size:14px;margin:0 0 8px}.app-color-wheel{display:block;width:min(160px,38vh);height:min(160px,38vh);margin:0 auto 8px;border-radius:50%;touch-action:none;background:transparent}.app-color-light{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:600}.app-color-light input{flex:1;min-width:0;accent-color:#333}.app-color-values{display:flex;align-items:center;gap:8px;margin-top:6px}.app-color-preview{width:30px;height:30px;border-radius:50%;border:1px solid #aaa;flex:none}.app-color-values label{display:flex;align-items:center;gap:6px;font-size:11px}.app-color-hex{width:90px;min-height:32px;padding:4px;border:1px solid #ddd;border-radius:6px;color:#222;background:#fff;font-size:12px}.app-color-actions{display:flex;justify-content:flex-end;gap:6px;margin-top:10px}.app-color-actions button{min-height:36px;padding:5px 14px;border:1px solid #ddd;border-radius:7px;background:#f4f4f4;font-size:12px}.app-color-actions [data-action=apply]{background:#222;color:#fff;border-color:#222}
+/* Keep Select and More in reach; move excess tools into the More menu. */
+.bottom-bar{display:flex!important;flex-wrap:nowrap!important;justify-content:center!important;box-sizing:border-box!important;height:52px!important;min-height:52px!important;padding:2px 4px!important;overflow:visible!important}
+.bottom-bar .tools{display:flex!important;align-items:center;flex-wrap:nowrap!important;flex:0 1 auto!important;min-width:0;gap:0!important;padding:0!important;overflow:visible!important}
+.bottom-bar .tools>button,.bottom-bar #moreTools{box-sizing:border-box!important;flex:0 0 var(--live-tool-width,48px)!important;width:var(--live-tool-width,48px)!important;min-width:var(--live-tool-width,48px)!important;height:48px!important;min-height:48px!important;margin:0!important}
+.toolbar-overflow-items{display:contents}
+.toolbar-overflow-items>button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:100%;min-width:48px;min-height:48px;padding:5px;border:0;border-radius:8px;background:#f2f2f2;color:#222}
+.toolbar-overflow-items>button svg,.toolbar-overflow-items>button img{width:22px;height:22px;object-fit:contain}
+.toolbar-overflow-items>button .dock-tool-name{font:600 10px/1.1 system-ui,sans-serif;text-align:center}
+.toolbar-overflow-items>button.active,.toolbar-overflow-items>button[aria-pressed=true]{background:#e4efff;color:#174b91}
+.toolbar-overflow-items>button:disabled{opacity:.42}
+@media (min-width:1200px) and (min-height:600px){
+ .bottom-bar{height:60px!important;min-height:60px!important}
+ .bottom-bar .tools>button,.bottom-bar #moreTools{height:54px!important;min-height:54px!important}
+}
