@@ -262,6 +262,7 @@
  const choices=[['Black','#121212'],['White','#fffefb'],['Green','#174c3d'],['Cream','#fff8df'],['Blue','#eaf3fb']];
  const wrap=document.createElement('fieldset');wrap.className='board-background-options';const legend=document.createElement('legend');legend.textContent='Board color';wrap.append(legend);const row=document.createElement('div');row.className='board-background-row';wrap.append(row);boardSettings.append(wrap);
  let selected='#121212';
+ try{const saved=localStorage.getItem('odia-board-background');if(/^#[0-9a-f]{6}$/i.test(saved||''))selected=saved.toLowerCase()}catch{}
  function apply(value){selected=value;canvas.style.backgroundColor=value;row.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.color===value)));}
  for(const [label,value] of choices){const b=document.createElement('button');b.type='button';b.dataset.color=value;b.setAttribute('aria-label',label+' board background');b.title=label;b.style.setProperty('--swatch',value);b.onclick=()=>{apply(value);try{localStorage.setItem('odia-board-background',value)}catch{document.querySelector('#status').textContent='Could not save board color on this device.'}};row.append(b)}
  const custom=document.createElement('input');custom.type='color';custom.className='board-custom-color';custom.setAttribute('aria-label','Choose any board background color');custom.title='Choose any board color';row.append(custom);
@@ -752,7 +753,10 @@
  const choices=document.createElement('div');choices.className='board-pattern-choices';choices.setAttribute('role','group');choices.setAttribute('aria-label','Board style');
  for(const value of ['plain','dots','ruled']){const option=[...select.options].find(o=>o.value===value);if(!option)continue;const b=document.createElement('button');b.type='button';b.textContent=option.textContent;b.dataset.value=value;b.onclick=()=>{select.value=value;select.dispatchEvent(new Event('change',{bubbles:true}))};choices.append(b)}
  function sync(){choices.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.value===select.value)))}
- select.hidden=true;select.after(choices);select.addEventListener('change',sync);sync();
+ select.hidden=true;select.after(choices);
+ select.addEventListener('change',()=>{sync();try{localStorage.setItem('odia-board-pattern',select.value)}catch{}});
+ try{const saved=localStorage.getItem('odia-board-pattern');if(['plain','dots','ruled'].includes(saved)){select.value=saved;select.dispatchEvent(new Event('change',{bubbles:true}))}}catch{}
+ sync();
 })();
 // Shared colour wheel replaces the native colour dialog in all board palettes.
 (()=>{
