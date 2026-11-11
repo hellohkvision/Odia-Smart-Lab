@@ -114,14 +114,33 @@
    for(let x=8;x+width<=area.width-8;x+=width+12){const found=test(x,y);if(found)return found}
   return null;
  }
- // Scan aligned columns and rows in reading order, respecting existing board items.
- function orderedWordBox(anchor,width,height,area){
-  const rect=bounds(anchor,area);if(!rect)return null;const gap=12,stepX=width+gap,stepY=height+gap;
+ // Choose the nearest clear location beside the letter, with a safe edge margin.
+ function orderedWordBox(anchor,width,height,area,preferred){
+  const rect=bounds(anchor,area);if(!rect)return null;
+  const margin=Math.max(12,Math.min(32,area.width*.035,area.height*.05)),gap=24,stepX=width+16,stepY=height+12;
+  const minX=margin,maxX=area.width-margin-width,minY=margin,maxY=area.height-margin-height;
+  if(maxX<minX||maxY<minY)return null;
   const obstacles=strokes.filter(s=>s.color!=='#fffef9').map(s=>bounds(s,area)).filter(Boolean);
-  const columns=[];for(let x=8;x+width<=area.width-8;x+=stepX)columns.push(x);
-  const rightFirst=(rect.left+rect.right)/2<area.width/2;columns.sort((a,b)=>rightFirst?b-a:a-b);
-  for(const x of columns)for(let y=8;y+height<=area.height-8;y+=stepY){const box={left:x,top:y,right:x+width,bottom:y+height};if(!obstacles.some(other=>overlaps(box,other)))return box}
-  return null;
+  const centerY=(rect.top+rect.bottom-height)/2, candidates=[];
+  const sides=preferred==='left'?['left','right']:['right','left'];
+  for(const side of sides){
+   for(let col=0;col<Math.ceil(area.width/stepX);col++){
+    const x=side==='left'?rect.left-gap-width-col*stepX:rect.right+gap+col*stepX;
+    if(x<minX||x>maxX)continue;
+    for(let row=0;row<Math.ceil(area.height/stepY)+1;row++){
+     for(const direction of row===0?[0]:[-1,1]){
+      const y=Math.max(minY,Math.min(maxY,centerY+direction*row*stepY));
+      const box={left:x,top:y,right:x+width,bottom:y+height};
+      if(obstacles.some(other=>overlaps(box,other)))continue;
+      const dx=side==='left'?rect.left-box.right:box.left-rect.right;
+      const dy=Math.abs((box.top+box.bottom-rect.top-rect.bottom)/2);
+      candidates.push({box,score:dx+dy*.85+(side===preferred?0:40)});
+     }
+    }
+   }
+  }
+  candidates.sort((a,b)=>a.score-b.score);
+  return candidates.length?candidates[0].box:null;
  }
  function pointBox(box,area){return [[box.left/area.width,box.top/area.r.height],[box.right/area.width,box.bottom/area.r.height]]}
  function sidesFor(item,area){
@@ -142,7 +161,7 @@
   for(let i=0;i<entries.length;i++){
    const [text,picture]=entries[i];if(already.has(text))continue;
    ctx.save();ctx.font=fontSize+'px "Noto Sans Odia", sans-serif';const width=Math.max(80,Math.min(area.width*.38,ctx.measureText(text).width+24));ctx.restore();
-   const height=Math.max(48,fontSize*1.5),box=orderedWordBox(letter,Math.max(80,Math.min(area.width*.38,160)),height,area);if(!box)continue;
+   const height=Math.max(48,fontSize*1.5),box=orderedWordBox(letter,Math.max(80,Math.min(area.width*.38,160)),height,area,sidesFor(letter,area)[i%2]);if(!box)continue;
    letter.vocabSourceId=source;
    strokes.push({kind:'vocabWord',text,picture,vocabSourceId:source,points:pointBox(box,area),color:letter.color,size:fontSize,alpha:1});added++;
   }
