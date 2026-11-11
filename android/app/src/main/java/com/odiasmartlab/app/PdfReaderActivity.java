@@ -30,6 +30,8 @@ public class PdfReaderActivity extends Activity {
     private PdfRenderer renderer;
     private ImageView image;
     private TextView pageLabel;
+    private android.widget.FrameLayout pageSlot;
+    private android.widget.ProgressBar downloadSpinner;
     private Button closeReader, previous, next, layout, splitButton;
     private LinearLayout pdfControls;
     private PdfNotesBoard notesBoard;
@@ -129,6 +131,14 @@ public class PdfReaderActivity extends Activity {
         pageLabel.setTextColor(Color.rgb(42, 48, 46)); pageLabel.setGravity(Gravity.CENTER);
         pageLabel.setTextSize(12); pageLabel.setSingleLine(true);
         pageLabel.setTypeface(null, android.graphics.Typeface.BOLD); pageLabel.setMinWidth(dp(64));
+        pageSlot = new android.widget.FrameLayout(this);
+        pageSlot.addView(pageLabel, new android.widget.FrameLayout.LayoutParams(-1, -1));
+        downloadSpinner = new android.widget.ProgressBar(this, null, android.R.attr.progressBarStyleSmall);
+        downloadSpinner.setIndeterminate(true);
+        downloadSpinner.setIndeterminateTintList(android.content.res.ColorStateList.valueOf(Color.rgb(0, 83, 51)));
+        downloadSpinner.setContentDescription("Downloading book");
+        downloadSpinner.setVisibility(View.GONE);
+        pageSlot.addView(downloadSpinner, new android.widget.FrameLayout.LayoutParams(dp(26), dp(26), Gravity.CENTER));
         pdfControls.addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob) -> arrangePdfControls(r-l));
         pdfPane.addView(pdfControls, new LinearLayout.LayoutParams(-1, -2));
         arrangePdfControls(dp(800));
@@ -150,7 +160,7 @@ public class PdfReaderActivity extends Activity {
         if (control.getParent() instanceof android.view.ViewGroup)
             ((android.view.ViewGroup) control.getParent()).removeView(control);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dp(width), dp(48));
-        if (control != pageLabel) params.setMargins(dp(2), 0, dp(2), 0);
+        if (control != pageSlot) params.setMargins(dp(2), 0, dp(2), 0);
         row.addView(control, params);
     }
     private LinearLayout pdfRow() {
@@ -169,11 +179,11 @@ public class PdfReaderActivity extends Activity {
         LinearLayout first = pdfRow();
         if (!twoRows) {
             addPdfControl(first, closeReader, 48); addPdfControl(first, previous, 48);
-            addPdfControl(first, pageLabel, countWidth); addPdfControl(first, next, 48);
+            addPdfControl(first, pageSlot, countWidth); addPdfControl(first, next, 48);
             if (!splitMode) addPdfControl(first, layout, 48);
             addPdfControl(first, splitButton, 48);
         } else {
-            addPdfControl(first, previous, 48); addPdfControl(first, pageLabel, countWidth); addPdfControl(first, next, 48);
+            addPdfControl(first, previous, 48); addPdfControl(first, pageSlot, countWidth); addPdfControl(first, next, 48);
             LinearLayout second = pdfRow();
             addPdfControl(second, closeReader, 48);
             if (!splitMode) addPdfControl(second, layout, 48);
@@ -232,7 +242,7 @@ public class PdfReaderActivity extends Activity {
             Toast.makeText(this, "Invalid book address", Toast.LENGTH_LONG).show(); finish(); return;
         }
         previous.setEnabled(false); next.setEnabled(false); layout.setEnabled(false);
-        pageLabel.setText("Downloading…");
+        pageLabel.setVisibility(View.INVISIBLE); downloadSpinner.setVisibility(View.VISIBLE);
         rendererThread.execute(() -> {
             java.net.HttpURLConnection connection = null;
             java.io.File partial = null;
@@ -258,8 +268,6 @@ public class PdfReaderActivity extends Activity {
                             if (destroyed) throw new IOException("Download cancelled");
                             total += count; if (total > max) throw new IOException("Book too large");
                             out.write(buffer, 0, count);
-                            final long bytes = total;
-                            if (bytes % (1024 * 1024) < count) runOnUiThread(() -> { if (!destroyed) pageLabel.setText("Downloading " + (bytes / (1024 * 1024)) + " MB"); });
                         }
                         if (total < 5 || (expected >= 0 && total != expected)) throw new IOException("Incomplete download");
                     }
@@ -268,7 +276,7 @@ public class PdfReaderActivity extends Activity {
                     }
                     if (!partial.renameTo(target)) throw new IOException("Cannot save book");
                 }
-                if (!destroyed) runOnUiThread(() -> { if (!destroyed) { layout.setEnabled(true); openPdf(Uri.fromFile(target)); } });
+                if (!destroyed) runOnUiThread(() -> { if (!destroyed) { layout.setEnabled(true); downloadSpinner.setVisibility(View.GONE); pageLabel.setVisibility(View.VISIBLE); openPdf(Uri.fromFile(target)); } });
             } catch (Exception e) {
                 if (partial != null) partial.delete();
                 runOnUiThread(() -> { if (!destroyed) { Toast.makeText(this, "Book download failed. Check internet and try again.", Toast.LENGTH_LONG).show(); finish(); } });
