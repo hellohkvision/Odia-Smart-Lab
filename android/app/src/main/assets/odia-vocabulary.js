@@ -151,7 +151,7 @@
  function addWords(letter){
   const isEnglish=/^[A-Za-z]$/.test(letter.text);
   const englishEntries=isEnglish?englishWords[letter.text.toUpperCase()]:null;
-  const entries=isEnglish?(englishEntries||[]).map(([text,picture])=>[letter.text===letter.text.toLowerCase()?text.toLowerCase():text,picture]):words[letter.text];
+  const entries=isEnglish?(englishEntries||[]).map(([text,picture])=>[letter.text===letter.text.toLowerCase()?text.toLowerCase():text,picture]):(/[\u0900-\u097f]/.test(letter.text)?(window.getHindiAlphabetExamples?.(letter.text)||[]):words[letter.text]);
   const area=boardArea();
   if(!entries?.length){notice('ଏହି ଅକ୍ଷର ପାଇଁ ଶବ୍ଦ ଏପର୍ଯ୍ୟନ୍ତ ଯୋଡ଼ା ଯାଇନାହିଁ।');return}
   if(!area)return;
@@ -194,7 +194,7 @@
    if(pending!==record||!strokes.includes(item))return;
    record.held=true;
    if(fromPen){activeInk.delete(record.id);drawing=activeInk.size>0;if(inkFrame){cancelAnimationFrame(inkFrame);inkFrame=0}render()}
-   addLetterPictures(item);
+   addWords(item);
   },650);
  }
  function move(e){if(pending&&pending.id===e.pointerId&&Math.hypot(e.clientX-pending.x,e.clientY-pending.y)>12)cancel()}
