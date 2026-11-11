@@ -117,6 +117,7 @@
  }
  render=function(){
   originalRender();document.dispatchEvent(new Event('boardselectionchange'));
+  if(selecting&&drag?.lasso?.length){const r=canvas.getBoundingClientRect();ctx.save();ctx.strokeStyle='#3f83d8';ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.beginPath();drag.lasso.forEach((p,i)=>{if(i)ctx.lineTo(p[0]*r.width,p[1]*r.height);else ctx.moveTo(p[0]*r.width,p[1]*r.height)});ctx.stroke();ctx.restore()}
   if(!selecting||!selected||!strokes.includes(selected))return;
   const bounds=selectionBounds(selected);if(!bounds)return;const r=canvas.getBoundingClientRect(),handles=selectionHandles(bounds,r);
   const left=bounds.left*r.width,top=bounds.top*r.height,w=(bounds.right-bounds.left)*r.width,h=(bounds.bottom-bounds.top)*r.height;
@@ -138,10 +139,11 @@
    if(handle){drag={id:e.pointerId,start:p,points:copy(selected.points),size:selected.size,bounds,handle};canvas.setPointerCapture(e.pointerId);render();return}
   }
   selected=[...strokes].reverse().find(s=>s.kind!=='regionFill'&&(s.color!=='#fffef9'||!!s.text)&&s.points?.length>0&&(()=>{const b=selectionBounds(s);return p[0]>=b.left-tx&&p[0]<=b.right+tx&&p[1]>=b.top-ty&&p[1]<=b.bottom+ty})())||null;
-  if(selected){drag={id:e.pointerId,start:p,points:copy(selected.points),size:selected.size,handle:null};window.odiaVocabStart?.(e,selected);canvas.setPointerCapture(e.pointerId)}render();
+  if(selected){drag={id:e.pointerId,start:p,points:copy(selected.points),size:selected.size,handle:null};window.odiaVocabStart?.(e,selected)}else drag={id:e.pointerId,lasso:[p]};canvas.setPointerCapture(e.pointerId);render();
  },true);
  canvas.addEventListener('pointermove',e=>{
   if(!selecting)return;window.odiaVocabMove?.(e);e.stopImmediatePropagation();if(!drag||drag.id!==e.pointerId)return;
+  if(drag.lasso){const p=point(e),last=drag.lasso[drag.lasso.length-1],r=canvas.getBoundingClientRect();if(Math.hypot((p[0]-last[0])*r.width,(p[1]-last[1])*r.height)>=3)drag.lasso.push(p);render();return}
   const p=point(e),dx=p[0]-drag.start[0],dy=p[1]-drag.start[1];
   if(drag.handle){
    const r=canvas.getBoundingClientRect(),b=drag.bounds;
@@ -158,7 +160,10 @@
   }else selected.points=drag.points.map(q=>[q[0]+dx,q[1]+dy]);
   render();
  },true);
- function end(e){if(!selecting)return;window.odiaVocabEnd?.(e);e.stopImmediatePropagation();if(!drag||drag.id!==e.pointerId)return;if(e.type==='pointercancel'||e.type==='lostpointercapture'){selected.points=drag.points;selected.size=drag.size}else if(JSON.stringify(selected.points)!==JSON.stringify(drag.points)||selected.size!==drag.size)persist();drag=null;render();}
+ function insideLasso(point,polygon){let inside=false;for(let i=0,j=polygon.length-1;i<polygon.length;j=i++){const a=polygon[i],b=polygon[j];if((a[1]>point[1])!==(b[1]>point[1])&&point[0]<(b[0]-a[0])*(point[1]-a[1])/(b[1]-a[1])+a[0])inside=!inside}return inside}
+ function end(e){if(!selecting)return;window.odiaVocabEnd?.(e);e.stopImmediatePropagation();if(!drag||drag.id!==e.pointerId)return;
+  if(drag.lasso){const path=drag.lasso,r=canvas.getBoundingClientRect();if(e.type==='pointerup'&&path.length>=6&&Math.hypot((path[0][0]-path[path.length-1][0])*r.width,(path[0][1]-path[path.length-1][1])*r.height)<40){selected=[...strokes].reverse().find(item=>item.kind!=='regionFill'&&(item.color!=='#fffef9'||!!item.text)&&(()=>{const b=selectionBounds(item);if(!b)return false;return [[b.left,b.top],[b.right,b.top],[b.right,b.bottom],[b.left,b.bottom],[(b.left+b.right)/2,(b.top+b.bottom)/2]].every(p=>insideLasso(p,path))})())||null}drag=null;render();return}
+  if(e.type==='pointercancel'||e.type==='lostpointercapture'){selected.points=drag.points;selected.size=drag.size}else if(JSON.stringify(selected.points)!==JSON.stringify(drag.points)||selected.size!==drag.size)persist();drag=null;render();}
  canvas.addEventListener('pointerup',end,true);canvas.addEventListener('pointercancel',end,true);canvas.addEventListener('lostpointercapture',end,true);
  function selectedClosed(){if(selected?.kind==='svg')return true;if(!selected||!Array.isArray(selected.points)||selected.points.length<3)return false;const a=selected.points[0],b=selected.points[selected.points.length-1];return Math.hypot(a[0]-b[0],a[1]-b[1])<0.01}
  window.boardSelectionInfo=()=>selecting&&selected&&strokes.includes(selected)?{closed:selectedClosed(),fillColor:selected.fillColor||null,fillOpacity:Number.isFinite(selected.fillOpacity)?selected.fillOpacity:1,borderColor:selected.color}:null;
