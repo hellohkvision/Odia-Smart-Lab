@@ -32,9 +32,11 @@ public class PdfReaderActivity extends Activity {
     private PdfRenderer renderer;
     private ImageView image;
     private TextView pageLabel;
-    private Button previous, next, layout;
-    private int pageIndex, pageCount, generation;
-    private boolean twoPages;
+    private Button previous, next, layout, splitButton;
+    private PdfNotesBoard notesBoard;
+    private int pageIndex, pageCount;
+    private volatile int generation;
+    private boolean twoPages, splitMode, compactToolbar;
     private volatile boolean destroyed;
     private Uri documentUri;
     private float touchX, touchY, lastX, lastY, zoom = 1f, panX, panY;
@@ -65,7 +67,10 @@ public class PdfReaderActivity extends Activity {
             }
         });
         image.addOnLayoutChangeListener((view, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
-            if (right - left != oldRight - oldLeft || bottom - top != oldBottom - oldTop) resetZoom();
+            if (right - left != oldRight - oldLeft || bottom - top != oldBottom - oldTop) {
+                resetZoom();
+                if (renderer != null) image.post(this::showPage);
+            }
         });
         image.setOnTouchListener((v, event) -> {
             scaleDetector.onTouchEvent(event);
@@ -97,7 +102,13 @@ public class PdfReaderActivity extends Activity {
                 default: return true;
             }
         });
-        root.addView(image, new LinearLayout.LayoutParams(-1, 0, 1));
+        LinearLayout readingArea = new LinearLayout(this);
+        readingArea.setOrientation(LinearLayout.HORIZONTAL);
+        readingArea.addView(image, new LinearLayout.LayoutParams(0, -1, 1f));
+        notesBoard = new PdfNotesBoard(this);
+        notesBoard.setVisibility(View.GONE);
+        readingArea.addView(notesBoard, new LinearLayout.LayoutParams(0, -1, 1f));
+        root.addView(readingArea, new LinearLayout.LayoutParams(-1, 0, 1f));
         LinearLayout controls = new LinearLayout(this);
         controls.setGravity(Gravity.CENTER);
         controls.setPadding(dp(8), dp(5), dp(8), dp(5));
@@ -112,11 +123,28 @@ public class PdfReaderActivity extends Activity {
         pageLabel.setTypeface(null, android.graphics.Typeface.BOLD);
         pageLabel.setMinWidth(dp(92)); pageLabel.setPadding(dp(8), 0, dp(8), 0);
         next = button("›", () -> changePage(1)); next.setContentDescription("Next page");
-        layout = button("୨ ପୃଷ୍ଠା", () -> { twoPages = !twoPages; pageIndex = twoPages ? pageIndex / 2 * 2 : pageIndex; resetZoom(); showPage(); });
+        layout = button("୨ ପୃଷ୍ଠା", () -> { if (splitMode || renderer == null) return; twoPages = !twoPages; pageIndex = twoPages ? pageIndex / 2 * 2 : pageIndex; resetZoom(); showPage(); });
         layout.setContentDescription("Toggle one or two pages");
+        splitButton = button("✎", this::toggleSplit);
+        splitButton.setContentDescription("Open writing board beside PDF"); splitButton.setEnabled(false);
         addControl(controls, close, 96); addControl(controls, previous, 48);
-        controls.addView(pageLabel, new LinearLayout.LayoutParams(-2, dp(44)));
-        addControl(controls, next, 48); addControl(controls, layout, 90);
+        controls.addView(pageLabel, new LinearLayout.LayoutParams(-2, dp(48)));
+        addControl(controls, next, 48); addControl(controls, layout, 90); addControl(controls, splitButton, 52);
+        controls.addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob) -> {
+            boolean narrow = r - l < dp(500);
+            if (narrow == compactToolbar) return;
+            compactToolbar = narrow;
+            controls.setPadding(dp(narrow ? 2 : 8), dp(5), dp(narrow ? 2 : 5), dp(5));
+            resizeControl(close, narrow ? 48 : 96, narrow ? 1 : 3);
+            resizeControl(previous, 48, narrow ? 1 : 3);
+            resizeControl(next, 48, narrow ? 1 : 3);
+            resizeControl(layout, narrow ? 48 : 90, narrow ? 1 : 3);
+            resizeControl(splitButton, narrow ? 48 : 52, narrow ? 1 : 3);
+            pageLabel.setMinWidth(dp(narrow ? 48 : 92));
+            pageLabel.setPadding(dp(narrow ? 2 : 8), 0, dp(narrow ? 2 : 8), 0);
+            close.setText(narrow ? "←" : "←  ଫେରନ୍ତୁ");
+            updateLayoutLabel();
+        });
         root.addView(controls, new LinearLayout.LayoutParams(-1, -2));
         setContentView(root);
         String officialUrl = getIntent().getStringExtra("official_book_url");
@@ -142,7 +170,27 @@ public class PdfReaderActivity extends Activity {
         b.setOnClickListener(v -> action.run()); return b;
     }
     private void addControl(LinearLayout parent, Button button, int width) {
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dp(width), dp(44)); params.setMargins(dp(3), 0, dp(3), 0); parent.addView(button, params);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dp(width), dp(48)); params.setMargins(dp(3), 0, dp(3), 0); parent.addView(button, params);
+    }
+    private void resizeControl(Button button, int width, int margin) {
+        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) button.getLayoutParams();
+        params.width = dp(width); params.setMargins(dp(margin), 0, dp(margin), 0); button.setLayoutParams(params);
+    }
+    private void updateLayoutLabel() {
+        layout.setText(compactToolbar ? (twoPages ? "1" : "2") : (twoPages ? "୧ ପୃଷ୍ଠା" : "୨ ପୃଷ୍ଠା"));
+    }
+    private void toggleSplit() {
+        if (renderer == null) return;
+        splitMode = !splitMode;
+        if (splitMode) twoPages = false;
+        notesBoard.setVisibility(splitMode ? View.VISIBLE : View.GONE);
+        layout.setEnabled(!splitMode);
+        splitButton.setSelected(splitMode);
+        splitButton.setTextColor(splitMode ? Color.rgb(0, 100, 58) : Color.rgb(35, 43, 40));
+        splitButton.setBackground(controlBackground(splitMode ? Color.rgb(219, 240, 225) : Color.rgb(246, 247, 246)));
+        splitButton.setContentDescription(splitMode ? "Close writing board" : "Open writing board beside PDF");
+        updateLayoutLabel(); resetZoom();
+        image.post(this::showPage);
     }
     @Override public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
@@ -162,6 +210,8 @@ public class PdfReaderActivity extends Activity {
             renderer = new PdfRenderer(descriptor);
             pageCount = renderer.getPageCount();
             if (pageCount == 0) throw new IOException("No pages");
+            notesBoard.openDocument(documentUri.toString());
+            splitButton.setEnabled(true);
             pageIndex = Math.min(pageCount - 1, Math.max(0, getPreferences(MODE_PRIVATE).getInt(documentUri.toString(), 0)));
             image.post(this::showPage);
         } catch (IOException | SecurityException | IllegalArgumentException e) {
@@ -258,9 +308,10 @@ public class PdfReaderActivity extends Activity {
         final int gutter = spread ? Math.min(width - 2, Math.max(2, Math.round(8 * getResources().getDisplayMetrics().density * width / Math.max(1, image.getWidth())))) : 0;
         pageLabel.setText((current + 1) + (spread && current + 1 < pageCount ? "–" + (current + 2) : "") + " / " + pageCount);
         previous.setEnabled(current > 0); next.setEnabled(current + (spread ? 2 : 1) < pageCount);
-        layout.setText(spread ? "୧ ପୃଷ୍ଠା" : "୨ ପୃଷ୍ଠା");
+        updateLayoutLabel();
         getPreferences(MODE_PRIVATE).edit().putInt(documentUri.toString(), current).apply();
         rendererThread.execute(() -> {
+            if (destroyed || id != generation) return;
             Bitmap bitmap = null;
             try {
                 bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
@@ -290,6 +341,7 @@ public class PdfReaderActivity extends Activity {
     }
     @Override protected void onDestroy() {
         destroyed = true; generation++;
+        if (notesBoard != null) notesBoard.close();
         rendererThread.execute(() -> { try { if (renderer != null) renderer.close(); else if (descriptor != null) descriptor.close(); } catch (IOException ignored) {} });
         rendererThread.shutdown();
         super.onDestroy();
