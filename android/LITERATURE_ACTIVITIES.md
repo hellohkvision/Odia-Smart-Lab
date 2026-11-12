@@ -19,7 +19,7 @@ The source is the user's uploaded `6th_Mil_P101.pdf`, a 12-page scanned chapter 
 - PDF page 11: ଏଇ ଦେଶ ଏଇ ମାଟି, by ସଚ୍ଚିଦାନନ୍ଦ ରାଉତରାୟ.
 - PDF page 12: writing/drawing space.
 
-The module uses original exercises and a locally drawn SVG landscape. It does not reproduce the textbook scans or full poems. The landscape is explicitly identified as a symbolic illustration, not a map. Poem comparison uses paraphrased themes.
+The module uses original exercises and three bundled, real CC0 photographs: the Himalayas in Ladakh, the Ganges near Rishikesh, and the Bay of Bengal at Visakhapatnam. Source and author details are in `app/src/main/assets/literature-images/CREDITS.md`. Activity cards include photo previews, the visual explorer switches between captioned real photos, and relevant quiz questions use photo prompts. It does not reproduce the textbook scans or full poems. Photo captions identify their actual locations; they are supporting examples for the poem. Poem comparison uses paraphrased themes.
 
 Six activities are available: visual exploration, six word/meaning pairs, six quiz questions with hints and feedback, three sentence-building rounds, creative writing, and teacher-led poem comparison. Sentence and application questions are identified as new exercises. Open-ended writing and discussions are marked practiced by the student or teacher; this is not an automatic assessment.
 
@@ -38,3 +38,6 @@ python android/tests/literature_smoke.py
 Before merging, also check an Android phone in both landscape directions and a classroom smartboard. Verify all six activities; wrong answers, hints and retry; writing draft after reload; keyboard focus and Escape; storage-disabled behavior; and returning to an existing drawing with undo/redo, page selection, erasing and PNG export intact.
 
 All module assets are bundled with the Android app and require no network requests. Real Android WebView compatibility and offline launch still require a device build/test. Adding further chapters requires their verified source pages and additional content; unsupported subjects are not presented as working.
+
+
+The header and footer are compact 52px bars (plus safe-area insets), with 48px touch targets. The repeated header kicker is hidden. The chapter content retains the remaining height; photographs live inside the activity content.

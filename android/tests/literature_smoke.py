@@ -21,11 +21,14 @@ def open_hub(page):
     expect(page.locator('#litOpenChapter')).to_contain_text('ଜନ୍ମଭୂମି')
     page.locator('#litOpenChapter').click()
     expect(page.locator('.lit-card')).to_have_count(6)
+    page.wait_for_function("[...document.querySelectorAll('.lit-card-photo')].length === 6 && [...document.querySelectorAll('.lit-card-photo')].every(img => img.complete && img.naturalWidth > 0)")
 
 
 def split_layout(page):
     expect(page.locator('.lit-chapter-sidebar')).to_be_visible()
     expect(page.locator('#litContent')).to_be_visible()
+    assert page.locator('.lit-top').bounding_box()['height'] <= 54
+    assert page.locator('.lit-footer').bounding_box()['height'] <= 54
     left = page.locator('.lit-chapter-sidebar').bounding_box()
     right = page.locator('#litContent').bounding_box()
     assert left['x'] + left['width'] <= right['x'] + 1
@@ -58,6 +61,8 @@ def run():
         activity(page, 'ଚିତ୍ରରେ ଖୋଜିବା')
         for b in page.locator('.lit-hotspots button').all():
             b.click()
+            page.locator('.lit-photo-stage img').evaluate('(img)=>img.decode()')
+            assert page.locator('.lit-photo-stage img').evaluate('img=>img.naturalWidth > 0')
         page.locator('#litBack').click()
         activity(page, 'ଶବ୍ଦ ଯୋଡ଼ିବା')
         words = ['ହିମାଳୟ', 'ଜାହ୍ନବୀ', 'ମହୋଦଧି', 'ଜନନୀ', 'ଦୁହିତା', 'ଚରଣ']
@@ -74,6 +79,9 @@ def run():
         activity(page, 'ନିଜକୁ ପରଖିବା')
         correct = ['ମଧୁସୂଦନ ରାଓ', 'ହିମାଳୟ', 'ଗଙ୍ଗା', 'ଜନ୍ମଭୂମି ପ୍ରତି ଭଲପାଇବା ଓ ଶ୍ରଦ୍ଧା', 'ସଚ୍ଚିଦାନନ୍ଦ ରାଉତରାୟ', 'ପରିବେଶକୁ ସଫା ରଖି ଓ ଗଛ ଲଗାଇ']
         for i, answer in enumerate(correct):
+            if i in [1, 2, 5]:
+                page.locator('.lit-question-photo img').evaluate('(img)=>img.decode()')
+                assert page.locator('.lit-question-photo img').evaluate('img=>img.naturalWidth > 0')
             if i == 0:
                 page.get_by_role('button', name='ସହାୟତା', exact=True).click()
             page.get_by_role('button', name=answer, exact=True).click()

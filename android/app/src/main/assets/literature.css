@@ -79,3 +79,27 @@
 #literatureHub .lit-empty-icon svg{width:64px;height:64px;color:#7c9b82}
 @media(max-width:700px){#literatureHub .lit-body.lit-workspace{grid-template-columns:clamp(112px,27vw,170px) minmax(0,1fr)}#literatureHub .lit-chapter-sidebar{padding:16px 8px}#literatureHub .lit-sidebar-heading{font-size:17px}#literatureHub .lit-chapter-link{font-size:16px;padding:12px 8px}#literatureHub .lit-chapter-content{padding:16px 12px}#literatureHub .lit-chapter-content .lit-options,#literatureHub .lit-chapter-content .lit-match{grid-template-columns:1fr}#literatureHub .lit-chapter-sidebar .lit-source{font-size:12px}}
 @media(max-height:500px){#literatureHub .lit-chapter-sidebar{padding-top:12px}#literatureHub .lit-chapter-content{padding-top:12px}}
+
+/* Compact chrome gives the lesson more space without shrinking touch targets. */
+#literatureHub .lit-top{min-height:52px;height:52px;flex-shrink:0;padding:2px 12px;gap:10px}
+#literatureHub .lit-top>div{min-width:0}
+#literatureHub .lit-top .lit-kicker{display:none}
+#literatureHub .lit-top h1{font-size:20px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#literatureHub #litClose,#literatureHub #litBack{min-height:48px;height:48px;padding:4px 12px;font-size:14px;white-space:nowrap}
+#literatureHub .lit-footer{min-height:52px;padding:2px 12px calc(2px + env(safe-area-inset-bottom));gap:12px}
+#literatureHub .lit-footer small{font-size:11px;line-height:1.3;max-width:55%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#literatureHub .lit-footer .lit-save-error{white-space:normal;overflow:visible;color:#8d330c}
+#literatureHub .lit-card-photo{display:block;width:100%;height:132px;object-fit:cover;border-radius:10px}
+#literatureHub .lit-photo{display:block;width:100%;height:auto;object-fit:cover}
+#literatureHub .lit-photo-stage{margin:0;background:#e6e9e1}
+#literatureHub .lit-photo-stage .lit-photo{width:100%;height:clamp(180px,36vh,360px);object-fit:cover;object-position:center 60%}
+#literatureHub figcaption{padding:8px 12px;font-size:14px;color:#193f36;background:#f1f4e9}
+#literatureHub .lit-photo-credits{font-size:13px;color:#52695f;margin-top:12px}
+#literatureHub .lit-photo-credits summary{cursor:pointer;min-height:48px;display:flex;align-items:center}
+#literatureHub .lit-question-stem{display:flex;align-items:center;justify-content:space-between;gap:20px}
+#literatureHub .lit-question-stem h2{flex:1;min-width:0}
+#literatureHub .lit-question-photo{width:30%;max-width:250px;flex-shrink:0;margin:0}
+#literatureHub .lit-question-photo .lit-photo{height:130px;border-radius:12px;object-fit:cover;object-position:center 60%}
+#literatureHub .lit-question-photo figcaption{font-size:12px;padding:4px;background:transparent}
+@media(max-width:700px){#literatureHub .lit-question-stem{gap:10px}#literatureHub .lit-question-photo{width:34%}#literatureHub .lit-question-photo .lit-photo{height:100px}#literatureHub .lit-question-photo figcaption{font-size:11px}#literatureHub .lit-card-photo{height:110px}}
+@media(max-height:500px){#literatureHub .lit-photo-stage .lit-photo{height:180px}#literatureHub .lit-card-photo{height:100px}}
