@@ -1,0 +1,66 @@
+/* Scoped textbook activities; board tools and saved pages are untouched. */
+@font-face{font-family:LiteratureOdia;src:url('NotoSansOriya.ttf');font-display:swap}
+#literatureHub{position:fixed;inset:0;width:100%;height:100%;max-width:none;max-height:none;margin:0;padding:0;border:0;background:#f5f3eb;color:#193f36;font-family:LiteratureOdia,'Noto Sans Oriya',system-ui,sans-serif;font-size:18px;overscroll-behavior:contain}
+#literatureHub::backdrop{background:#193f36aa}
+#literatureHub:not([open]){display:none}
+#literatureHub .lit-shell{height:100%;display:flex;flex-direction:column}
+#literatureHub button,#literatureHub select{font:inherit;min-width:48px;min-height:48px;border-radius:12px;border:1px solid #c9d7cf;padding:10px 16px;background:#fff;color:#193f36;cursor:pointer}
+#literatureHub button:hover{background:#edf3eb}
+#literatureHub button:focus-visible,#literatureHub select:focus-visible,#literatureHub textarea:focus-visible,#literatureHub a:focus-visible{outline:3px solid #bd6206;outline-offset:3px}
+#literatureHub button:disabled{opacity:.65;cursor:default}
+#literatureHub h1,#literatureHub h2,#literatureHub h3,#literatureHub p{margin:0;color:inherit;line-height:1.65}
+#literatureHub h1{font-size:clamp(22px,3vw,36px)}
+#literatureHub h2{font-size:clamp(20px,2.4vw,29px)}
+#literatureHub .lit-top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 24px;border-bottom:1px solid #d7ded3;background:#fffdf7}
+#literatureHub .lit-kicker{font:700 11px system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#52695f}
+#literatureHub .lit-body{flex:1;min-height:0;overflow:auto;padding:24px max(20px,calc((100vw - 1200px)/2));scrollbar-gutter:stable}
+#literatureHub .lit-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px max(16px,env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom));background:#fffdf7;border-top:1px solid #d7ded3;flex-shrink:0}
+#literatureHub .lit-footer small{font-size:13px}
+#literatureHub .lit-primary{background:#185540;color:#fff;border-color:#185540}
+#literatureHub .lit-primary:hover{background:#103e2f}
+#literatureHub .lit-filters{display:flex;flex-wrap:wrap;gap:16px;margin:0 0 24px}
+#literatureHub label{display:grid;gap:6px;font-size:15px}
+#literatureHub .lit-book{display:grid;grid-template-columns:minmax(180px,.65fr) 1.35fr;gap:28px;background:#fffdf7;border:1px solid #d7ded3;border-radius:24px;padding:28px;margin-bottom:20px}
+#literatureHub .lit-cover{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;min-height:260px;border-radius:16px;background:#174e3c;color:#fff9dd;box-shadow:inset 10px 0 #ffffff15}
+#literatureHub .lit-cover svg{width:100px;height:100px}
+#literatureHub .lit-cover strong{font-size:30px}
+#literatureHub .lit-chapter{display:grid;gap:14px;align-content:center}
+#literatureHub .lit-badge{display:inline-block;width:fit-content;padding:5px 12px;border-radius:30px;background:#f5e8b9;font-size:14px}
+#literatureHub .lit-muted{color:#52695f;font-size:15px}
+#literatureHub .lit-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:22px 0}
+#literatureHub .lit-card{display:grid;text-align:left;gap:10px;padding:22px;border-radius:18px;background:#fffdf7;border:1px solid #d7ded3}
+#literatureHub .lit-card svg{width:34px;height:34px;color:#237259}
+#literatureHub .lit-card strong{font-size:22px}
+#literatureHub .lit-card small{font-size:15px;line-height:1.6;color:#52695f}
+#literatureHub .lit-card .lit-complete{color:#185540;font-weight:bold}
+#literatureHub .lit-panel{background:#fffdf7;border:1px solid #d7ded3;border-radius:20px;padding:24px;margin:18px 0}
+#literatureHub .lit-scene{position:relative;border-radius:18px;overflow:hidden;background:#e2f3ed;margin:18px 0}
+#literatureHub .lit-landscape{display:block;width:100%;height:auto;max-height:390px}
+#literatureHub .lit-hotspots{display:flex;flex-wrap:wrap;gap:8px;padding:12px}
+#literatureHub .lit-detail{min-height:90px;border-left:4px solid #cd901f;padding:14px 18px;background:#fff7db;border-radius:0 12px 12px 0}
+#literatureHub .lit-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:20px 0}
+#literatureHub .lit-options button{text-align:left;min-height:64px;font-size:21px}
+#literatureHub [aria-pressed=true]{outline:2px solid #185540;background:#e3f1e5}
+#literatureHub .lit-feedback{min-height:36px;font-size:18px;margin:12px 0;font-weight:600}
+#literatureHub .lit-match{display:grid;grid-template-columns:1fr 1.4fr;gap:12px;margin:20px 0}
+#literatureHub .lit-match>div{display:grid;gap:10px;align-content:start}
+#literatureHub .lit-match button{text-align:left;min-height:60px}
+#literatureHub .lit-matched{border:2px solid #267154;background:#e3f1e5}
+#literatureHub .lit-chips{display:flex;flex-wrap:wrap;gap:12px;margin:18px 0}
+#literatureHub .lit-sentence{min-height:90px;border:2px dashed #a9c2b4;border-radius:16px;padding:16px;display:flex;flex-wrap:wrap;gap:10px;margin:18px 0;background:#eef5ec}
+#literatureHub .lit-actions{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}
+#literatureHub textarea{font:inherit;line-height:1.8;resize:vertical;width:100%;min-height:200px;padding:16px;border:1px solid #acc2b4;border-radius:14px;background:#fff;color:#193f36}
+#literatureHub .lit-progress{font-size:15px;color:#52695f;margin:10px 0}
+#literatureHub .lit-results{text-align:center;padding:32px 16px}
+#literatureHub .lit-stars{font-size:48px;color:#ad7100;letter-spacing:10px}
+#literatureHub .lit-compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0}
+#literatureHub .lit-compare article{padding:20px;background:#eef4e9;border-radius:16px}
+#literatureHub .lit-compare article:last-child{background:#fff1d9}
+#literatureHub .lit-compare ul{padding-left:24px;line-height:1.9}
+#literatureHub .lit-source{font-size:13px;line-height:1.7;color:#52695f;margin:18px 0}
+#saathiMenu #literatureMenu{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:10px}
+#saathiMenu #literatureMenu small{font-size:14px}
+@media(min-width:1600px){#literatureHub{font-size:22px}#literatureHub .lit-body{padding-top:36px}#literatureHub button{min-height:56px}}
+@media(max-width:700px){#literatureHub .lit-top{padding:8px 12px}#literatureHub .lit-body{padding:16px 12px}#literatureHub .lit-book{grid-template-columns:1fr;padding:18px;gap:18px}#literatureHub .lit-cover{min-height:170px}#literatureHub .lit-grid{grid-template-columns:1fr 1fr;gap:10px}#literatureHub .lit-card{padding:16px}#literatureHub .lit-compare{grid-template-columns:1fr}#literatureHub .lit-panel{padding:16px}}
+@media(max-height:500px){#literatureHub .lit-top{padding:6px 12px}#literatureHub .lit-top h1{font-size:21px}#literatureHub .lit-kicker{display:none}#literatureHub .lit-body{padding-top:12px}#literatureHub .lit-footer{padding-top:4px;padding-bottom:calc(4px + env(safe-area-inset-bottom))}#literatureHub .lit-cover{min-height:180px}#literatureHub .lit-book{padding:18px}#literatureHub .lit-landscape{max-height:230px}#literatureHub .lit-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:420px){#literatureHub .lit-grid,#literatureHub .lit-options{grid-template-columns:1fr}#literatureHub .lit-footer small{max-width:45%}}
