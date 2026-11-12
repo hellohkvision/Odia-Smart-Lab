@@ -21,7 +21,7 @@ def open_hub(page):
     expect(page.locator('#litOpenChapter')).to_contain_text('ଜନ୍ମଭୂମି')
     page.locator('#litOpenChapter').click()
     expect(page.locator('.lit-card')).to_have_count(6)
-    page.wait_for_function("[...document.querySelectorAll('.lit-card-photo')].length === 6 && [...document.querySelectorAll('.lit-card-photo')].every(img => img.complete && img.naturalWidth > 0)")
+    expect(page.locator('.lit-card img')).to_have_count(0)
 
 
 def split_layout(page):
@@ -59,10 +59,18 @@ def run():
         assert before is not None
         open_hub(page)
         activity(page, 'ଚିତ୍ରରେ ଖୋଜିବା')
-        for b in page.locator('.lit-hotspots button').all():
+        used_photo_sources = set()
+        for i, b in enumerate(page.locator('.lit-hotspots button').all()):
             b.click()
-            page.locator('.lit-photo-stage img').evaluate('(img)=>img.decode()')
-            assert page.locator('.lit-photo-stage img').evaluate('img=>img.naturalWidth > 0')
+            if i == 3:
+                expect(page.locator('.lit-photo-stage')).not_to_be_visible()
+                continue
+            photo = page.locator('.lit-photo-stage img')
+            photo.evaluate('(img)=>img.decode()')
+            assert photo.evaluate('img=>img.naturalWidth > 0')
+            src = photo.get_attribute('src')
+            assert src not in used_photo_sources
+            used_photo_sources.add(src)
         page.locator('#litBack').click()
         activity(page, 'ଶବ୍ଦ ଯୋଡ଼ିବା')
         words = ['ହିମାଳୟ', 'ଜାହ୍ନବୀ', 'ମହୋଦଧି', 'ଜନନୀ', 'ଦୁହିତା', 'ଚରଣ']
@@ -79,9 +87,15 @@ def run():
         activity(page, 'ନିଜକୁ ପରଖିବା')
         correct = ['ମଧୁସୂଦନ ରାଓ', 'ହିମାଳୟ', 'ଗଙ୍ଗା', 'ଜନ୍ମଭୂମି ପ୍ରତି ଭଲପାଇବା ଓ ଶ୍ରଦ୍ଧା', 'ସଚ୍ଚିଦାନନ୍ଦ ରାଉତରାୟ', 'ପରିବେଶକୁ ସଫା ରଖି ଓ ଗଛ ଲଗାଇ']
         for i, answer in enumerate(correct):
-            if i in [1, 2, 5]:
+            if i in [1, 2]:
                 page.locator('.lit-question-photo img').evaluate('(img)=>img.decode()')
-                assert page.locator('.lit-question-photo img').evaluate('img=>img.naturalWidth > 0')
+                photo = page.locator('.lit-question-photo img')
+                assert photo.evaluate('img=>img.naturalWidth > 0')
+                src = photo.get_attribute('src')
+                assert src not in used_photo_sources
+                used_photo_sources.add(src)
+            else:
+                expect(page.locator('.lit-question-photo')).to_have_count(0)
             if i == 0:
                 page.get_by_role('button', name='ସହାୟତା', exact=True).click()
             page.get_by_role('button', name=answer, exact=True).click()
