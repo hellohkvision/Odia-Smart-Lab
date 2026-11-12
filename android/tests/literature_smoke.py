@@ -92,4 +92,17 @@ def run():
 
 
 if __name__ == '__main__':
-    run()
+    from functools import partial
+    from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
+    from threading import Thread
+    class QuietHandler(SimpleHTTPRequestHandler):
+        def log_message(self, *args):
+            pass
+    server = ThreadingHTTPServer(('127.0.0.1', 0), partial(QuietHandler, directory=str(ROOT)))
+    Thread(target=server.serve_forever, daemon=True).start()
+    URL = f'http://127.0.0.1:{server.server_port}/'
+    try:
+        run()
+    finally:
+        server.shutdown()
+        server.server_close()

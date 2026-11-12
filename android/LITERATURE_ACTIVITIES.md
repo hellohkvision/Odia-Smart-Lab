@@ -23,7 +23,7 @@ Quiz score counts correct first attempts without hints. Wrong attempts and hints
 
 ## Validation
 
-`node --check android/app/src/main/assets/literature.js` passes. Static integration, question data, and referenced assets were checked. Browser launch was attempted with Playwright and system Chromium; the sandbox blocked Chromium with `setsockopt: Operation not permitted`, followed by SIGTRAP. Browser interaction, visual layout, touch input, focus behavior and persistence have therefore **not** been verified in this environment. No Android APK was built here.
+`node --check android/app/src/main/assets/literature.js` passes. Static integration, question data, and referenced assets were checked. Playwright with system Chromium passed the integration smoke test over a local HTTP server: all six activities, incorrect matching and retry, quiz hints and first-attempt scoring, sentence building, draft persistence after reload, preserving existing board ink, Escape/focus return, and viewport overflow checks at 1920×1080, 844×390 and 390×844. No browser JavaScript errors were reported. Earlier sandbox restrictions blocked browser launch; after permissions changed the tests were rerun successfully. No Android APK was built, and real Android touch behavior and visual layout still require device checks.
 
 Run the integration check on a browser-capable machine with Python Playwright and Chromium installed:
 
