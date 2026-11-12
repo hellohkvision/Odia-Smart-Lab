@@ -1,6 +1,8 @@
 # Class 6 literature activities
 
-Open **ସାଥୀ → ବିଷୟ ଅନୁସାରେ କାର୍ଯ୍ୟକଳାପ → Class 6 / Odia literature → ସାହିତ୍ୟ ସୁଧା (select book) → Activity or Quiz → ଜନ୍ମଭୂମି (left chapter list) → content in the right pane**.
+Open **ସାଥୀ → ପାଠଶାଳା → Class 6 → ସାହିତ୍ୟ ସୁଧା → Activity or Quizzes → ଜନ୍ମଭୂମି (left chapter list) → content on the right**.
+
+The existing Sahitya Sudha Activity and Quizzes buttons now open this module directly instead of their placeholder. Back from its chapter list or Close/Escape returns to the same book section. The separate Subject activities shortcut remains available. PDF Book requires the Android reader bridge; bundled Sahitya Sudha activities can open without it.
 
 Navigation follows book selection → Activity or Quiz → chapter-name list on the left → selected chapter content on the right. The chapter list stays visible during activities, quiz questions and results. Each pane scrolls independently; the selected chapter is visibly highlighted and marked with aria-current. Back returns one level at a time. Only the source-verified first chapter is currently available.
 
@@ -25,7 +27,7 @@ Quiz score counts correct first attempts without hints. Wrong attempts and hints
 
 ## Validation
 
-`node --check android/app/src/main/assets/literature.js` passes. Static integration, question data, and referenced assets were checked. Playwright with system Chromium passed the integration smoke test over a local HTTP server: persistent left chapter navigation and right content layout in both Activity and Quiz, direct chapter quiz navigation and back behavior, all six activities, incorrect matching and retry, quiz hints and first-attempt scoring, sentence building, draft persistence after reload, preserving existing board ink, Escape/focus return, and viewport overflow checks at 1920×1080, 844×390 and 390×844. No browser JavaScript errors were reported. Earlier sandbox restrictions blocked browser launch; after permissions changed the tests were rerun successfully. No Android APK was built, and real Android touch behavior and visual layout still require device checks.
+`node --check android/app/src/main/assets/literature.js` passes. Static integration, question data, and referenced assets were checked. Playwright with system Chromium passed the integration smoke test over a local HTTP server: persistent left chapter navigation and right content layout in both Activity and Quiz, existing Pathasala Class 6 Sahitya Sudha Activity/Quizzes buttons (including return focus and Back/Escape), direct chapter quiz navigation and back behavior, all six activities, incorrect matching and retry, quiz hints and first-attempt scoring, sentence building, draft persistence after reload, preserving existing board ink, Escape/focus return, and viewport overflow checks at 1920×1080, 844×390 and 390×844. No browser JavaScript errors were reported. Earlier sandbox restrictions blocked browser launch; after permissions changed the tests were rerun successfully. No Android APK was built, and real Android touch behavior and visual layout still require device checks.
 
 Run the integration check on a browser-capable machine with Python Playwright and Chromium installed:
 

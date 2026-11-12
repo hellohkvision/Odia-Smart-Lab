@@ -134,9 +134,38 @@ def run():
             split_layout(page)
             assert page.locator('#literatureHub').evaluate('(el)=>el.scrollWidth <= innerWidth')
             assert page.locator('#litClose').bounding_box()['height'] >= 48
+        # Use the real Pathasala book section, not the separate subject shortcut.
+        page.set_viewport_size({'width': 1366, 'height': 768})
+        page.locator('#litClose').click()
+        page.locator('#activityMenu').click()
+        page.locator('#saathiMenu [data-tab="lessons"]').click()
+        page.locator('.pathasala-picker-trigger').click()
+        page.locator('.pathasala-class-option').nth(5).click()
+        sahitya = page.locator('.pathasala-subject').filter(has=page.locator('strong', has_text='ସାହିତ୍ୟ ସୁଧା'))
+        expect(sahitya).to_be_enabled()
+        sahitya.click()
+        for label in ['Activity', 'Quizzes']:
+            card = page.locator('.pathasala-section-card').filter(has=page.locator('strong', has_text=label))
+            card.click()
+            expect(page.locator('#literatureHub')).to_be_visible()
+            expect(page.locator('#litTitle')).to_contain_text('Quiz' if label == 'Quizzes' else 'Activity')
+            split_layout(page)
+            page.locator('#litOpenChapter').click()
+            if label == 'Activity':
+                expect(page.locator('#litContent .lit-card')).to_have_count(6)
+                page.locator('#litBack').click()
+                page.locator('#litBack').click()
+            else:
+                expect(page.locator('#litContent .lit-options button')).to_have_count(3)
+                page.keyboard.press('Escape')
+            expect(page.locator('#literatureHub')).not_to_be_visible()
+            expect(page.locator('.pathasala-book-sections h2')).to_have_text('ସାହିତ୍ୟ ସୁଧା')
+            expect(card).to_be_focused()
+        # No native reader is installed in this browser: only PDF Book is disabled.
+        expect(page.locator('.pathasala-section-card').filter(has=page.locator('strong', has_text='Book'))).to_be_disabled()
         assert not errors, errors
         browser.close()
-        print('PASS: Activity/Quiz split layout, navigation, activities, scoring, persistence, board preservation, focus, viewport overflow')
+        print('PASS: Pathasala Sahitya Sudha Activity/Quizzes entry points, split layout, activities, scoring, persistence, board preservation, focus, viewport overflow')
 
 
 if __name__ == '__main__':

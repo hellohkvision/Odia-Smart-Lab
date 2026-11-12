@@ -33,7 +33,7 @@
  hub.innerHTML='<div class="lit-shell"><div class="lit-top"><div><div class="lit-kicker">ସାଥୀ · CLASS 6 · ODIA LITERATURE</div><h1 id="litTitle">ସାହିତ୍ୟ ସୁଧା</h1></div><button id="litClose" aria-label="Close activities and return to previous screen">ବନ୍ଦ କରନ୍ତୁ ×</button></div><div class="lit-body" id="litBody"></div><div class="lit-footer"><button id="litBack">← ଅଧ୍ୟାୟକୁ ଫେରନ୍ତୁ</button><small id="litFooterStatus" role="status">ଅଗ୍ରଗତି ଏହି ଡିଭାଇସରେ ସେଭ୍ ହୁଏ।</small></div></div>';
  document.body.append(hub);
  const rootBody=hub.querySelector('#litBody'),back=hub.querySelector('#litBack'),title=hub.querySelector('#litTitle');
- let body=rootBody,screen='catalog',opener=null,workspaceMode='activity';
+ let body=rootBody,screen='catalog',opener=null,workspaceMode='activity',fromBookSection=false;
  const $=s=>hub.querySelector(s);
  function button(text,fn,parent=body,className=''){const b=document.createElement('button');b.type='button';b.textContent=text;b.className=className;b.onclick=fn;parent.append(b);return b;}
  function mountWorkspace(){
@@ -96,10 +96,16 @@
  function write(){intro('write');body.insertAdjacentHTML('beforeend','<div class="lit-panel"><h2>ମୋ ଜନ୍ମଭୂମିର ଏକ ସୁନ୍ଦର ଚିତ୍ର</h2><p>ନିଜ ଗାଁ ବା ସହର ବିଷୟରେ ୪–୫ଟି ବାକ୍ୟ ଲେଖନ୍ତୁ। ସେଠାର ପ୍ରକୃତି, ଲୋକ ଓ ତୁମ ପ୍ରିୟ ସ୍ଥାନକୁ ମନେ ପକାନ୍ତୁ।</p><p class="lit-muted">ସହାୟକ ଶବ୍ଦ: ନଦୀ · ଗଛ · ସବୁଜ · ଲୋକ · ପ୍ରିୟ</p></div><label for="litDraft">ମୋ ଲେଖା<textarea id="litDraft" maxlength="4000" placeholder="ମୋ ଗାଁ / ସହରର ନାମ…"></textarea></label><div class="lit-feedback" role="status" aria-live="polite"></div><div class="lit-actions"></div><p class="lit-source">ଏଠାରେ ଉତ୍ତର ସ୍ୱୟଂଚାଳିତ ଭାବେ ଯାଞ୍ଚ ହୁଏନାହିଁ। ଲେଖାଟି ଶିକ୍ଷକଙ୍କୁ ପଢ଼ି ଶୁଣାନ୍ତୁ। ଲେଖା କେବଳ ଏହି ଡିଭାଇସରେ ସେଭ୍ ହୁଏ।</p>');const draft=$('#litDraft');draft.value=saved.draft;draft.oninput=()=>{saved.draft=draft.value;feedback(save()?'ଲେଖା ଏହି ଡିଭାଇସରେ ସେଭ୍ ହେଲା।':'ଲେଖା ସେଭ୍ ହୋଇପାରିଲା ନାହିଁ।');footer();};button('ଶିକ୍ଷକଙ୍କ ସହ ଆଲୋଚନା କରିଛି ✓',()=>{if(!draft.value.trim()){feedback('ପ୍ରଥମେ ନିଜ କଥା କିଛି ଲେଖନ୍ତୁ।');draft.focus();return;}complete('write');feedback('✓ ଅଭ୍ୟାସ ଚିହ୍ନିତ ହେଲା। ଏହା ମୂଲ୍ୟାୟନ ବା ନମ୍ବର ନୁହେଁ।');},$('.lit-actions'),'lit-primary');}
  function reading(){intro('reading');body.insertAdjacentHTML('beforeend','<h2>ଦୁଇ କବିତାକୁ ଏକାଠି ଭାବିବା</h2><div class="lit-compare"><article><h3>ଜନ୍ମଭୂମି</h3><p>ମଧୁସୂଦନ ରାଓ</p><ul><li>ଦେଶକୁ ମାଆ ଭାବେ ସମ୍ବୋଧନ</li><li>ପର୍ବତ, ନଦୀ ଓ ସାଗରର ଚିତ୍ର</li><li>ଦେଶର ଗୌରବ ପ୍ରତି ଶ୍ରଦ୍ଧା</li></ul></article><article><h3>ଏଇ ଦେଶ ଏଇ ମାଟି</h3><p>ସଚ୍ଚିଦାନନ୍ଦ ରାଉତରାୟ</p><ul><li>ଦେଶ ଓ ମାଟି ପ୍ରତି ମମତା</li><li>ପ୍ରକୃତିର ସୌନ୍ଦର୍ଯ୍ୟର ଅନୁଭବ</li><li>ଦେଶର ସେବା ପାଇଁ ଅଙ୍ଗୀକାର</li></ul></article></div><div class="lit-panel"><h3>ସାଙ୍ଗଙ୍କ ସହ କଥା ହୁଅନ୍ତୁ</h3><p>୧. ଦୁଇ କବିତାରେ କେଉଁ ଭାବ ସମାନ?</p><p>୨. କେଉଁ ପ୍ରକୃତି ଚିତ୍ର ତୁମକୁ ଭଲ ଲାଗିଲା? କାହିଁକି?</p><p>୩. ତୁମ ଅଞ୍ଚଳ ପାଇଁ ଏକ ଭଲ କାମର ଯୋଜନା କର।</p></div><div class="lit-feedback" role="status"></div><div class="lit-actions"></div><p class="lit-source">ପ୍ରଥମେ PDFର ଦୁଇଟି କବିତା ପଢ଼ନ୍ତୁ। ଏହା ଶିକ୍ଷକଙ୍କ ସହ ଆଲୋଚନା ପାଇଁ ଏକ ନୂଆ ଅଭ୍ୟାସ।</p>');button('ଆମେ ଆଲୋଚନା କରିଛୁ ✓',()=>{complete('reading');feedback('✓ ଆଲୋଚନା ଚିହ୍ନିତ ହେଲା।');},$('.lit-actions'),'lit-primary');}
  function openActivity(id){({explore,match,quiz,sentence,write,reading})[id]();}
- function close(){hub.close();opener?.focus();}
- $('#litClose').onclick=close;back.onclick=()=>{if(screen==='catalog')close();else if(screen==='book')catalog();else if(screen==='chapters')bookHome();else if(screen==='chapter'||workspaceMode==='quiz')chapters();else chapter();};
+ function close(){hub.close();fromBookSection=false;opener?.focus();}
+ $('#litClose').onclick=close;back.onclick=()=>{if(screen==='catalog')close();else if(screen==='book')catalog();else if(screen==='chapters'){if(fromBookSection)close();else bookHome();}else if(screen==='chapter'||workspaceMode==='quiz')chapters();else chapter();};
  hub.addEventListener('cancel',e=>{e.preventDefault();close();});
+ // Existing Pathasala book buttons open the same verified content directly.
+ window.openLiteratureBookActivities=({mode='activity',returnFocus=null}={})=>{
+  fromBookSection=true;opener=returnFocus||document.activeElement;
+  chapters(mode==='quiz'?'quiz':'activity');
+  if(!hub.open)hub.showModal();title.focus();
+ };
  const entry=document.createElement('button');entry.id='literatureMenu';entry.type='button';entry.setAttribute('aria-label','ବିଷୟ ଅନୁସାରେ କାର୍ଯ୍ୟକଳାପ · Subject activities');entry.innerHTML=svg('book')+'<small>ବିଷୟ ଅନୁସାରେ କାର୍ଯ୍ୟକଳାପ</small>';
  const menu=document.querySelector('#saathiMenu');if(!menu)return;menu.append(entry);
- entry.onclick=()=>{opener=document.querySelector('#activityMenu');menu.classList.remove('open');opener?.setAttribute('aria-expanded','false');if(typeof closePanels==='function')closePanels();catalog();hub.showModal();title.focus();};
+ entry.onclick=()=>{fromBookSection=false;opener=document.querySelector('#activityMenu');menu.classList.remove('open');opener?.setAttribute('aria-expanded','false');if(typeof closePanels==='function')closePanels();catalog();hub.showModal();title.focus();};
 })();

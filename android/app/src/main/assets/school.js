@@ -822,8 +822,16 @@
   const back=document.createElement('button');back.type='button';back.className='pathasala-subject-back';back.onclick=showBooks;container.append(back);
   const heading=document.createElement('h2');heading.textContent=book.title;container.append(heading);
   const grid=document.createElement('div');grid.className='pathasala-section-grid';
-  const sections=[['Book','M4 5c3-1 6-.5 8 1.5C14 4.5 17 4 20 5v14c-3-1-6-.5-8 1.5C10 18.5 7 18 4 19z M12 7v13',()=>window.AndroidBoard.openOfficialBook(book.url)],['Activity','M4 4h16v12H4z M8 20l4-4 4 4 M8 11l2-2 3 3 3-3',()=>showSectionPlaceholder(book,'Activity')],['Quizzes','M5 4h14v16H5z M8 9l1 1 2-2 M13 9h3 M8 15l1 1 2-2 M13 15h3',()=>showSectionPlaceholder(book,'Quizzes')]];
-  for(const [label,path,action] of sections){const b=document.createElement('button');b.type='button';b.className='pathasala-section-card';b.innerHTML='<span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+path+'"/></svg></span><strong>'+label+'</strong>';b.onclick=action;grid.append(b)}container.append(grid);content.append(container);
+  const sections=[['Book','M4 5c3-1 6-.5 8 1.5C14 4.5 17 4 20 5v14c-3-1-6-.5-8 1.5C10 18.5 7 18 4 19z M12 7v13',()=>window.AndroidBoard.openOfficialBook(book.url)],['Activity','M4 4h16v12H4z M8 20l4-4 4 4 M8 11l2-2 3 3 3-3',()=>openBookSection(book,'Activity')],['Quizzes','M5 4h14v16H5z M8 9l1 1 2-2 M13 9h3 M8 15l1 1 2-2 M13 15h3',()=>openBookSection(book,'Quizzes')]];
+  for(const [label,path,action] of sections){const b=document.createElement('button');b.type='button';b.className='pathasala-section-card';b.innerHTML='<span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+path+'"/></svg></span><strong>'+label+'</strong>';b.onclick=action;if(label==='Book')b.disabled=!(book.url&&window.AndroidBoard&&typeof window.AndroidBoard.openOfficialBook==='function');grid.append(b)}container.append(grid);content.append(container);
+ }
+ function hasLiteratureContent(book){return select.value==='6'&&typeof book.url==='string'&&book.url.endsWith('/CLASS-VI/Sahitya_Sudha_Final_176_Web.pdf');}
+ function openBookSection(book,label){
+  if(hasLiteratureContent(book)&&typeof window.openLiteratureBookActivities==='function'){
+   window.openLiteratureBookActivities({mode:label==='Quizzes'?'quiz':'activity',returnFocus:document.activeElement});
+   return;
+  }
+  showSectionPlaceholder(book,label);
  }
  function showSectionPlaceholder(book,label){content.replaceChildren();const panel=document.createElement('div');panel.className='pathasala-book-sections';const back=document.createElement('button');back.type='button';back.className='pathasala-subject-back';back.onclick=()=>showBookSections(book);const title=document.createElement('h2');title.textContent=book.title+' · '+label;const message=document.createElement('p');message.textContent=label==='Activity'?'Activities have not been added for this book yet.':'Quizzes have not been added for this book yet.';panel.append(back,title,message);content.append(panel)}
  function showBooks(){
@@ -839,7 +847,7 @@
    for(const [index,book] of pageBooks.entries()){
     const button=document.createElement('button');button.type='button';button.className='pathasala-subject';
     button.style.gridColumn=index===0?(5-pageBooks.length)+' / span 2':'span 2';
-    const available=!!(book.url&&window.AndroidBoard&&typeof window.AndroidBoard.openOfficialBook==='function');
+    const available=hasLiteratureContent(book)||!!(book.url&&window.AndroidBoard&&typeof window.AndroidBoard.openOfficialBook==='function');
     button.disabled=!available;button.setAttribute('aria-label',book.title+(available?'':' — unavailable'));
     const icon=document.createElement('span');icon.className='pathasala-icon';icon.innerHTML=bookIcon;
     const title=document.createElement('strong');title.textContent=book.title;title.style.cssText='overflow-wrap:anywhere;font-size:clamp(12px,2vw,18px)';
@@ -905,3 +913,4 @@
 
 // Separate a saved selection group when individual editing is needed.
 (()=>{const panel=document.getElementById('moreToolsPanel');if(!panel)return;const b=document.createElement('button');b.type='button';b.setAttribute('aria-label','Ungroup selected');b.innerHTML='<span aria-hidden="true">⛓</span><small>Ungroup</small>';b.onclick=()=>{if(window.boardSelectionAction('ungroup'))closeMore()};panel.append(b)})();
+
