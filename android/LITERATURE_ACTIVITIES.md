@@ -1,6 +1,8 @@
 # Class 6 literature activities
 
-Open **ସାଥୀ → ବିଷୟ ଅନୁସାରେ କାର୍ଯ୍ୟକଳାପ → Class 6 / Odia literature → ସାହିତ୍ୟ ସୁଧା → ଜନ୍ମଭୂମି**.
+Open **ସାଥୀ → ବିଷୟ ଅନୁସାରେ କାର୍ଯ୍ୟକଳାପ → Class 6 / Odia literature → ସାହିତ୍ୟ ସୁଧା (select book) → Activity → ଜନ୍ମଭୂମି (select chapter) → chapter activities**.
+
+Navigation follows book selection → Activity → chapter-name list → activities for the selected chapter. Back returns one level at a time.
 
 This Android asset change adds one chapter, not the entire textbook. The separate `dist/` web application is unchanged. Existing writing tools, menus, saved board pages and drawings are preserved. The activity hub opens in a modal dialog and returns focus to the Saathi trigger when closed, including with Escape.
 

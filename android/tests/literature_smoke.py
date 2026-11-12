@@ -12,7 +12,14 @@ def open_hub(page):
     page.locator('#activityMenu').click()
     page.locator('#literatureMenu').click()
     expect(page.locator('#literatureHub')).to_be_visible()
-    page.locator('#litOpenChapter button').click()
+    page.locator('#litSelectBook button').click()
+    expect(page.locator('#litTitle')).to_have_text('ସାହିତ୍ୟ ସୁଧା')
+    expect(page.locator('#litChapterList')).to_have_count(0)
+    page.locator('#litBookActivity').click()
+    expect(page.locator('#litTitle')).to_contain_text('ପାଠ ବାଛନ୍ତୁ')
+    expect(page.locator('#litOpenChapter')).to_contain_text('ଜନ୍ମଭୂମି')
+    page.locator('#litOpenChapter').click()
+    expect(page.locator('.lit-card')).to_have_count(6)
 
 
 def activity(page, name):
@@ -80,6 +87,16 @@ def run():
         page.locator('#startupScreen').wait_for(state='detached')
         open_hub(page)
         assert page.locator('.lit-complete').count() == 6
+        # Back navigation follows chapter → chapter list → book → catalog.
+        page.locator('#litBack').click()
+        expect(page.locator('#litChapterList')).to_be_visible()
+        page.locator('#litBack').click()
+        expect(page.locator('#litBookActivity')).to_be_visible()
+        page.locator('#litBack').click()
+        expect(page.locator('#litSelectBook')).to_be_visible()
+        page.locator('#litSelectBook button').click()
+        page.locator('#litBookActivity').click()
+        page.locator('#litOpenChapter').click()
         activity(page, 'ମୋ ଗାଁ, ମୋ କଥା')
         expect(page.locator('#litDraft')).to_have_value('ମୋ ଗାଁ ସୁନ୍ଦର। ମୁଁ ଗଛ ଲଗାଇବି।')
         for width, height in [(1920, 1080), (844, 390), (390, 844)]:
