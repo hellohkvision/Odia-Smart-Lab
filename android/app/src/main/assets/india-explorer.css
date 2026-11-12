@@ -1,0 +1,13 @@
+#saathiMenu #indiaExplorerMenu{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:10px;min-height:48px}
+#saathiMenu #indiaExplorerMenu small{font-size:14px}
+#indiaExplorerDialog{width:min(560px,calc(100vw - 24px));max-height:calc(100dvh - 24px);padding:0;border:1px solid #cedbd0;border-radius:16px;color:#193f36;background:#fffdf7;font:16px system-ui,'Noto Sans Oriya',sans-serif;overflow:auto}
+#indiaExplorerDialog::backdrop{background:#102d25a6}
+#indiaExplorerDialog .india-explorer-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:2px 8px 2px 16px;border-bottom:1px solid #d7ded3}
+#indiaExplorerDialog h2{font-size:19px;margin:0}
+#indiaExplorerDialog button{width:48px;min-width:48px;height:48px;min-height:48px;padding:0;border:1px solid #d7ded3;border-radius:10px;color:inherit;background:white;font-size:26px}
+#indiaExplorerDialog button:focus-visible{outline:3px solid #bd6206;outline-offset:2px}
+#indiaExplorerDialog .india-explorer-content{padding:16px}
+#indiaExplorerDialog h3{font-size:21px;margin:12px 0 8px}
+#indiaExplorerDialog p{color:inherit;line-height:1.65;margin:8px 0}
+#indiaExplorerDialog .india-explorer-planned{display:inline-block;border-radius:6px;background:#fff1c9;padding:4px 8px;font-size:13px}
+#indiaExplorerDialog .india-explorer-note{font-size:14px;color:#52695f}
