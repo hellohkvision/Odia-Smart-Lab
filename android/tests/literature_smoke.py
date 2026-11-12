@@ -16,14 +16,27 @@ def open_hub(page):
     expect(page.locator('#litTitle')).to_have_text('ସାହିତ୍ୟ ସୁଧା')
     expect(page.locator('#litChapterList')).to_have_count(0)
     page.locator('#litBookActivity').click()
+    split_layout(page)
     expect(page.locator('#litTitle')).to_contain_text('ପାଠ ବାଛନ୍ତୁ')
     expect(page.locator('#litOpenChapter')).to_contain_text('ଜନ୍ମଭୂମି')
     page.locator('#litOpenChapter').click()
     expect(page.locator('.lit-card')).to_have_count(6)
 
 
+def split_layout(page):
+    expect(page.locator('.lit-chapter-sidebar')).to_be_visible()
+    expect(page.locator('#litContent')).to_be_visible()
+    left = page.locator('.lit-chapter-sidebar').bounding_box()
+    right = page.locator('#litContent').bounding_box()
+    assert left['x'] + left['width'] <= right['x'] + 1
+    assert abs(left['y'] - right['y']) <= 1
+    assert page.locator('#litContent').evaluate('(el)=>el.scrollWidth <= el.clientWidth')
+
+
 def activity(page, name):
     page.locator('.lit-card').filter(has=page.locator('strong', has_text=name)).click()
+    split_layout(page)
+    expect(page.locator('#litOpenChapter')).to_have_attribute('aria-current', 'true')
 
 
 def run():
@@ -92,6 +105,23 @@ def run():
         expect(page.locator('#litChapterList')).to_be_visible()
         page.locator('#litBack').click()
         expect(page.locator('#litBookActivity')).to_be_visible()
+        # Quiz has the same persistent chapter list and opens in the right pane.
+        page.locator('#litBookQuiz').click()
+        split_layout(page)
+        expect(page.locator('#litTitle')).to_contain_text('Quiz')
+        expect(page.locator('.lit-options')).to_have_count(0)
+        page.locator('#litOpenChapter').click()
+        split_layout(page)
+        expect(page.locator('#litContent h2')).to_contain_text('କବି କିଏ')
+        page.get_by_role('button', name='ମଧୁସୂଦନ ରାଓ', exact=True).click()
+        page.locator('.lit-actions .lit-primary').click()
+        split_layout(page)
+        expect(page.locator('#litContent .lit-progress')).to_contain_text('2 / 6')
+        page.locator('#litBack').click()
+        expect(page.locator('#litTitle')).to_contain_text('Quiz')
+        expect(page.locator('#litOpenChapter')).not_to_have_attribute('aria-current', 'true')
+        page.locator('#litBack').click()
+        expect(page.locator('#litBookQuiz')).to_be_visible()
         page.locator('#litBack').click()
         expect(page.locator('#litSelectBook')).to_be_visible()
         page.locator('#litSelectBook button').click()
@@ -101,11 +131,12 @@ def run():
         expect(page.locator('#litDraft')).to_have_value('ମୋ ଗାଁ ସୁନ୍ଦର। ମୁଁ ଗଛ ଲଗାଇବି।')
         for width, height in [(1920, 1080), (844, 390), (390, 844)]:
             page.set_viewport_size({'width': width, 'height': height})
+            split_layout(page)
             assert page.locator('#literatureHub').evaluate('(el)=>el.scrollWidth <= innerWidth')
             assert page.locator('#litClose').bounding_box()['height'] >= 48
         assert not errors, errors
         browser.close()
-        print('PASS: activities, scoring, draft persistence, board preservation, focus, viewport overflow')
+        print('PASS: Activity/Quiz split layout, navigation, activities, scoring, persistence, board preservation, focus, viewport overflow')
 
 
 if __name__ == '__main__':

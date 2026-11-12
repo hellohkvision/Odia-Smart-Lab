@@ -32,16 +32,36 @@
  const hub=document.createElement('dialog');hub.id='literatureHub';hub.lang='or';hub.setAttribute('aria-labelledby','litTitle');
  hub.innerHTML='<div class="lit-shell"><div class="lit-top"><div><div class="lit-kicker">ସାଥୀ · CLASS 6 · ODIA LITERATURE</div><h1 id="litTitle">ସାହିତ୍ୟ ସୁଧା</h1></div><button id="litClose" aria-label="Close activities and return to previous screen">ବନ୍ଦ କରନ୍ତୁ ×</button></div><div class="lit-body" id="litBody"></div><div class="lit-footer"><button id="litBack">← ଅଧ୍ୟାୟକୁ ଫେରନ୍ତୁ</button><small id="litFooterStatus" role="status">ଅଗ୍ରଗତି ଏହି ଡିଭାଇସରେ ସେଭ୍ ହୁଏ।</small></div></div>';
  document.body.append(hub);
- const body=hub.querySelector('#litBody'),back=hub.querySelector('#litBack'),title=hub.querySelector('#litTitle');
- let screen='catalog',opener=null;
+ const rootBody=hub.querySelector('#litBody'),back=hub.querySelector('#litBack'),title=hub.querySelector('#litTitle');
+ let body=rootBody,screen='catalog',opener=null,workspaceMode='activity';
  const $=s=>hub.querySelector(s);
  function button(text,fn,parent=body,className=''){const b=document.createElement('button');b.type='button';b.textContent=text;b.className=className;b.onclick=fn;parent.append(b);return b;}
- function setScreen(name,heading){screen=name;title.textContent=heading;body.replaceChildren();body.scrollTop=0;const backLabels={catalog:'← ପୂର୍ବ ପରଦାକୁ ଫେରନ୍ତୁ',book:'← ପୁସ୍ତକ ବାଛନ୍ତୁ',chapters:'← ପୁସ୍ତକକୁ ଫେରନ୍ତୁ',chapter:'← ପାଠ ତାଲିକାକୁ ଫେରନ୍ତୁ'};back.textContent=backLabels[name]||'← ଅଧ୍ୟାୟକୁ ଫେରନ୍ତୁ';title.tabIndex=-1;title.focus();}
+ function mountWorkspace(){
+  if(rootBody.classList.contains('lit-workspace'))return;
+  rootBody.classList.add('lit-workspace');
+  rootBody.innerHTML='<aside class="lit-chapter-sidebar" aria-label="Chapter list"><span class="lit-kicker">ସାହିତ୍ୟ ସୁଧା</span><strong class="lit-sidebar-heading">ପାଠ ତାଲିକା</strong><div id="litChapterList"></div><p class="lit-source">ଏବେ ପାଠ ୧ ଉପଲବ୍ଧ।</p></aside><section id="litContent" class="lit-chapter-content" aria-label="Selected chapter content"></section>';
+  const b=button('',()=>{b.setAttribute('aria-current','true');if(workspaceMode==='quiz')quiz();else chapter();},$('#litChapterList'),'lit-chapter-link');
+  b.id='litOpenChapter';b.setAttribute('aria-label','Chapter 1 · ଜନ୍ମଭୂମି');b.innerHTML='<small>ପାଠ ୧</small><strong>ଜନ୍ମଭୂମି</strong>';
+ }
+ function setScreen(name,heading){
+  screen=name;title.textContent=heading;
+  if(name==='catalog'||name==='book'){rootBody.classList.remove('lit-workspace');body=rootBody;}else{mountWorkspace();body=$('#litContent');}
+  body.replaceChildren();body.scrollTop=0;
+  const backLabels={catalog:'← ପୂର୍ବ ପରଦାକୁ ଫେରନ୍ତୁ',book:'← ପୁସ୍ତକ ବାଛନ୍ତୁ',chapters:'← ପୁସ୍ତକକୁ ଫେରନ୍ତୁ',chapter:'← ପାଠ ତାଲିକାକୁ ଫେରନ୍ତୁ'};
+  back.textContent=backLabels[name]||(workspaceMode==='quiz'?'← ପାଠ ତାଲିକାକୁ ଫେରନ୍ତୁ':'← ଅଧ୍ୟାୟକୁ ଫେରନ୍ତୁ');title.tabIndex=-1;title.focus();
+ }
+
  function complete(id){if(!saved.completed.includes(id))saved.completed.push(id);save();footer();}
  function footer(){ $('#litFooterStatus').textContent=storageOK?'ଅଗ୍ରଗତି ଏହି ଡିଭାଇସରେ ସେଭ୍ ହୁଏ।':'ସେଭ୍ ହୋଇପାରିଲା ନାହିଁ। ଏହି ଅଧିବେଶନରେ କାମ କରିପାରିବେ।';}
  function catalog(){setScreen('catalog','ପୁସ୍ତକ ବାଛନ୍ତୁ');body.innerHTML='<div class="lit-filters"><label>ଶ୍ରେଣୀ<select aria-label="Class"><option>୬ · Class 6</option></select></label><label>ବିଷୟ<select aria-label="Subject"><option>ଓଡ଼ିଆ ସାହିତ୍ୟ · Odia literature</option></select></label></div><article class="lit-book"><div class="lit-cover">'+svg('book')+'<strong>ସାହିତ୍ୟ ସୁଧା</strong><span>ଷଷ୍ଠ ଶ୍ରେଣୀ · Class 6</span></div><div class="lit-chapter"><span class="lit-badge">ଓଡ଼ିଆ ସାହିତ୍ୟ</span><h2>ସାହିତ୍ୟ ସୁଧା</h2><p class="lit-muted">ପୁସ୍ତକ ବାଛି କାର୍ଯ୍ୟକଳାପ ଖୋଲନ୍ତୁ।</p><div id="litSelectBook"></div></div></article>';button('ପୁସ୍ତକ ବାଛନ୍ତୁ →',bookHome,$('#litSelectBook'),'lit-primary');}
- function bookHome(){setScreen('book','ସାହିତ୍ୟ ସୁଧା');body.innerHTML='<span class="lit-badge">Class 6 · ଓଡ଼ିଆ ସାହିତ୍ୟ</span><h2>କଣ କରିବାକୁ ଚାହୁଁଛନ୍ତି?</h2><div class="lit-grid" id="litBookActions"></div>';const b=button('',chapters,$('#litBookActions'),'lit-card');b.id='litBookActivity';b.setAttribute('aria-label','Activity · କାର୍ଯ୍ୟକଳାପ');b.innerHTML=svg('explore')+'<strong>Activity · କାର୍ଯ୍ୟକଳାପ</strong><small>ପାଠର ନାମ ବାଛି ତାହାର କାର୍ଯ୍ୟକଳାପ ଖୋଲନ୍ତୁ →</small>';}
- function chapters(){setScreen('chapters','Activity · ପାଠ ବାଛନ୍ତୁ');body.innerHTML='<span class="lit-badge">ସାହିତ୍ୟ ସୁଧା · Class 6</span><h2>ପାଠର ନାମ ବାଛନ୍ତୁ</h2><div class="lit-grid" id="litChapterList"></div><p class="lit-source">ଉତ୍ସ: '+SOURCE+' · ଅପଲୋଡ୍ କରାଯାଇଥିବା ୧୨ ପୃଷ୍ଠା। ଏବେ କେବଳ ଏହି ପାଠ ପାଇଁ କାର୍ଯ୍ୟକଳାପ ଉପଲବ୍ଧ। ଅନ୍ୟ ପାଠ ଓ ବିଷୟ ପରେ ଯୋଡ଼ାଯାଇପାରିବ।</p>';const b=button('',chapter,$('#litChapterList'),'lit-card');b.id='litOpenChapter';b.setAttribute('aria-label','Chapter 1 · ଜନ୍ମଭୂମି');b.innerHTML=svg('book')+'<span class="lit-badge">ପାଠ ୧ · Chapter 1</span><strong>ଜନ୍ମଭୂମି</strong><small>କବି: ମଧୁସୂଦନ ରାଓ</small><small>୬ଟି କାର୍ଯ୍ୟକଳାପ · ପଠନ: ଏଇ ଦେଶ ଏଇ ମାଟି</small><small>ଖୋଲନ୍ତୁ →</small>';}
+ function bookHome(){setScreen('book','ସାହିତ୍ୟ ସୁଧା');body.innerHTML='<span class="lit-badge">Class 6 · ଓଡ଼ିଆ ସାହିତ୍ୟ</span><h2>କଣ କରିବାକୁ ଚାହୁଁଛନ୍ତି?</h2><div class="lit-grid" id="litBookActions"></div>';
+  for(const [mode,id,icon,label,desc] of [['activity','litBookActivity','explore','Activity · କାର୍ଯ୍ୟକଳାପ','ପାଠ ବାଛି ତାହାର କାର୍ଯ୍ୟକଳାପ ଖୋଲନ୍ତୁ →'],['quiz','litBookQuiz','quiz','Quiz · ପ୍ରଶ୍ନୋତ୍ତର','ପାଠ ବାଛି ତାହାର କୁଇଜ୍ ଖୋଲନ୍ତୁ →']]){const b=button('',()=>chapters(mode),$('#litBookActions'),'lit-card');b.id=id;b.setAttribute('aria-label',label);b.innerHTML=svg(icon)+'<strong>'+label+'</strong><small>'+desc+'</small>';}
+ }
+ function chapters(mode=workspaceMode){
+  workspaceMode=mode;rootBody.classList.remove('lit-workspace');
+  setScreen('chapters',(mode==='quiz'?'Quiz':'Activity')+' · ପାଠ ବାଛନ୍ତୁ');
+  body.innerHTML='<div class="lit-empty"><div class="lit-empty-icon">'+svg(mode==='quiz'?'quiz':'book')+'</div><h2>ବାମ ପଟରୁ ପାଠ ବାଛନ୍ତୁ</h2><p class="lit-muted">ପାଠର ନାମକୁ ଛୁଇଁଲେ ଏଠାରେ ତାହାର '+(mode==='quiz'?'କୁଇଜ୍':'କାର୍ଯ୍ୟକଳାପ')+' ଖୋଲିବ।</p></div>';
+ }
 
  function chapter(){setScreen('chapter','ଜନ୍ମଭୂମି');body.innerHTML='<span class="lit-badge">ପାଠ ୧ · ସାହିତ୍ୟ ସୁଧା</span><h2>ଦେଖିବା। ଭାବିବା। ଏକାଠି ଶିଖିବା।</h2><p class="lit-muted">କବି: ମଧୁସୂଦନ ରାଓ · ପ୍ରଥମେ ପାଠ ପଢ଼ିବା, ତାପରେ ଖେଳିବା।</p><p class="lit-progress">ଅଭ୍ୟାସ କରାଯାଇଛି: '+saved.completed.length+' / ୬'+(saved.quizBest!==undefined?' · Quiz best: '+saved.quizBest+'/6':'')+'</p><div class="lit-grid"></div><p class="lit-source">ଏଗୁଡ଼ିକ ପାଠ ଆଧାରିତ ନୂଆ ଅଭ୍ୟାସ; ପୁସ୍ତକର ସମସ୍ତ ପ୍ରଶ୍ନର ଉତ୍ତରମାଳା ନୁହେଁ। ଲେଖା ଓ ଆଲୋଚନାକୁ ଶିକ୍ଷକ ସମୀକ୍ଷା କରିବେ।</p>';
   for(const [id,label,desc,en] of activities){const b=button('',()=>openActivity(id),$('.lit-grid'),'lit-card');b.setAttribute('aria-label',label+' · '+en);b.innerHTML=svg(id)+'<strong>'+label+'</strong><small>'+desc+'</small>'+(saved.completed.includes(id)?'<small class="lit-complete">✓ ଅଭ୍ୟାସ କରାଯାଇଛି</small>':'<small>ଆରମ୍ଭ କରନ୍ତୁ →</small>');}
@@ -77,7 +97,7 @@
  function reading(){intro('reading');body.insertAdjacentHTML('beforeend','<h2>ଦୁଇ କବିତାକୁ ଏକାଠି ଭାବିବା</h2><div class="lit-compare"><article><h3>ଜନ୍ମଭୂମି</h3><p>ମଧୁସୂଦନ ରାଓ</p><ul><li>ଦେଶକୁ ମାଆ ଭାବେ ସମ୍ବୋଧନ</li><li>ପର୍ବତ, ନଦୀ ଓ ସାଗରର ଚିତ୍ର</li><li>ଦେଶର ଗୌରବ ପ୍ରତି ଶ୍ରଦ୍ଧା</li></ul></article><article><h3>ଏଇ ଦେଶ ଏଇ ମାଟି</h3><p>ସଚ୍ଚିଦାନନ୍ଦ ରାଉତରାୟ</p><ul><li>ଦେଶ ଓ ମାଟି ପ୍ରତି ମମତା</li><li>ପ୍ରକୃତିର ସୌନ୍ଦର୍ଯ୍ୟର ଅନୁଭବ</li><li>ଦେଶର ସେବା ପାଇଁ ଅଙ୍ଗୀକାର</li></ul></article></div><div class="lit-panel"><h3>ସାଙ୍ଗଙ୍କ ସହ କଥା ହୁଅନ୍ତୁ</h3><p>୧. ଦୁଇ କବିତାରେ କେଉଁ ଭାବ ସମାନ?</p><p>୨. କେଉଁ ପ୍ରକୃତି ଚିତ୍ର ତୁମକୁ ଭଲ ଲାଗିଲା? କାହିଁକି?</p><p>୩. ତୁମ ଅଞ୍ଚଳ ପାଇଁ ଏକ ଭଲ କାମର ଯୋଜନା କର।</p></div><div class="lit-feedback" role="status"></div><div class="lit-actions"></div><p class="lit-source">ପ୍ରଥମେ PDFର ଦୁଇଟି କବିତା ପଢ଼ନ୍ତୁ। ଏହା ଶିକ୍ଷକଙ୍କ ସହ ଆଲୋଚନା ପାଇଁ ଏକ ନୂଆ ଅଭ୍ୟାସ।</p>');button('ଆମେ ଆଲୋଚନା କରିଛୁ ✓',()=>{complete('reading');feedback('✓ ଆଲୋଚନା ଚିହ୍ନିତ ହେଲା।');},$('.lit-actions'),'lit-primary');}
  function openActivity(id){({explore,match,quiz,sentence,write,reading})[id]();}
  function close(){hub.close();opener?.focus();}
- $('#litClose').onclick=close;back.onclick=()=>{if(screen==='catalog')close();else if(screen==='book')catalog();else if(screen==='chapters')bookHome();else if(screen==='chapter')chapters();else chapter();};
+ $('#litClose').onclick=close;back.onclick=()=>{if(screen==='catalog')close();else if(screen==='book')catalog();else if(screen==='chapters')bookHome();else if(screen==='chapter'||workspaceMode==='quiz')chapters();else chapter();};
  hub.addEventListener('cancel',e=>{e.preventDefault();close();});
  const entry=document.createElement('button');entry.id='literatureMenu';entry.type='button';entry.setAttribute('aria-label','ବିଷୟ ଅନୁସାରେ କାର୍ଯ୍ୟକଳାପ · Subject activities');entry.innerHTML=svg('book')+'<small>ବିଷୟ ଅନୁସାରେ କାର୍ଯ୍ୟକଳାପ</small>';
  const menu=document.querySelector('#saathiMenu');if(!menu)return;menu.append(entry);

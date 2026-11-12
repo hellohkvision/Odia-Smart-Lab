@@ -64,3 +64,18 @@
 @media(max-width:700px){#literatureHub .lit-top{padding:8px 12px}#literatureHub .lit-body{padding:16px 12px}#literatureHub .lit-book{grid-template-columns:1fr;padding:18px;gap:18px}#literatureHub .lit-cover{min-height:170px}#literatureHub .lit-grid{grid-template-columns:1fr 1fr;gap:10px}#literatureHub .lit-card{padding:16px}#literatureHub .lit-compare{grid-template-columns:1fr}#literatureHub .lit-panel{padding:16px}}
 @media(max-height:500px){#literatureHub .lit-top{padding:6px 12px}#literatureHub .lit-top h1{font-size:21px}#literatureHub .lit-kicker{display:none}#literatureHub .lit-body{padding-top:12px}#literatureHub .lit-footer{padding-top:4px;padding-bottom:calc(4px + env(safe-area-inset-bottom))}#literatureHub .lit-cover{min-height:180px}#literatureHub .lit-book{padding:18px}#literatureHub .lit-landscape{max-height:230px}#literatureHub .lit-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:420px){#literatureHub .lit-grid,#literatureHub .lit-options{grid-template-columns:1fr}#literatureHub .lit-footer small{max-width:45%}}
+
+/* Keep chapter navigation on the left while the selected content scrolls on the right. */
+#literatureHub .lit-body.lit-workspace{display:grid;grid-template-columns:clamp(150px,23vw,280px) minmax(0,1fr);gap:0;padding:0;overflow:hidden;scrollbar-gutter:auto}
+#literatureHub .lit-chapter-sidebar{min-width:0;overflow:auto;padding:24px 16px;background:#eeeee3;border-right:1px solid #d1d9cc}
+#literatureHub .lit-sidebar-heading{display:block;margin:10px 0 20px;font-size:21px}
+#literatureHub .lit-chapter-link{display:grid;width:100%;gap:6px;text-align:left;overflow-wrap:anywhere;padding:14px}
+#literatureHub .lit-chapter-link small{font-size:13px;color:#52695f}
+#literatureHub .lit-chapter-link[aria-current=true]{background:#185540;color:#fff;border:2px solid #185540;box-shadow:inset 4px 0 #f2bf4c}
+#literatureHub .lit-chapter-link[aria-current=true] small{color:#e0eadb}
+#literatureHub .lit-chapter-content{min-width:0;overflow:auto;padding:24px clamp(16px,3vw,48px);scrollbar-gutter:stable}
+#literatureHub .lit-chapter-content .lit-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
+#literatureHub .lit-empty{display:grid;justify-items:center;align-content:center;min-height:100%;gap:16px;text-align:center;padding:28px 12px}
+#literatureHub .lit-empty-icon svg{width:64px;height:64px;color:#7c9b82}
+@media(max-width:700px){#literatureHub .lit-body.lit-workspace{grid-template-columns:clamp(112px,27vw,170px) minmax(0,1fr)}#literatureHub .lit-chapter-sidebar{padding:16px 8px}#literatureHub .lit-sidebar-heading{font-size:17px}#literatureHub .lit-chapter-link{font-size:16px;padding:12px 8px}#literatureHub .lit-chapter-content{padding:16px 12px}#literatureHub .lit-chapter-content .lit-options,#literatureHub .lit-chapter-content .lit-match{grid-template-columns:1fr}#literatureHub .lit-chapter-sidebar .lit-source{font-size:12px}}
+@media(max-height:500px){#literatureHub .lit-chapter-sidebar{padding-top:12px}#literatureHub .lit-chapter-content{padding-top:12px}}
