@@ -33,6 +33,10 @@ def split_layout(page):
     right = page.locator('#litContent').bounding_box()
     assert left['x'] + left['width'] <= right['x'] + 1
     assert abs(left['y'] - right['y']) <= 1
+    # Right pane uses the full height: Back occupies only the sidebar bottom.
+    assert right['y'] + right['height'] >= page.viewport_size['height'] - 1
+    footer = page.locator('.lit-footer').bounding_box()
+    assert footer['x'] + footer['width'] <= right['x'] + 1
     assert page.locator('#litContent').evaluate('(el)=>el.scrollWidth <= el.clientWidth')
 
 
@@ -166,6 +170,8 @@ def run():
         sahitya = page.locator('.pathasala-subject').filter(has=page.locator('strong', has_text='ସାହିତ୍ୟ ସୁଧା'))
         expect(sahitya).to_be_enabled()
         sahitya.click()
+        for tab in page.locator('.pathasala-section-card').all():
+            assert 48 <= tab.bounding_box()['height'] <= 56
         for label in ['Activity', 'Quizzes']:
             card = page.locator('.pathasala-section-card').filter(has=page.locator('strong', has_text=label))
             card.click()

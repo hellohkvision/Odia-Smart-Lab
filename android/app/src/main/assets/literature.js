@@ -38,7 +38,7 @@
  let storageOK=true;
  function save(){try{localStorage.setItem(KEY,JSON.stringify(saved));storageOK=true;}catch{storageOK=false;}return storageOK;}
  const hub=document.createElement('dialog');hub.id='literatureHub';hub.lang='or';hub.setAttribute('aria-labelledby','litTitle');
- hub.innerHTML='<div class="lit-shell"><div class="lit-top"><div><div class="lit-kicker">ସାଥୀ · CLASS 6 · ODIA LITERATURE</div><h1 id="litTitle">ସାହିତ୍ୟ ସୁଧା</h1></div><button id="litClose" aria-label="Close activities and return to previous screen">ବନ୍ଦ କରନ୍ତୁ ×</button></div><div class="lit-body" id="litBody"></div><div class="lit-footer"><button id="litBack">← ଅଧ୍ୟାୟକୁ ଫେରନ୍ତୁ</button><small id="litFooterStatus" role="status">ଅଗ୍ରଗତି ଏହି ଡିଭାଇସରେ ସେଭ୍ ହୁଏ।</small></div></div>';
+ hub.innerHTML='<div class="lit-shell"><div class="lit-top"><div><div class="lit-kicker">ସାଥୀ · CLASS 6 · ODIA LITERATURE</div><h1 id="litTitle">ସାହିତ୍ୟ ସୁଧା</h1></div><button id="litClose" aria-label="Close activities and return to previous screen">×</button></div><div class="lit-body" id="litBody"></div><div class="lit-footer"><button id="litBack">← ଅଧ୍ୟାୟକୁ ଫେରନ୍ତୁ</button><small id="litFooterStatus" role="status">ଅଗ୍ରଗତି ଏହି ଡିଭାଇସରେ ସେଭ୍ ହୁଏ।</small></div></div>';
  document.body.append(hub);
  const rootBody=hub.querySelector('#litBody'),back=hub.querySelector('#litBack'),title=hub.querySelector('#litTitle');
  let body=rootBody,screen='catalog',opener=null,workspaceMode='activity',fromBookSection=false;
@@ -52,11 +52,11 @@
   b.id='litOpenChapter';b.setAttribute('aria-label','Chapter 1 · ଜନ୍ମଭୂମି');b.innerHTML='<small>ପାଠ ୧</small><strong>ଜନ୍ମଭୂମି</strong>';
  }
  function setScreen(name,heading){
-  screen=name;title.textContent=heading;
+  screen=name;title.textContent=heading;hub.classList.toggle('lit-in-workspace',name!=='catalog'&&name!=='book');
   if(name==='catalog'||name==='book'){rootBody.classList.remove('lit-workspace');body=rootBody;}else{mountWorkspace();body=$('#litContent');}
   body.replaceChildren();body.scrollTop=0;
   const backLabels={catalog:'← ପୂର୍ବ ପରଦାକୁ ଫେରନ୍ତୁ',book:'← ପୁସ୍ତକ ବାଛନ୍ତୁ',chapters:'← ପୁସ୍ତକକୁ ଫେରନ୍ତୁ',chapter:'← ପାଠ ତାଲିକାକୁ ଫେରନ୍ତୁ'};
-  back.textContent=backLabels[name]||(workspaceMode==='quiz'?'← ପାଠ ତାଲିକାକୁ ଫେରନ୍ତୁ':'← ଅଧ୍ୟାୟକୁ ଫେରନ୍ତୁ');title.tabIndex=-1;title.focus();
+  const backLabel=backLabels[name]||(workspaceMode==='quiz'?'← ପାଠ ତାଲିକାକୁ ଫେରନ୍ତୁ':'← ଅଧ୍ୟାୟକୁ ଫେରନ୍ତୁ');back.textContent='← ଫେରନ୍ତୁ';back.setAttribute('aria-label',backLabel);back.title=backLabel;title.tabIndex=-1;title.focus();
  }
 
  function complete(id){if(!saved.completed.includes(id))saved.completed.push(id);save();footer();}
@@ -71,9 +71,10 @@
   body.innerHTML='<div class="lit-empty"><div class="lit-empty-icon">'+svg(mode==='quiz'?'quiz':'book')+'</div><h2>ବାମ ପଟରୁ ପାଠ ବାଛନ୍ତୁ</h2><p class="lit-muted">ପାଠର ନାମକୁ ଛୁଇଁଲେ ଏଠାରେ ତାହାର '+(mode==='quiz'?'କୁଇଜ୍':'କାର୍ଯ୍ୟକଳାପ')+' ଖୋଲିବ।</p></div>';
  }
 
- function chapter(){setScreen('chapter','ଜନ୍ମଭୂମି');body.innerHTML='<span class="lit-badge">ପାଠ ୧ · ସାହିତ୍ୟ ସୁଧା</span><h2>ଦେଖିବା। ଭାବିବା। ଏକାଠି ଶିଖିବା।</h2><p class="lit-muted">କବି: ମଧୁସୂଦନ ରାଓ · ପ୍ରଥମେ ପାଠ ପଢ଼ିବା, ତାପରେ ଖେଳିବା।</p><p class="lit-progress">ଅଭ୍ୟାସ କରାଯାଇଛି: '+saved.completed.length+' / ୬'+(saved.quizBest!==undefined?' · Quiz best: '+saved.quizBest+'/6':'')+'</p><div class="lit-grid"></div><p class="lit-source">ଏଗୁଡ଼ିକ ପାଠ ଆଧାରିତ ନୂଆ ଅଭ୍ୟାସ; ପୁସ୍ତକର ସମସ୍ତ ପ୍ରଶ୍ନର ଉତ୍ତରମାଳା ନୁହେଁ। ଲେଖା ଓ ଆଲୋଚନାକୁ ଶିକ୍ଷକ ସମୀକ୍ଷା କରିବେ।</p>';
-  for(const [id,label,desc,en] of activities){const b=button('',()=>openActivity(id),$('.lit-grid'),'lit-card');b.setAttribute('aria-label',label+' · '+en);b.innerHTML=svg(id)+'<strong>'+label+'</strong><small>'+desc+'</small>'+(saved.completed.includes(id)?'<small class="lit-complete">✓ ଅଭ୍ୟାସ କରାଯାଇଛି</small>':'<small>ଆରମ୍ଭ କରନ୍ତୁ →</small>');}
+ function chapter(){setScreen('chapter','ଜନ୍ମଭୂମି');body.innerHTML='<div class="lit-chapter-summary"><h2>କାର୍ଯ୍ୟକଳାପ</h2><p class="lit-progress">ଅଭ୍ୟାସ: '+saved.completed.length+' / ୬'+(saved.quizBest!==undefined?' · Quiz best: '+saved.quizBest+'/6':'')+'</p></div><div class="lit-grid"></div><details class="lit-teacher-notes"><summary>ଶିକ୍ଷକଙ୍କ ପାଇଁ ସୂଚନା</summary><p>କବି: ମଧୁସୂଦନ ରାଓ। ଏଗୁଡ଼ିକ ପାଠ ଆଧାରିତ ନୂଆ ଅଭ୍ୟାସ; ପୁସ୍ତକର ସମସ୍ତ ପ୍ରଶ୍ନର ଉତ୍ତରମାଳା ନୁହେଁ। ଲେଖା ଓ ଆଲୋଚନାକୁ ଶିକ୍ଷକ ସମୀକ୍ଷା କରିବେ।</p></details>';
+  for(const [id,label,desc,en] of activities){const b=button('',()=>openActivity(id),$('.lit-grid'),'lit-card');b.setAttribute('aria-label',label+' · '+en);b.title=desc;b.innerHTML=svg(id)+'<strong>'+label+'</strong><small>'+desc+'</small>'+(saved.completed.includes(id)?'<small class="lit-complete">✓ ଅଭ୍ୟାସ କରାଯାଇଛି</small>':'');}
  }
+
  function intro(id){const a=activities.find(a=>a[0]===id);setScreen(id,a[1]);body.innerHTML='<span class="lit-badge">ଜନ୍ମଭୂମି · '+a[3]+'</span>';}
  function explore(){intro('explore');body.insertAdjacentHTML('beforeend','<h2>ପ୍ରକୃତ ଫଟୋରେ ପାଠକୁ ଦେଖିବା</h2><p class="lit-muted">ଫଟୋ ବାଛି କବିତାର ପ୍ରକୃତି ଚିତ୍ର ସହ ଯୋଡ଼ନ୍ତୁ।</p><div class="lit-scene"><figure class="lit-photo-stage">'+photoImage('himalaya')+'<figcaption>'+photos.himalaya.caption+'</figcaption></figure><div class="lit-hotspots"></div></div><div class="lit-detail" role="status" aria-live="polite">ତଳର ବଟନ୍‌ଗୁଡ଼ିକୁ ଛୁଇଁ ଫଟୋ ଓ ପାଠକୁ ଯୋଡ଼ନ୍ତୁ।</div><details class="lit-photo-credits"><summary>ଫଟୋ ଉତ୍ସ · Photo credits</summary><p>Wikimedia Commons · CC0</p><ul><li>Himalayas Ladakh — Satalah</li><li>Ganges above Rishikesh — Sarg rahul</li><li>Vizag beach — Prof Ranga Sai</li></ul></details>');
   const details=[['ହିମାଳୟ','କବି ହିମାଳୟକୁ ଭାରତମାତାଙ୍କ ମସ୍ତକରେ ଥିବା ପର୍ବତ ଭାବେ କଳ୍ପନା କରିଛନ୍ତି। କାହିଁକି ମସ୍ତକ ସହ ତୁଳନା କରିଥିବେ?'],['ନଦୀ','କବିତାରେ ଗଙ୍ଗା, ବ୍ରହ୍ମପୁତ୍ର ଓ ସିନ୍ଧୁ ଆଦି ନଦୀର ଉଲ୍ଲେଖ ଅଛି। ତୁମ ଅଞ୍ଚଳର ଏକ ନଦୀର ନାମ କହ।'],['ମହାସାଗର','ଭାରତମାତାଙ୍କ ଚରଣ ପାଖରେ ଥିବା ସାଗରର ଚିତ୍ର କବି ଆଙ୍କିଛନ୍ତି। “ମହୋଦଧି” ଶବ୍ଦର ଅର୍ଥ ମହାସାଗର।'],['କବିଙ୍କ ଭାବ','କବି ଜନ୍ମଭୂମିକୁ ମାଆ ଭାବେ ସମ୍ବୋଧନ କରିଛନ୍ତି। ତୁମେ ନିଜ ଜନ୍ମଭୂମି ପାଇଁ କେଉଁ ଭଲ କାମ କରିପାରିବ?']];

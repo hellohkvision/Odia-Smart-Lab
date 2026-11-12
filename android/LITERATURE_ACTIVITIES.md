@@ -40,4 +40,4 @@ Before merging, also check an Android phone in both landscape directions and a c
 All module assets are bundled with the Android app and require no network requests. Real Android WebView compatibility and offline launch still require a device build/test. Adding further chapters requires their verified source pages and additional content; unsupported subjects are not presented as working.
 
 
-The header and footer are compact 52px bars (plus safe-area insets), with 48px touch targets. The repeated header kicker is hidden. The chapter content retains the remaining height; photographs live inside the activity content.
+The header is a compact 50px row with 48px navigation targets. Back sits only at the bottom of the chapter sidebar; the right content pane extends to the screen bottom. Teacher information is collapsible. Activity cards, quiz options and spacing are compact; the original Pathasala Book/Activity/Quizzes section uses small inline buttons. Real photos remain inside relevant content. Storage failures remain visible.

@@ -103,3 +103,63 @@
 #literatureHub .lit-question-photo figcaption{font-size:12px;padding:4px;background:transparent}
 @media(max-width:700px){#literatureHub .lit-question-stem{gap:10px}#literatureHub .lit-question-photo{width:34%}#literatureHub .lit-question-photo .lit-photo{height:100px}#literatureHub .lit-question-photo figcaption{font-size:11px}}
 @media(max-height:500px){#literatureHub .lit-photo-stage .lit-photo{height:180px}}
+
+/* Minimal Activity/Quiz workspace: use the area for the lesson, not banners. */
+#literatureHub{--lit-sidebar:clamp(144px,18vw,220px)}
+#literatureHub .lit-shell{position:relative}
+#literatureHub .lit-top{height:50px;min-height:50px;padding:0 8px;gap:8px}
+#literatureHub .lit-top h1{font-size:18px}
+#literatureHub #litClose{width:48px;min-width:48px;padding:0;font-size:26px;line-height:1}
+#literatureHub.lit-in-workspace .lit-footer{position:absolute;bottom:0;left:0;width:var(--lit-sidebar);padding:2px 6px calc(2px + env(safe-area-inset-bottom));border-right:1px solid #d1d9cc;gap:0}
+#literatureHub.lit-in-workspace #litBack{width:100%;padding:4px 6px}
+#literatureHub.lit-in-workspace .lit-footer small{display:none}
+#literatureHub.lit-in-workspace .lit-footer .lit-save-error{display:block;position:fixed;left:calc(var(--lit-sidebar) + 8px);bottom:8px;max-width:calc(100vw - var(--lit-sidebar) - 24px);padding:8px;background:#fff4df;border:1px solid #ca963c;border-radius:8px}
+#literatureHub .lit-body.lit-workspace{grid-template-columns:var(--lit-sidebar) minmax(0,1fr)}
+#literatureHub .lit-chapter-sidebar{padding:12px 8px calc(64px + env(safe-area-inset-bottom))}
+#literatureHub .lit-chapter-sidebar .lit-kicker{display:none}
+#literatureHub .lit-sidebar-heading{font-size:16px;margin:0 0 8px}
+#literatureHub .lit-chapter-link{padding:8px 10px;gap:2px;border-radius:8px;font-size:16px}
+#literatureHub .lit-chapter-sidebar .lit-source{margin:8px 0;font-size:12px}
+#literatureHub .lit-chapter-content{padding:10px 12px;scrollbar-gutter:auto}
+#literatureHub .lit-chapter-content h2{font-size:21px;line-height:1.45}
+#literatureHub .lit-chapter-summary{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 12px;margin-bottom:8px}
+#literatureHub .lit-chapter-summary .lit-progress{margin:0}
+#literatureHub .lit-grid,#literatureHub .lit-chapter-content .lit-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:8px 0}
+#literatureHub .lit-card{grid-template-columns:24px minmax(0,1fr);align-content:start;gap:3px 10px;padding:10px 12px;border-radius:10px;min-height:64px}
+#literatureHub .lit-card svg{width:24px;height:24px;grid-column:1;grid-row:1/4}
+#literatureHub .lit-card strong,#literatureHub .lit-card small{grid-column:2}
+#literatureHub .lit-card strong{font-size:18px;line-height:1.45}
+#literatureHub .lit-card small{font-size:13px;line-height:1.45}
+#literatureHub .lit-card .lit-complete{font-size:12px}
+#literatureHub .lit-badge{font-size:12px;padding:2px 8px;border-radius:6px}
+#literatureHub .lit-progress{font-size:13px;margin:4px 0}
+#literatureHub .lit-options{gap:8px;margin:10px 0}
+#literatureHub .lit-options button{min-height:48px;padding:8px 12px;font-size:18px;border-radius:8px}
+#literatureHub .lit-feedback{min-height:0;margin:6px 0;font-size:16px}
+#literatureHub .lit-feedback:empty{display:none}
+#literatureHub .lit-actions{gap:8px;margin:8px 0}
+#literatureHub .lit-panel{padding:12px;margin:8px 0;border-radius:10px}
+#literatureHub .lit-scene{margin:10px 0;border-radius:10px}
+#literatureHub .lit-hotspots{gap:6px;padding:6px}
+#literatureHub .lit-detail{min-height:0;padding:10px 12px}
+#literatureHub .lit-match{gap:8px;margin:10px 0}
+#literatureHub .lit-match>div{gap:6px}
+#literatureHub .lit-match button{min-height:48px;padding:8px 10px}
+#literatureHub .lit-chips,#literatureHub .lit-sentence{gap:8px;margin:10px 0}
+#literatureHub .lit-sentence{min-height:68px;padding:8px;border-radius:10px}
+#literatureHub .lit-question-stem{gap:12px}
+#literatureHub .lit-question-photo .lit-photo{height:110px}
+#literatureHub .lit-empty{min-height:0;justify-items:start;text-align:left;gap:8px;padding:8px 0;align-content:start}
+#literatureHub .lit-empty-icon{display:none}
+#literatureHub .lit-teacher-notes{font-size:13px;color:#52695f;margin-top:8px}
+#literatureHub .lit-teacher-notes summary{min-height:48px;display:flex;align-items:center;cursor:pointer}
+#lessons .pathasala-section-grid{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:12px 0}
+#lessons .pathasala-section-card{display:inline-flex;flex-direction:row;align-items:center;justify-content:center;gap:8px;min-height:48px;min-width:100px;padding:8px 14px;border-radius:8px}
+#lessons .pathasala-section-card>span{display:flex;align-items:center;width:24px;height:24px;border-radius:6px}
+#lessons .pathasala-section-card svg{width:22px;height:22px}
+#lessons .pathasala-section-card strong{font-size:15px;line-height:1.4}
+#lessons .pathasala-book-sections{align-self:flex-start;margin-top:12px}
+#lessons .pathasala-book-sections h2{margin-bottom:8px}
+@media(max-width:700px){#literatureHub{--lit-sidebar:clamp(112px,24vw,150px)}#literatureHub .lit-chapter-content{padding:8px}#literatureHub .lit-grid,#literatureHub .lit-chapter-content .lit-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#literatureHub .lit-card{padding:8px;gap:3px 6px}}
+@media(max-width:500px){#literatureHub .lit-grid,#literatureHub .lit-chapter-content .lit-grid{grid-template-columns:1fr}}
+@media(max-height:500px){#literatureHub .lit-card small:not(.lit-complete){display:none}#literatureHub .lit-chapter-content h2{font-size:18px}#literatureHub .lit-question-photo .lit-photo{height:90px}#literatureHub .lit-photo-stage .lit-photo{height:150px}}
