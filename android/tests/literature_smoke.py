@@ -75,7 +75,14 @@ def run():
             src = photo.get_attribute('src')
             assert src not in used_photo_sources
             used_photo_sources.add(src)
-        page.locator('#litBack').click()
+        page.locator('#litStartChallenge').click()
+        for i, answer in enumerate(['ହିମାଳୟ', 'ଗଙ୍ଗା', 'ମହାସାଗର']):
+            if i == 0:
+                page.get_by_role('button', name='ଗଙ୍ଗା', exact=True).click()
+                expect(page.locator('.lit-feedback')).to_contain_text('ଭଲ ଚେଷ୍ଟା')
+            page.get_by_role('button', name=answer, exact=True).click()
+            page.locator('.lit-challenge-reveal img').evaluate('(img)=>img.decode()')
+            page.locator('.lit-actions .lit-primary').click()
         activity(page, 'ଶବ୍ଦ ଯୋଡ଼ିବା')
         words = ['ହିମାଳୟ', 'ଜାହ୍ନବୀ', 'ମହୋଦଧି', 'ଜନନୀ', 'ଦୁହିତା', 'ଚରଣ']
         meanings = ['ଭାରତର ଉତ୍ତରରେ ଥିବା ପର୍ବତମାଳା', 'ଗଙ୍ଗା ନଦୀର ଅନ୍ୟ ନାମ', 'ମହାସାଗର', 'ମାଆ', 'ଝିଅ', 'ପାଦ']
@@ -87,6 +94,10 @@ def run():
             page.get_by_role('button', name=w, exact=True).click()
             page.get_by_role('button', name=m, exact=True).click()
         assert page.locator('.lit-match button:disabled').count() == 12
+        page.get_by_role('button', name='ଦେଶ ଏକ ଖେଳନା', exact=True).click()
+        expect(page.locator('.lit-mission-feedback')).to_contain_text('ଆଉ ଥରେ')
+        page.get_by_role('button', name='ଜନ୍ମଭୂମି ପ୍ରତି ମମତା ଓ ଶ୍ରଦ୍ଧା', exact=True).click()
+        expect(page.locator('.lit-mission-feedback')).to_contain_text('ଦାରୁଣ')
         page.locator('#litBack').click()
         activity(page, 'ନିଜକୁ ପରଖିବା')
         correct = ['ମଧୁସୂଦନ ରାଓ', 'ହିମାଳୟ', 'ଗଙ୍ଗା', 'ଜନ୍ମଭୂମି ପ୍ରତି ଭଲପାଇବା ଓ ଶ୍ରଦ୍ଧା', 'ସଚ୍ଚିଦାନନ୍ଦ ରାଉତରାୟ', 'ପରିବେଶକୁ ସଫା ରଖି ଓ ଗଛ ଲଗାଇ']
@@ -101,13 +112,27 @@ def run():
             else:
                 expect(page.locator('.lit-question-photo')).to_have_count(0)
             if i == 0:
+                wrong = page.get_by_role('button', name='ଜଗନ୍ନାଥ ଦାସ', exact=True)
+                wrong.click()
+                expect(wrong).to_be_disabled()
+                expect(page.locator('.lit-feedback')).to_contain_text('ଭଲ ଚେଷ୍ଟା')
                 page.get_by_role('button', name='ସହାୟତା', exact=True).click()
+                expect(page.locator('.lit-feedback')).to_contain_text('ସହାୟତା ନେବା')
             page.get_by_role('button', name=answer, exact=True).click()
+            expect(page.locator('#litQuizStars')).to_contain_text(str(i + 1) + ' / 6')
+            expect(page.get_by_role('button', name='ସହାୟତା', exact=True)).to_be_disabled()
             page.locator('.lit-actions .lit-primary').click()
         expect(page.locator('.lit-results')).to_contain_text('5 / 6')
+        expect(page.locator('.lit-earned-stars')).to_have_attribute('aria-label', '6 learning stars')
+        page.locator('#litPracticeAgain').click()
+        expect(page.locator('.lit-quiz-progress')).to_contain_text('ପ୍ରଶ୍ନ 1 / 1')
+        page.get_by_role('button', name='ମଧୁସୂଦନ ରାଓ', exact=True).click()
+        page.locator('.lit-actions .lit-primary').click()
+        expect(page.locator('.lit-earned-stars')).to_have_attribute('aria-label', '1 learning stars')
+        assert page.evaluate("JSON.parse(localStorage.getItem('odia-literature-class6-janmabhumi-v1')).quizBest") == 5
         page.locator('#litBack').click()
         activity(page, 'ବାକ୍ୟ ସଜାଇବା')
-        for sentence in [['ଆମେ', 'ଜନ୍ମଭୂମିକୁ', 'ଭଲ', 'ପାଉ।'], ['ହିମାଳୟ', 'ଭାରତର', 'ଉତ୍ତରରେ', 'ଅଛି।'], ['ଆମେ', 'ନଦୀକୁ', 'ସଫା', 'ରଖିବା।']]:
+        for sentence in [['କବି', 'ଜନ୍ମଭୂମିକୁ', 'ମାଆ', 'ଭାବରେ', 'କଳ୍ପନା', 'କରିଛନ୍ତି।'], ['କବିତାରେ', 'ହିମାଳୟକୁ', 'ଭାରତମାତାଙ୍କ', 'ମସ୍ତକ', 'ସହ', 'ତୁଳନା', 'କରାଯାଇଛି।'], ['ଜନ୍ମଭୂମିର', 'ସେବା', 'ପାଇଁ', 'ଆମେ', 'ପରିବେଶକୁ', 'ସୁରକ୍ଷା', 'ଦେବା।']]:
             for word in sentence:
                 page.locator('.lit-chips').get_by_role('button', name=word, exact=True).click()
             page.get_by_role('button', name='ଯାଞ୍ଚ କରନ୍ତୁ', exact=True).click()
@@ -142,7 +167,7 @@ def run():
         page.get_by_role('button', name='ମଧୁସୂଦନ ରାଓ', exact=True).click()
         page.locator('.lit-actions .lit-primary').click()
         split_layout(page)
-        expect(page.locator('#litContent .lit-progress')).to_contain_text('2 / 6')
+        expect(page.locator('#litContent .lit-quiz-progress')).to_contain_text('2 / 6')
         page.locator('#litBack').click()
         expect(page.locator('#litTitle')).to_contain_text('Quiz')
         expect(page.locator('#litOpenChapter')).not_to_have_attribute('aria-current', 'true')
