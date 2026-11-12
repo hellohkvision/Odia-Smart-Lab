@@ -19,25 +19,32 @@ def open_hub(page):
     split_layout(page)
     expect(page.locator('#litTitle')).to_contain_text('ପାଠ ବାଛନ୍ତୁ')
     expect(page.locator('#litOpenChapter')).to_contain_text('ଜନ୍ମଭୂମି')
-    page.locator('#litOpenChapter').click()
+    choose_chapter(page)
     expect(page.locator('.lit-card')).to_have_count(6)
     expect(page.locator('.lit-card img')).to_have_count(0)
 
 
-def split_layout(page):
+def choose_chapter(page):
+    expect(page.locator('.lit-chapter-sidebar')).not_to_be_visible()
+    page.locator('#litChapterToggle').click()
     expect(page.locator('.lit-chapter-sidebar')).to_be_visible()
+    expect(page.locator('#litChapterToggle')).to_have_attribute('aria-expanded', 'true')
+    page.locator('#litOpenChapter').click()
+    expect(page.locator('.lit-chapter-sidebar')).not_to_be_visible()
+    expect(page.locator('#litChapterToggle')).to_have_attribute('aria-expanded', 'false')
+
+
+def split_layout(page):
+    expect(page.locator('.lit-chapter-sidebar')).not_to_be_visible()
     expect(page.locator('#litContent')).to_be_visible()
+    expect(page.locator('#litChapterToggle')).to_have_attribute('aria-expanded', 'false')
     assert page.locator('.lit-top').bounding_box()['height'] <= 54
-    assert page.locator('.lit-footer').bounding_box()['height'] <= 54
-    left = page.locator('.lit-chapter-sidebar').bounding_box()
     right = page.locator('#litContent').bounding_box()
-    assert left['x'] + left['width'] <= right['x'] + 1
-    assert abs(left['y'] - right['y']) <= 1
-    # Right pane uses the full height: Back occupies only the sidebar bottom.
+    assert right['x'] <= 1
+    assert right['width'] >= page.viewport_size['width'] - 1
     assert right['y'] + right['height'] >= page.viewport_size['height'] - 1
-    footer = page.locator('.lit-footer').bounding_box()
-    assert footer['x'] + footer['width'] <= right['x'] + 1
     assert page.locator('#litContent').evaluate('(el)=>el.scrollWidth <= el.clientWidth')
+    assert page.locator('#litChapterToggle').bounding_box()['height'] >= 48
 
 
 def activity(page, name):
@@ -153,7 +160,7 @@ def run():
         assert page.locator('.lit-complete').count() == 6
         # Back navigation follows chapter → chapter list → book → catalog.
         page.locator('#litBack').click()
-        expect(page.locator('#litChapterList')).to_be_visible()
+        expect(page.locator('#litChooseChapter')).to_be_visible()
         page.locator('#litBack').click()
         expect(page.locator('#litBookActivity')).to_be_visible()
         # Quiz has the same persistent chapter list and opens in the right pane.
@@ -161,11 +168,24 @@ def run():
         split_layout(page)
         expect(page.locator('#litTitle')).to_contain_text('Quiz')
         expect(page.locator('.lit-options')).to_have_count(0)
-        page.locator('#litOpenChapter').click()
+        choose_chapter(page)
         split_layout(page)
         expect(page.locator('#litContent h2')).to_contain_text('କବି କିଏ')
         page.get_by_role('button', name='ମଧୁସୂଦନ ରାଓ', exact=True).click()
         page.locator('.lit-actions .lit-primary').click()
+        split_layout(page)
+        expect(page.locator('#litContent .lit-quiz-progress')).to_contain_text('2 / 6')
+        # Escape and tapping outside close only the drawer, preserving the quiz.
+        page.locator('#litChapterToggle').click()
+        expect(page.locator('.lit-chapter-sidebar')).to_be_visible()
+        assert page.locator('#litContent').evaluate('el=>el.inert')
+        page.keyboard.press('Escape')
+        expect(page.locator('#literatureHub')).to_be_visible()
+        expect(page.locator('#litChapterToggle')).to_be_focused()
+        split_layout(page)
+        expect(page.locator('#litContent .lit-quiz-progress')).to_contain_text('2 / 6')
+        page.locator('#litChapterToggle').click()
+        page.locator('.lit-drawer-shade').click()
         split_layout(page)
         expect(page.locator('#litContent .lit-quiz-progress')).to_contain_text('2 / 6')
         page.locator('#litBack').click()
@@ -177,7 +197,7 @@ def run():
         expect(page.locator('#litSelectBook')).to_be_visible()
         page.locator('#litSelectBook button').click()
         page.locator('#litBookActivity').click()
-        page.locator('#litOpenChapter').click()
+        choose_chapter(page)
         activity(page, 'ମୋ ଗାଁ, ମୋ କଥା')
         expect(page.locator('#litDraft')).to_have_value('ମୋ ଗାଁ ସୁନ୍ଦର। ମୁଁ ଗଛ ଲଗାଇବି।')
         for width, height in [(1920, 1080), (844, 390), (390, 844)]:
@@ -203,7 +223,7 @@ def run():
             expect(page.locator('#literatureHub')).to_be_visible()
             expect(page.locator('#litTitle')).to_contain_text('Quiz' if label == 'Quizzes' else 'Activity')
             split_layout(page)
-            page.locator('#litOpenChapter').click()
+            choose_chapter(page)
             if label == 'Activity':
                 expect(page.locator('#litContent .lit-card')).to_have_count(6)
                 page.locator('#litBack').click()

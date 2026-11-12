@@ -179,3 +179,18 @@
 #literatureHub .lit-mission-feedback{font-size:15px;color:#174c34}
 #literatureHub .lit-challenge-reveal .lit-question-photo{width:180px;max-width:100%;margin:8px 0}
 #literatureHub #litStartChallenge{margin-top:8px}
+
+/* Chapters are a temporary drawer; lessons keep the full screen width. */
+#literatureHub{--lit-sidebar:clamp(152px,20vw,200px)}
+#literatureHub .lit-top>div{flex:1}
+#literatureHub .lit-top #litBack{width:48px;min-width:48px;padding:0;font-size:24px;flex-shrink:0}
+#literatureHub #litChapterToggle{flex-shrink:0;min-width:72px;height:48px;padding:4px 10px;font-size:14px}
+#literatureHub #litChapterToggle[hidden],#literatureHub .lit-chapter-sidebar[hidden],#literatureHub .lit-drawer-shade[hidden]{display:none!important}
+#literatureHub .lit-body.lit-workspace{display:block;position:relative}
+#literatureHub .lit-chapter-content{width:100%;height:100%}
+#literatureHub .lit-chapter-sidebar{position:absolute;inset:0 auto 0 0;z-index:3;width:var(--lit-sidebar);max-width:calc(100% - 56px);padding:12px 8px;box-shadow:6px 0 20px #193f3626}
+#literatureHub .lit-drawer-shade{position:absolute;inset:0;z-index:2;width:100%;height:100%;padding:0;border:0;border-radius:0;background:#193f3640}
+#literatureHub .lit-drawer-shade:hover{background:#193f3640}
+#literatureHub .lit-footer,#literatureHub.lit-in-workspace .lit-footer{display:none}
+#literatureHub.lit-storage-warning .lit-footer{display:block;position:fixed;inset:auto 8px 8px;z-index:4;width:auto;min-height:0;padding:0;border:0;background:transparent}
+#literatureHub.lit-storage-warning .lit-footer .lit-save-error{display:block;position:static;max-width:100%;padding:8px;white-space:normal;background:#fff4df;border:1px solid #ca963c;border-radius:8px}
