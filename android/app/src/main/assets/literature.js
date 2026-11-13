@@ -45,7 +45,7 @@
  const $=s=>hub.querySelector(s);
  function button(text,fn,parent=body,className=''){const b=document.createElement('button');b.type='button';b.textContent=text;b.className=className;b.onclick=fn;parent.append(b);return b;}
  const chapterToggle=document.createElement('button');chapterToggle.id='litChapterToggle';chapterToggle.type='button';chapterToggle.hidden=true;chapterToggle.textContent='☰ ପାଠ';chapterToggle.setAttribute('aria-label','Show chapters · ପାଠ ତାଲିକା');chapterToggle.setAttribute('aria-controls','litChapterSidebar');chapterToggle.setAttribute('aria-expanded','false');
- hub.querySelector('.lit-top').prepend(back,chapterToggle);
+ const bottomControls=document.createElement('div');bottomControls.className='lit-bottom-controls';bottomControls.setAttribute('role','group');bottomControls.setAttribute('aria-label','Activity navigation');bottomControls.append(back,chapterToggle,hub.querySelector('#litClose'));rootBody.after(bottomControls);
  chapterToggle.onclick=()=>setChapterDrawer(!drawerOpen,true);
  function setChapterDrawer(open,returnFocus=false){
   const sidebar=$('#litChapterSidebar'),shade=$('.lit-drawer-shade'),content=$('#litContent');

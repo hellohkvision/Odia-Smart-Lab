@@ -1,0 +1,111 @@
+/* Shared popup finish, adapted to the existing compact board controls. */
+#shapesPanel,.board-settings,.eraser-size-panel,.more-tools-panel,.selection-actions,.page-overview,.board-file-menu,#saathiMenu,.board-hold-menu{
+ box-sizing:border-box;border:1px solid #cfe1f3;background:#fff;color:#1c3558;border-radius:15px;box-shadow:0 8px 24px #1d5f9629;
+}
+#shapesPanel,.board-settings,.eraser-size-panel,.more-tools-panel{padding:8px;overscroll-behavior:contain}
+.board-popup-heading{box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;grid-column:1/-1;min-width:0;min-height:48px;margin:-8px -8px 7px;padding:0 5px 0 10px;border-bottom:1px solid #dceafa;border-radius:14px 14px 0 0;background:#eff7ff;color:#173457}
+.board-popup-heading-label{display:flex;align-items:center;gap:7px;min-width:0;font:700 13px/1.2 system-ui,sans-serif}
+.board-popup-heading-label svg,.board-popup-close svg{display:block;width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.board-popup-heading-label svg{flex:none;color:#0787e8}
+button.board-popup-close{box-sizing:border-box;display:grid;place-items:center;flex:none;width:48px;min-width:48px;max-width:48px;height:48px;min-height:48px;padding:10px;border:0;border-radius:8px;background:transparent;color:#294668}
+button.board-popup-close:focus-visible{outline:2px solid #0787e8;outline-offset:-2px}
+.more-tools-panel .board-popup-heading{grid-column:1/-1}
+.eraser-size-panel{grid-template-columns:minmax(0,1fr) 32px;grid-template-rows:48px auto 44px;gap:2px 8px}
+.eraser-size-panel .board-popup-heading{grid-row:1}
+.eraser-size-panel label{grid-row:2;color:#294668}
+.eraser-size-panel input{grid-row:3;accent-color:#0787e8}
+.eraser-size-panel .eraser-live-preview{grid-row:3;border-color:#ccdaea;background:#f4f8fc}
+.eraser-size-panel input::-webkit-slider-runnable-track{background:#dce8f4}
+.eraser-size-panel input::-webkit-slider-thumb{background:#0787e8;box-shadow:0 0 0 1px #0787e8}
+#shapesPanel .shape-page>button,.more-tools-panel>button,.toolbar-overflow-items>button,.selection-action-row button{
+ border:1px solid #e0ebf6;border-radius:9px;background:#f3f8fd;color:#254267;
+}
+#shapesPanel .shape-page>button.active,#shapesPanel .shape-page>button[aria-pressed=true],.toolbar-overflow-items>button.active,.toolbar-overflow-items>button[aria-pressed=true]{border-color:#0787e8;background:#0787e8;color:#fff}
+#shapesPanel .shape-page-dot.active:before{background:#0787e8}
+.board-pattern-choices button{border-color:#dce9f6;background:#f3f8fd;color:#294668}
+.board-pattern-choices button[aria-pressed=true]{border-color:#0787e8;background:#0787e8;color:#fff}
+.board-background-options legend,.eraser-size-panel label,.selection-opacity,.page-overview-heading{color:#294668}
+.board-background-row button[aria-pressed=true]:before{outline-color:#0787e8}
+.selection-actions{border-radius:12px}
+.selection-action-row button[aria-expanded=true]{background:#0787e8;color:#fff}
+.selection-opacity input{accent-color:#0787e8}
+.page-overview-heading{padding:0 4px;font-weight:700}
+.page-overview-list button[aria-current=page]{border-color:#0787e8}
+.board-file-menu button{color:#294668}
+.board-file-menu .file-menu-icon{color:#337bb8}
+.board-file-menu button:hover,.board-file-menu button:focus-visible,#saathiMenu button:hover{background:#edf6ff}
+#saathiMenu button{border-radius:9px;background:#f3f8fd;color:#294668}
+#saathiMenu button.active{background:#0787e8;color:#fff}
+.fill-color-panel{border-color:#cfe1f3!important;border-radius:14px!important;box-shadow:0 8px 24px #1d5f9629!important}
+@media(max-height:400px){.board-popup-heading{margin-bottom:4px}#shapesPanel,.board-settings,.more-tools-panel{overflow-y:auto}}
+
+/* Keep dismissal and page context visible when a small screen needs scrolling. */
+#penOptions .pen-panel-header,.board-popup-heading{position:sticky;top:-8px;z-index:3}
+#penOptions,#shapesPanel,.board-settings,.more-tools-panel,.board-file-menu{scrollbar-width:thin;scrollbar-color:#a9c5df transparent}
+#penOptions::-webkit-scrollbar,#shapesPanel::-webkit-scrollbar,.board-settings::-webkit-scrollbar,.more-tools-panel::-webkit-scrollbar,.board-file-menu::-webkit-scrollbar{width:5px}
+#penOptions::-webkit-scrollbar-thumb,#shapesPanel::-webkit-scrollbar-thumb,.board-settings::-webkit-scrollbar-thumb,.more-tools-panel::-webkit-scrollbar-thumb,.board-file-menu::-webkit-scrollbar-thumb{background:#a9c5df;border-radius:5px}
+.shape-page-count{margin-left:3px;color:#6683a0;font:600 10px/1 system-ui,sans-serif;white-space:nowrap}
+#penOptions .pen-pressure-hint{display:block;margin-top:1px;color:#6b7c8d;font:500 9px/1.1 system-ui,sans-serif}
+
+/* Restore the board's neutral white and charcoal theme. Ink swatches stay colourful. */
+.left-actions,.bottom-bar,.page-dock{background:#fff;border-color:#d8d8d8;box-shadow:0 -3px 14px #00000010}
+.bottom-bar .tools>button.active,.bottom-bar #pen.active{background:#eceff1!important;color:#263238!important;box-shadow:inset 0 0 0 1px #b9c3c9!important}
+.bottom-bar .tools>button.active .dock-tool-name,.bottom-bar #pen.active .dock-tool-name{color:#263238!important}
+.bottom-bar .tools>button.active .writing-icon,.bottom-bar #pen.active .writing-icon{filter:none}
+.bottom-bar .tools>button.active svg,.bottom-bar #pen.active svg{color:#263238;stroke:currentColor}
+.bottom-bar #moreTools[aria-expanded=true],.toolbar-overflow-items>button.active{background:#eceff1;color:#263238}
+.bottom-bar .tools>button:focus-visible,.left-actions button:focus-visible,.page-dock button:focus-visible{outline-color:#555}
+#penOptions,#shapesPanel,.board-settings,.eraser-size-panel,.more-tools-panel,.selection-actions,.page-overview,.board-file-menu,#saathiMenu,.board-hold-menu{border-color:#d8d8d8;color:#222;box-shadow:0 8px 24px #00000024}
+#penOptions .pen-panel-header,.board-popup-heading{background:#f5f5f5;border-color:#e2e2e2;color:#242424}
+#penOptions .pen-panel-title svg,.board-popup-heading-label svg{stroke:#333;color:#333}
+#penOptions .pen-panel-close,button.board-popup-close{color:#333}
+#penOptions .type-row button{background:#f7f7f7;border-color:#dedede;color:#333}
+#penOptions .type-row button.chosen{background:#222;border-color:#222;color:#fff}
+#penOptions .type-row button.chosen svg{stroke:#fff!important}
+#penOptions .type-row,#penOptions .size-row{border-color:#e5e5e5}
+#penOptions .stroke-slider-label,#penOptions .stroke-slider-value,#penOptions .pen-color-heading,#penOptions .pen-behavior-row{color:#333}
+#penOptions #size::-webkit-slider-runnable-track{background:linear-gradient(to right,#333 0 var(--stroke-progress,0%),#d5d5d5 var(--stroke-progress,0%) 100%)}
+#penOptions #size::-webkit-slider-thumb{background:#333;box-shadow:0 0 0 1px #555}
+#penOptions .colors.pen-row button[aria-pressed=true]:after{border-color:#d7a32e}
+#penOptions .pen-thickness-presets button{background:#fff;border-color:#ddd;color:#333}
+#penOptions .pen-thickness-presets button[aria-pressed=true]{background:#ededed;border-color:#333;color:#222}
+#penOptions .pen-behavior-options,#penOptions .pen-more-options{border-color:#e5e5e5}
+#penOptions .pen-behavior-label svg{background:#f2f2f2;stroke:#333}
+#penOptions .pen-behavior-row input{background:#cfcfcf}
+#penOptions .pen-behavior-row input:checked{background:#333}
+#penOptions .pen-more-options summary,#penOptions .pen-more-options summary:after,#penOptions .pen-preset-heading{color:#555}
+#penOptions .pen-panel-close:focus-visible,#penOptions .type-row button:focus-visible,#penOptions .pen-behavior-row input:focus-visible,#penOptions .pen-thickness-presets button:focus-visible,#penOptions .pen-more-options summary:focus-visible,button.board-popup-close:focus-visible{outline-color:#555}
+.more-tools-panel button:focus-visible,.extra-panel button:focus-visible,.board-settings button:focus-visible,.selection-actions button:focus-visible{outline-color:#555}
+.board-popup-heading-label,.eraser-size-panel label,.board-background-options legend,.selection-opacity,.page-overview-heading,.board-file-menu button{color:#333}
+.eraser-size-panel input,.selection-opacity input{accent-color:#333}
+.eraser-size-panel input::-webkit-slider-runnable-track{background:#d5d5d5}
+.eraser-size-panel input::-webkit-slider-thumb{background:#333;box-shadow:0 0 0 1px #555}
+.eraser-size-panel .eraser-live-preview{background:#f5f5f5;border-color:#ccc}
+#shapesPanel .shape-page>button,.more-tools-panel>button,.toolbar-overflow-items>button,.selection-action-row button,.board-pattern-choices button,#saathiMenu button{border-color:#ddd;background:#f5f5f5;color:#222}
+#shapesPanel .shape-page>button.active,#shapesPanel .shape-page>button[aria-pressed=true],.toolbar-overflow-items>button.active,.toolbar-overflow-items>button[aria-pressed=true],.board-pattern-choices button[aria-pressed=true],.selection-action-row button[aria-expanded=true],#saathiMenu button.active{border-color:#222;background:#222;color:#fff}
+#shapesPanel .shape-page-dot.active:before{background:#333}
+.board-background-row button[aria-pressed=true]:before{outline-color:#333}
+.page-overview-list button[aria-current=page]{border-color:#333}
+.board-file-menu .file-menu-icon{color:#555}
+.board-file-menu button:hover,.board-file-menu button:focus-visible,#saathiMenu button:hover{background:#eee}
+.fill-color-panel{border-color:#d8d8d8!important;box-shadow:0 8px 24px #00000024!important}
+#penOptions,#shapesPanel,.board-settings,.more-tools-panel,.board-file-menu{scrollbar-color:#b8b8b8 transparent}
+#penOptions::-webkit-scrollbar-thumb,#shapesPanel::-webkit-scrollbar-thumb,.board-settings::-webkit-scrollbar-thumb,.more-tools-panel::-webkit-scrollbar-thumb,.board-file-menu::-webkit-scrollbar-thumb{background:#b8b8b8}
+.shape-page-count,#penOptions .pen-pressure-hint{color:#707070}
+
+/* A consistent neutral finish and comfortable touch areas across compact tools. */
+.board-settings{width:min(312px,calc(100vw - 16px))}
+.board-pattern-choices{gap:6px}
+.board-pattern-choices button{min-height:48px;font-weight:600}
+.board-background-row button,.board-background-row .custom-palette-icon,.board-background-row .custom-palette-icon .board-custom-color{width:100%!important;height:48px!important;min-height:48px!important}
+.board-background-row button:before{width:24px;height:24px;border-color:#a5aaa8}
+.board-background-row button[aria-pressed=true]:before{outline:2px solid #333;outline-offset:3px}
+@media(max-width:320px){.board-background-row{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.eraser-size-panel input::-webkit-slider-runnable-track{background:linear-gradient(to right,#333 0 var(--eraser-progress,0%),#d5d5d5 var(--eraser-progress,0%) 100%)}
+#shapesPanel .shape-page-dots{gap:2px;padding-top:2px}
+#shapesPanel .shape-page-dots .shape-page-dot{width:44px;min-width:44px;height:32px;min-height:32px;border-radius:8px}
+#shapesPanel .shape-page-dot:before{width:7px;height:7px}
+.selection-actions{max-height:calc(100dvh - 64px);overflow-y:auto}
+.selection-action-row button,.toolbar-overflow-items>button,.more-tools-panel>button{min-height:48px}
+.selection-action-row button:focus-visible,.toolbar-overflow-items>button:focus-visible,#shapesPanel button:focus-visible,.board-pattern-choices button:focus-visible,.board-background-row button:focus-visible{outline:2px solid #555;outline-offset:1px}
+@media(hover:hover){#shapesPanel .shape-page>button:not(.active):hover,.more-tools-panel>button:hover,.toolbar-overflow-items>button:not(.active):hover,.selection-action-row button:not(:disabled):hover{background:#e9ecee}}

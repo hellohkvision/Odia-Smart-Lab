@@ -692,6 +692,7 @@ body.split-mode .page-dock,body.activity-not-board .page-dock{display:none!impor
 .zone-stroke-preview:before{content:'';width:var(--zone-preview-size,4px);height:var(--zone-preview-size,4px);border-radius:50%;background:var(--zone-preview-color,#fff)}
 .selection-actions{position:fixed;z-index:17;width:min(224px,calc(100vw - 16px));padding:5px;background:#fff;border:1px solid #d8d8d8;border-radius:10px;box-shadow:0 5px 18px #0003;color:#222}
 .selection-action-row{display:grid;grid-template-columns:repeat(4,minmax(44px,1fr));gap:3px}.selection-action-row button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-width:0;min-height:44px;padding:3px;border:0;border-radius:7px;background:#f1f1f1;color:#222;font-size:16px;line-height:1}.selection-action-row button small{font-size:10px}.selection-action-row button:disabled{opacity:.35}.selection-action-row button[aria-expanded=true]{background:#222;color:#fff}
+.selection-action-row button span{display:grid;place-items:center;width:22px;height:22px}.selection-action-row button svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.selection-action-row button:focus-visible{outline:2px solid #527eb6;outline-offset:1px}
 .selection-palette{padding:2px 0 5px}.selection-color-row{display:grid;grid-template-columns:repeat(4,minmax(44px,1fr));gap:2px}.selection-color-row button,.selection-color-row input{justify-self:center;width:44px;height:44px;min-height:44px;padding:9px;border:0;border-radius:50%;background:transparent;color:#222}.selection-color-row button.selection-color:before{content:'';display:block;width:22px;height:22px;border:1px solid #999;border-radius:50%;background:var(--color)}.selection-opacity{display:flex;align-items:center;gap:8px;padding:0 4px;font-size:11px}.selection-opacity input{flex:1;min-width:0;height:32px;accent-color:#222}
 /* Divider adapts to board brightness for contrast. */
 .board-split-lines span{background:#f2f2f2cc}
@@ -939,3 +940,87 @@ html,body,button,a,input,select,textarea,[role='button']{-webkit-tap-highlight-c
 #canvas[data-paper="both"]{background-image:radial-gradient(circle,var(--board-pattern-color,rgba(255,255,255,.78)) 2px,transparent 2.3px),repeating-linear-gradient(to bottom,transparent 0,transparent 38px,var(--board-pattern-color,rgba(255,255,255,.78)) 38px,var(--board-pattern-color,rgba(255,255,255,.78)) 40px)!important;background-size:24px 24px,calc(100% - 48px) calc(100% - 48px)!important;background-position:0 0,center!important;background-repeat:repeat,no-repeat!important}
 .alphabet-language-switches{display:flex;gap:6px;margin:8px 0;flex-wrap:wrap}.alphabet-language-switches button{min-height:38px;padding:5px 12px;border:1px solid #ddd;border-radius:8px;background:#f5f5f5;color:#333;font-size:12px;font-weight:600}.alphabet-language-switches button[aria-pressed=true]{background:#222;border-color:#222;color:#fff}.alphabet-group[hidden]{display:none!important}
 .alphabet-example-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}.alphabet-example-heading strong{color:#174c35;font-size:15px}.alphabet-practice-button{min-height:38px;padding:5px 14px;border:0;border-radius:8px;background:#222;color:#fff;font-size:12px;font-weight:600}
+
+/* Board controls: quiet surfaces, clear selection, and readable touch targets. */
+body:not(.activity-not-board) .board-brand{font-size:clamp(12px,1.1vw,15px);font-weight:650;line-height:1.35;letter-spacing:.01em}
+body:not(.activity-not-board) .board-brand:after{width:32px;height:5px;margin-top:2px}
+.left-actions,.bottom-bar,.page-dock{border-color:#d8dde1;box-shadow:0 -3px 14px #00000010}
+.bottom-bar .tools>button,.left-actions button,.page-dock button{transition:background-color .14s ease,color .14s ease}
+.bottom-bar .tools>button:focus-visible,.left-actions button:focus-visible,.page-dock button:focus-visible{outline:2px solid #4778bd;outline-offset:-2px}
+.bottom-bar .tools>button.active,.bottom-bar #pen.active{background:#e7effb!important;box-shadow:inset 0 0 0 1px #91b4e2!important}
+#penOptions,.board-settings,.eraser-size-panel,.more-tools-panel,.extra-panel,.selection-actions,.page-overview{border-color:#d9dfe3;box-shadow:0 8px 24px #11182724}
+#penOptions .pen-type-heading{display:flex;align-items:center;justify-content:space-between;padding:1px 2px 6px;color:#626a73;font:600 11px/1.3 system-ui,sans-serif}
+#penOptions .pen-type-heading strong{color:#303a45;font-weight:650}
+#penOptions .type-row button{height:48px;min-height:48px;border-color:#dce1e6;background:#f7f8fa}
+#penOptions .type-row button.chosen{background:#232a32;border-color:#232a32;color:#fff}
+#penOptions .size-row{grid-template-rows:auto 44px;padding:7px 2px;border-color:#e5e8eb}
+#penOptions .stroke-live-preview{background:var(--preview-bg,#f4f5f7)!important;border-color:#b7bfc8}
+#penOptions .stroke-live-preview:before{box-shadow:0 0 0 1px #7d879280}
+#penOptions #size,#penOptions .colors.pen-row button,.eraser-size-panel input{min-height:44px}
+.eraser-size-panel{grid-template-rows:auto 44px}
+.more-tools-panel button:focus-visible,.extra-panel button:focus-visible,.board-settings button:focus-visible,.selection-actions button:focus-visible{outline:2px solid #4778bd;outline-offset:1px}
+@media(max-height:400px){#penOptions .pen-type-heading{padding-bottom:3px}#penOptions .size-row{padding-top:3px;padding-bottom:3px}}
+
+/* Blue classroom-board theme: compact dock and connected pen panel. */
+.left-actions,.bottom-bar,.page-dock{background:linear-gradient(180deg,#fff 0%,#f3f9ff 100%);border-color:#cfe1f4;box-shadow:0 -2px 12px #2977b318}
+.bottom-bar .tools>button.active,.bottom-bar #pen.active{background:#0787e8!important;color:#fff!important;border-radius:9px!important;box-shadow:0 2px 6px #0787e83d!important}
+.bottom-bar .tools>button.active .dock-tool-name,.bottom-bar #pen.active .dock-tool-name{color:#fff!important}
+.bottom-bar .tools>button.active .writing-icon,.bottom-bar #pen.active .writing-icon{filter:brightness(0) invert(1)}
+.bottom-bar .tools>button.active svg,.bottom-bar #pen.active svg{color:#fff;stroke:currentColor}
+.bottom-bar #moreTools[aria-expanded=true],.toolbar-overflow-items>button.active{background:#e2f2ff;color:#064981}
+#penOptions{width:min(264px,calc(100vw - 16px));padding:8px;border:1px solid #cfe1f6;border-radius:16px;background:#fff;box-shadow:0 10px 26px #1b70af30}
+#penOptions .pen-panel-header{display:flex;justify-content:space-between;align-items:center;min-height:44px;margin:-8px -8px 7px;padding:0 7px 0 10px;box-sizing:border-box;background:#edf6ff;border-bottom:1px solid #d8eafa;border-radius:15px 15px 0 0;color:#11284b}
+#penOptions .pen-panel-title{display:flex;align-items:center;gap:7px;font:700 14px/1.2 system-ui,sans-serif}
+#penOptions .pen-panel-title svg{width:19px;height:19px;fill:none;stroke:#0787e8;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#penOptions .pen-panel-close{display:grid;place-items:center;width:44px;min-width:44px;height:44px;min-height:44px;padding:10px;border:0;border-radius:8px;background:transparent;color:#203454}
+#penOptions .pen-panel-close svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+#penOptions .pen-type-heading{padding:0 2px 5px;color:#66758a;font-size:10px}
+#penOptions .pen-type-heading strong{color:#173458}
+#penOptions .type-row{gap:5px!important;padding-bottom:7px}
+#penOptions .type-row button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;height:52px;min-height:52px;padding:4px 1px;border:1px solid #dce9f6;border-radius:10px;background:#f2f7fc;color:#243b5b}
+#penOptions .type-row button svg{width:20px;height:20px;stroke:currentColor!important}
+#penOptions .type-row button small{font:600 9px/1.1 system-ui,sans-serif;white-space:nowrap}
+#penOptions .type-row button.chosen{background:#0787e8;border-color:#0787e8;color:#fff}
+#penOptions .type-row button.chosen svg{stroke:#fff!important}
+#penOptions .size-row{border-color:#e0ebf6}
+#penOptions .stroke-slider-label,#penOptions .pen-color-heading{color:#1d3556;font:650 11px/1.3 system-ui,sans-serif}
+#penOptions .pen-color-heading{padding:5px 2px 1px}
+#penOptions #size::-webkit-slider-runnable-track{background:linear-gradient(to right,#0787e8 0 var(--stroke-progress,0%),#dce8f4 var(--stroke-progress,0%) 100%)}
+#penOptions #size::-webkit-slider-thumb{background:#0787e8;box-shadow:0 0 0 1px #0787e8}
+#penOptions .colors.pen-row button[aria-pressed=true]:after{border-color:#0787e8}
+#penOptions .pen-panel-close:focus-visible,#penOptions .type-row button:focus-visible{outline:2px solid #0787e8;outline-offset:1px}
+.extra-panel{box-sizing:border-box}
+
+/* Pen panel: quick widths, full colour palette, and real writing preferences. */
+#penOptions{width:min(306px,calc(100vw - 16px));overflow-y:auto;overscroll-behavior:contain}
+#penOptions .pen-panel-title{flex:1;min-width:0}
+#penOptions .pen-panel-close{display:grid;place-items:center;width:48px;min-width:48px;height:48px;min-height:48px;padding:10px;border:0;border-radius:8px;background:transparent;color:#203454}
+#penOptions .stroke-slider-label{grid-column:1;grid-row:1}
+#penOptions .stroke-slider-value{display:block;grid-column:2;grid-row:1;text-align:right;color:#173458;font:650 11px/1.3 system-ui,sans-serif}
+#penOptions .pen-thickness-presets{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:2px;padding:0 0 4px}
+#penOptions .pen-thickness-presets button{display:grid;place-items:center;width:48px;min-width:0;max-width:100%;height:48px;min-height:48px;justify-self:center;padding:3px;border:1px solid #dbe7f3;border-radius:50%;background:#fff;color:#102b50}
+#penOptions .pen-thickness-presets button span{width:var(--dot-size);height:var(--dot-size);border-radius:50%;background:currentColor}
+#penOptions .pen-thickness-presets button[aria-pressed=true]{border:2px solid #0787e8;background:#e3f2ff;color:#0e335b}
+#penOptions .colors.pen-row{grid-template-columns:repeat(6,minmax(0,1fr));justify-items:center;gap:0;padding:0}
+#penOptions .colors.pen-row button{justify-self:center;max-width:100%}
+#penOptions .pen-behavior-options{display:grid;border-top:1px solid #dce8f4;margin-top:4px;padding-top:2px}
+#penOptions .pen-behavior-row{display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:10px;min-height:44px;margin:0;padding:0 3px;color:#1d3556;font:600 11px/1.3 system-ui,sans-serif}
+#penOptions .pen-behavior-label{display:flex;align-items:center;gap:8px;text-align:left}
+#penOptions .pen-behavior-label svg{box-sizing:content-box;width:18px;height:18px;padding:5px;border-radius:50%;background:#eff6fc;fill:none;stroke:#173458;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#penOptions .pen-behavior-row input{appearance:none;-webkit-appearance:none;position:relative;flex:none;width:40px;min-width:40px;height:24px;min-height:24px;margin:0;border:0;border-radius:20px;background:#cdd9e7;cursor:pointer}
+#penOptions .pen-behavior-row input:before{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px #0003;transition:transform .12s ease}
+#penOptions .pen-behavior-row input:checked{background:#0787e8}
+#penOptions .pen-behavior-row input:checked:before{transform:translateX(16px)}
+#penOptions .pen-behavior-row input:focus-visible,#penOptions .pen-thickness-presets button:focus-visible{outline:2px solid #0787e8;outline-offset:1px}
+@media(max-width:340px){#penOptions .colors.pen-row{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+/* Keep frequently used ink controls visible; secondary options open on demand. */
+#penOptions .pen-type-heading{display:none}
+#penOptions .pen-more-options{margin-top:3px;border-top:1px solid #e0ebf6}
+#penOptions .pen-more-options summary{display:flex;align-items:center;justify-content:space-between;min-height:44px;padding:0 3px;list-style:none;color:#315275;font:650 11px/1.3 system-ui,sans-serif;cursor:pointer}
+#penOptions .pen-more-options summary::-webkit-details-marker{display:none}
+#penOptions .pen-more-options summary:after{content:'⌄';font:700 18px/1 system-ui,sans-serif;color:#527ba5}
+#penOptions .pen-more-options[open] summary:after{transform:rotate(180deg)}
+#penOptions .pen-more-options summary:focus-visible{outline:2px solid #0787e8;outline-offset:-2px;border-radius:6px}
+#penOptions .pen-preset-heading{padding:1px 3px 3px;color:#607891;font:600 10px/1.3 system-ui,sans-serif}
+#penOptions .pen-behavior-options{margin-top:2px}

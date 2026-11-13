@@ -3,6 +3,9 @@ try{const saved=JSON.parse(localStorage.getItem('odia-board')||'{}');strokes=sav
 function persist(){updateHistory();try{localStorage.setItem('odia-board',JSON.stringify({strokes,guide}));$('#boardnote').textContent='Your board is saved on this device.'}catch{$('#boardnote').textContent='Storage unavailable. Save an image to keep your work.'}}
 // Keep a raster cache of completed strokes; only active ink is redrawn during pointer moves.
 let committedInk=null, workingInk=null, inkCacheValid=false, inkFrame=0;
+// Use one ink profile for the main board, split writing, previews and Board View.
+function boardInkProfile(type,size){const width=Math.max(1,Number(size)||1),factor=type==='marker'?1.6:type==='highlighter'?2.2:type==='brush'?1.3:1;return {size:width*factor,alpha:type==='highlighter'?.3:1}}
+window.boardPenSettings={smooth:true,pressure:false};try{const s=JSON.parse(localStorage.getItem('odia-pen-behavior')||'{}');if(typeof s.smooth==='boolean')window.boardPenSettings.smooth=s.smooth;if(typeof s.pressure==='boolean')window.boardPenSettings.pressure=s.pressure}catch{}
 function ensureInkSurfaces(width,height){
  if(!committedInk){committedInk=document.createElement('canvas');workingInk=document.createElement('canvas')}
  if(committedInk.width!==width||committedInk.height!==height){
@@ -41,6 +44,13 @@ function drawBoardStroke(g,s,width,height){
    x=0;y=0;
   }
   lines.forEach((line,i)=>g.fillText(line,x,y+i*s.size*1.4));g.restore();return;
+ }
+ if(Array.isArray(s.pressures)&&s.pressures.length===p.length&&s.color!=='#fffef9'){
+  g.fillStyle=s.color;const half=i=>Math.max(.5,s.size*(.2+Math.max(0,Math.min(1,s.pressures[i]))*1.6)/2);
+  if(p.length===1){g.beginPath();g.arc(p[0][0]*width,p[0][1]*height,half(0),0,Math.PI*2);g.fill();g.restore();return}
+  const left=[],right=[];for(let i=0;i<p.length;i++){const a=p[Math.max(0,i-1)],b=p[Math.min(p.length-1,i+1)],dx=(b[0]-a[0])*width,dy=(b[1]-a[1])*height,len=Math.hypot(dx,dy)||1,nx=-dy/len*half(i),ny=dx/len*half(i),x=p[i][0]*width,y=p[i][1]*height;left.push([x+nx,y+ny]);right.push([x-nx,y-ny])}
+  function trace(edge){if(s.smooth&&edge.length>2){for(let i=1;i<edge.length-1;i++){const a=edge[i],b=edge[i+1];g.quadraticCurveTo(a[0],a[1],(a[0]+b[0])/2,(a[1]+b[1])/2)}const last=edge[edge.length-1];g.lineTo(last[0],last[1])}else for(let i=1;i<edge.length;i++)g.lineTo(edge[i][0],edge[i][1])}
+  g.beginPath();g.moveTo(left[0][0],left[0][1]);trace(left);right.reverse();g.lineTo(right[0][0],right[0][1]);trace(right);g.closePath();g.fill();g.restore();return;
  }
  g.beginPath();g.moveTo(p[0][0]*width,p[0][1]*height);
  if(p.length===1)g.lineTo(p[0][0]*width+.1,p[0][1]*height);
@@ -86,11 +96,11 @@ function appendInkSamples(stroke,e){
   const p=[(sample.clientX-r.left)/r.width,(sample.clientY-r.top)/r.height];
   if(stroke.zoneCount>1)p[0]=Math.max(stroke.zoneIndex/stroke.zoneCount,Math.min((stroke.zoneIndex+1)/stroke.zoneCount,p[0]));
   const last=stroke.points[stroke.points.length-1];
-  if(!last||Math.hypot((p[0]-last[0])*r.width,(p[1]-last[1])*r.height)>=.1)stroke.points.push(p);
+  if(!last||Math.hypot((p[0]-last[0])*r.width,(p[1]-last[1])*r.height)>=.1){stroke.points.push(p);if(stroke.pressures)stroke.pressures.push(Number.isFinite(sample.pressure)?Math.max(0,Math.min(1,sample.pressure)):.5)}
  }
 }
 function point(e){const r=canvas.getBoundingClientRect();return[(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height]}
-canvas.onpointerdown=e=>{if(e.button!==0||activeInk.has(e.pointerId)||shapeMode||document.querySelector('#selectTool')?.getAttribute('aria-pressed')==='true')return;e.preventDefault();const p=point(e),zones=window.boardZoneOptions||[],count=window.boardZoneCount||1,zoneIndex=Math.min(count-1,Math.max(0,Math.floor(p[0]*count))),zone=zones[zoneIndex],broad=window.wideTouchEraserEnabled!==false&&e.pointerType==='touch'&&e.width>=34&&e.height>=25,tool=count>1&&zone?zone.type:penType,ink=count>1&&zone?zone.color:color,width=count>1&&zone?zone.size:+$('#size').value,erasing=erase||broad;canvas.setPointerCapture(e.pointerId);activeInk.set(e.pointerId,{points:[p],smooth:true,zoneIndex:count>1?zoneIndex:null,zoneCount:count,color:erasing?'#fffef9':ink,size:erasing?(window.eraserSize||20):width*(tool==='marker'?1.6:tool==='brush'?1.3:1),alpha:!erasing&&tool==='highlighter'?.3:1});drawing=true;if(erasing&&window.showEraserContact)window.showEraserContact(e,window.eraserSize||20);scheduleInkRender()};
+canvas.onpointerdown=e=>{if(e.button!==0||activeInk.has(e.pointerId)||shapeMode||document.querySelector('#selectTool')?.getAttribute('aria-pressed')==='true')return;e.preventDefault();const p=point(e),zones=window.boardZoneOptions||[],count=window.boardZoneCount||1,zoneIndex=Math.min(count-1,Math.max(0,Math.floor(p[0]*count))),zone=zones[zoneIndex],broad=window.wideTouchEraserEnabled!==false&&e.pointerType==='touch'&&e.width>=34&&e.height>=25,tool=count>1&&zone?zone.type:penType,ink=count>1&&zone?zone.color:color,width=count>1&&zone?zone.size:+$('#size').value,erasing=erase||broad,profile=boardInkProfile(tool,width),stroke={points:[p],smooth:window.boardPenSettings.smooth,zoneIndex:count>1?zoneIndex:null,zoneCount:count,color:erasing?'#fffef9':ink,size:erasing?(window.eraserSize||20):profile.size,alpha:erasing?1:profile.alpha};if(!erasing&&e.pointerType==='pen'&&window.boardPenSettings.pressure)stroke.pressures=[Number.isFinite(e.pressure)?Math.max(0,Math.min(1,e.pressure)):.5];canvas.setPointerCapture(e.pointerId);activeInk.set(e.pointerId,stroke);drawing=true;if(erasing&&window.showEraserContact)window.showEraserContact(e,window.eraserSize||20);scheduleInkRender()};
 canvas.onpointermove=e=>{const stroke=activeInk.get(e.pointerId);if(!stroke)return;appendInkSamples(stroke,e);if(stroke.color==='#fffef9'&&window.showEraserContact)window.showEraserContact(e,stroke.size);scheduleInkRender()};
 function finish(e){const stroke=activeInk.get(e.pointerId);if(!stroke)return;if(e.type==='pointerup')appendInkSamples(stroke,e);activeInk.delete(e.pointerId);if(inkFrame){cancelAnimationFrame(inkFrame);inkFrame=0}if(e.type==='pointerup'){strokes.push(stroke);redo=[];persist()}drawing=activeInk.size>0;if(window.hideEraserContact)window.hideEraserContact();render()}
 canvas.onpointerup=finish;canvas.onpointercancel=finish;canvas.onlostpointercapture=finish;new ResizeObserver(render).observe(canvas);

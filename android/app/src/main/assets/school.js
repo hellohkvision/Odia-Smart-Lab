@@ -257,7 +257,7 @@
   if(e.type==='pointercancel'||e.type==='lostpointercapture'){selected.points=drag.points;selected.size=drag.size;restoreMembers(drag.groupStates)}else if(JSON.stringify(selected.points)!==JSON.stringify(drag.points)||selected.size!==drag.size)persist();drag=null;render();}
  canvas.addEventListener('pointerup',end,true);canvas.addEventListener('pointercancel',end,true);canvas.addEventListener('lostpointercapture',end,true);
  function selectedClosed(){if(isGroup(selected))return false;if(selected?.kind==='svg')return true;if(!selected||!Array.isArray(selected.points)||selected.points.length<3)return false;const a=selected.points[0],b=selected.points[selected.points.length-1];return Math.hypot(a[0]-b[0],a[1]-b[1])<0.01}
- window.boardSelectionInfo=()=>selecting&&validSelection(selected)?{kind:selected.kind,text:selected.text,locked:isGroup(selected)?selected.members.every(x=>x.locked):!!selected.locked,closed:selectedClosed(),fillColor:selected.fillColor||null,fillOpacity:Number.isFinite(selected.fillOpacity)?selected.fillOpacity:1,borderColor:selected.color}:null;
+ window.boardSelectionInfo=()=>selecting&&validSelection(selected)?{kind:selected.kind,text:selected.text,bounds:selectionBounds(selected),locked:isGroup(selected)?selected.members.every(x=>x.locked):!!selected.locked,hasLocked:isGroup(selected)?selected.members.some(x=>x.locked):!!selected.locked,closed:selectedClosed(),fillColor:selected.fillColor||null,fillOpacity:Number.isFinite(selected.fillOpacity)?selected.fillOpacity:1,borderColor:selected.color}:null;
  window.boardSelectionAction=(action,value)=>{
   if(!selecting||!validSelection(selected)){document.querySelector('#status').textContent='Select a drawing or shape first.';return false}
   if(action==='lock'){const members=isGroup(selected)?selected.members:[selected],next=!members.every(x=>x.locked);members.forEach(x=>x.locked=next);redo=[];persist();render();return true}
@@ -303,13 +303,14 @@
   if(panel.classList.contains('hidden')||(panel.id==='saathiMenu'&&!panel.classList.contains('open'))||(panel.classList.contains('practice-strip')&&!panel.classList.contains('open')))return;
   const bar=bottomBar.getBoundingClientRect(),anchor=trigger.getBoundingClientRect(),gap=4;
   panel.style.bottom=Math.max(4,innerHeight-bar.top+gap)+'px';
-  panel.style.maxHeight=Math.max(48,Math.min(230,bar.top-56))+'px';
+  panel.style.maxHeight=Math.max(48,Math.min(panel===options?500:230,bar.top-12))+'px';
   const width=panel.getBoundingClientRect().width;
   panel.style.left=Math.max(8,Math.min(anchor.left+anchor.width/2-width/2,innerWidth-width-8))+'px';
   panel.style.transform='none';
  }
  let frame=0;function reposition(){cancelAnimationFrame(frame);frame=requestAnimationFrame(()=>mappings.forEach(([p,t])=>place(p,t)))}
  mappings.forEach(([panel])=>new MutationObserver(reposition).observe(panel,{attributes:true,attributeFilter:['class']}));
+ insertButton.addEventListener('click',()=>{if(!extraPanel.classList.contains('hidden'))place(extraPanel,insertButton)});
  window.addEventListener('resize',reposition);bottomBar.addEventListener('scroll',reposition);
 })();
 // Complete Odia alphabet for classroom exploration and tracing.
@@ -444,9 +445,9 @@
 // Replace stroke presets with a continuous slider while retaining the same value used by drawing.
 (()=>{
  sizeRow.replaceChildren();sizeInput.type='range';sizeInput.min='1';sizeInput.max='24';sizeInput.step='1';sizeInput.setAttribute('aria-label','Pen stroke size');
- const label=document.createElement('label');label.className='stroke-slider-label';label.htmlFor='size';label.textContent='Stroke size';
+ const label=document.createElement('label');label.className='stroke-slider-label';label.htmlFor='size';label.textContent='Thickness';
  const value=document.createElement('output');value.className='stroke-slider-value';value.htmlFor='size';
- const update=()=>{value.textContent=sizeInput.value;};sizeInput.addEventListener('input',update);update();sizeRow.append(label,value,sizeInput);
+ const update=()=>{value.textContent=sizeInput.value+' px';sizeInput.setAttribute('aria-valuetext',sizeInput.value+' of 24');sizeInput.style.setProperty('--stroke-progress',((Number(sizeInput.value)-Number(sizeInput.min))/(Number(sizeInput.max)-Number(sizeInput.min))*100)+'%')};sizeInput.addEventListener('input',update);update();sizeRow.append(label,value,sizeInput);
 })();
 // Divide the current shared board into equal vertical writing areas.
 (()=>{
@@ -658,7 +659,8 @@
 (()=>{
  let saved=20;try{const n=Number(localStorage.getItem('odia-eraser-size'));if(n>=5&&n<=100)saved=n}catch{}window.eraserSize=saved;
  const trigger=document.getElementById('eraser'),panel=document.createElement('div');panel.className='eraser-size-panel hidden';panel.setAttribute('role','group');panel.setAttribute('aria-label','Eraser size');panel.innerHTML='<label for="eraser-size-control">Eraser size</label><output></output><input id="eraser-size-control" type="range" min="5" max="100" step="1" aria-label="Eraser size">';document.body.append(panel);const slider=panel.querySelector('input'),value=panel.querySelector('output');slider.value=String(saved);value.textContent=slider.value;
- slider.oninput=()=>{window.eraserSize=Number(slider.value);value.textContent=slider.value;try{localStorage.setItem('odia-eraser-size',slider.value)}catch{}};
+ function updateSize(){window.eraserSize=Number(slider.value);value.textContent=slider.value;slider.setAttribute('aria-valuetext',slider.value+' of 100');slider.style.setProperty('--eraser-progress',((Number(slider.value)-Number(slider.min))/(Number(slider.max)-Number(slider.min))*100)+'%')}
+ slider.oninput=()=>{updateSize();try{localStorage.setItem('odia-eraser-size',slider.value)}catch{}};updateSize();
  function close(){panel.classList.add('hidden');trigger.setAttribute('aria-expanded','false')}
  trigger.setAttribute('aria-expanded','false');trigger.addEventListener('click',()=>{const open=panel.classList.contains('hidden');if(open){panel.classList.remove('hidden');const b=bottomBar.getBoundingClientRect(),r=trigger.getBoundingClientRect();panel.style.bottom=Math.max(4,innerHeight-b.top+4)+'px';panel.style.left=Math.max(8,Math.min(r.left+r.width/2-panel.offsetWidth/2,innerWidth-panel.offsetWidth-8))+'px';trigger.setAttribute('aria-expanded','true')}else close()});
  document.addEventListener('pointerdown',e=>{if(!e.target.closest('#eraser,.eraser-size-panel'))close()},true);document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
@@ -692,7 +694,7 @@
 // Live previews for pen, eraser, and each split-area stroke control.
 (()=>{
  const preview=document.createElement('span');preview.className='stroke-live-preview';preview.setAttribute('aria-hidden','true');sizeRow.insertBefore(preview,sizeRow.querySelector('.stroke-slider-value'));
- function penPreview(){const factor=penType==='marker'?1.6:penType==='brush'?1.3:1;preview.style.setProperty('--preview-size',Math.max(1,Math.min(20,Math.round(Number(sizeInput.value)*factor*.8)))+'px');preview.style.setProperty('--preview-color',color);preview.style.setProperty('--preview-opacity',penType==='highlighter'?'.4':'1')}
+ function penPreview(){const profile=boardInkProfile(penType,Number(sizeInput.value));preview.style.setProperty('--preview-size',Math.max(1,Math.min(20,Math.round(profile.size*.8)))+'px');preview.style.setProperty('--preview-color',color);preview.style.setProperty('--preview-opacity',String(profile.alpha));const rgb=/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(color);const lum=rgb?(parseInt(rgb[1],16)*299+parseInt(rgb[2],16)*587+parseInt(rgb[3],16)*114)/1000:0;preview.style.setProperty('--preview-bg',lum>155?'#343942':'#f4f5f7')}
  sizeInput.addEventListener('input',penPreview);colors.addEventListener('click',()=>queueMicrotask(penPreview));colors.addEventListener('input',()=>queueMicrotask(penPreview));typeRow.addEventListener('click',()=>queueMicrotask(penPreview));penPreview();
  const eraserPanel=document.querySelector('.eraser-size-panel');if(eraserPanel){const indicator=document.createElement('span');indicator.className='eraser-live-preview';indicator.setAttribute('aria-hidden','true');eraserPanel.insertBefore(indicator,eraserPanel.querySelector('output'));const range=eraserPanel.querySelector('input');function update(){const d=Math.max(4,Math.min(18,Number(range.value)*.18));indicator.style.setProperty('--eraser-preview-size',d+'px')}range.addEventListener('input',update);update()}
  const root=document.querySelector('.zone-tools');if(!root)return;
@@ -705,21 +707,26 @@
  const panel=document.createElement('div');panel.className='selection-actions hidden';panel.setAttribute('role','group');panel.setAttribute('aria-label','Selected object actions');
  const palette=document.createElement('div');palette.className='selection-palette hidden';palette.setAttribute('role','group');palette.setAttribute('aria-label','Selected object colors');
  const row=document.createElement('div');row.className='selection-action-row';let colorMode='fill';
- function action(label,icon,handler){const b=document.createElement('button');b.type='button';b.setAttribute('aria-label',label);b.innerHTML='<span aria-hidden="true">'+icon+'</span><small>'+label+'</small>';b.onclick=handler;row.append(b);return b}
+ const paths={Fill:'M4 13 12 5l7 7-8 8H7z M8 9l7 7 M12 5 9 2 M19 15c0 2-2 3-2 4a2 2 0 004 0c0-1-2-3-2-4z',Border:'M4 4h16v16H4z M8 8h8v8H8z',Edit:'M4 20l4-1L19 8l-3-3L5 16z M14 7l3 3',Copy:'M8 8h12v12H8z M4 16V4h12',Front:'M5 10h10v10H5z M9 6h10v10 M14 3l3 3 3-3',Back:'M9 4h10v10H9z M5 8v12h10 M4 17l3 3 3-3',Lock:'M6 10h12v10H6z M8 10V7a4 4 0 018 0v3 M12 14v2',Unlock:'M6 10h12v10H6z M8 10V7a4 4 0 017-2 M12 14v2',Delete:'M4 7h16 M9 7V4h6v3 M7 7l1 13h8l1-13 M10 10v7 M14 10v7'};
+ function icon(name){return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+paths[name]+'"/></svg>'}
+ function action(label,unused,handler){const b=document.createElement('button');b.type='button';b.setAttribute('aria-label',label);b.title=label;b.innerHTML='<span aria-hidden="true">'+icon(label)+'</span><small>'+label+'</small>';b.onclick=handler;row.append(b);return b}
  function closePalette(){palette.classList.add('hidden');fill.setAttribute('aria-expanded','false');border.setAttribute('aria-expanded','false')}
  const fill=action('Fill','◒',()=>openColors('fill'));const border=action('Border','▣',()=>openColors('border'));const edit=action('Edit','✎',()=>window.openStickyNote?.(true));action('Copy','⧉',()=>{closePalette();window.boardSelectionAction('duplicate')});const front=action('Front','⇧',()=>{closePalette();window.boardSelectionAction('front')});front.setAttribute('aria-label','Bring to front');const back=action('Back','⇩',()=>{closePalette();window.boardSelectionAction('back')});back.setAttribute('aria-label','Send to back');const lock=action('Lock','🔒',()=>{closePalette();window.boardSelectionAction('lock')});action('Delete','⌫',()=>{closePalette();window.boardSelectionAction('delete')});fill.setAttribute('aria-expanded','false');border.setAttribute('aria-expanded','false');
  const colors=document.createElement('div');colors.className='selection-color-row';const none=document.createElement('button');none.type='button';none.textContent='∅';none.setAttribute('aria-label','No fill');none.onclick=()=>window.boardSelectionAction('fill',null);colors.append(none);
  for(const [label,value] of [['White','#ffffff'],['Black','#242d3a'],['Red','#d25343'],['Yellow','#d49d24'],['Blue','#4877c3'],['Green','#155c50']]){const b=document.createElement('button');b.type='button';b.className='selection-color';b.style.setProperty('--color',value);b.setAttribute('aria-label',label+' color');b.onclick=()=>window.boardSelectionAction(colorMode,value);colors.append(b)}
  const custom=document.createElement('input');custom.type='color';custom.setAttribute('aria-label','Custom selected object color');custom.oninput=()=>window.boardSelectionAction(colorMode,custom.value);colors.append(custom);
  const opacityLabel=document.createElement('label');opacityLabel.className='selection-opacity';opacityLabel.textContent='Opacity';const opacity=document.createElement('input');opacity.type='range';opacity.min='0';opacity.max='100';opacity.step='5';opacity.setAttribute('aria-label','Fill opacity');opacity.onchange=()=>window.boardSelectionAction('opacity',Number(opacity.value)/100);opacityLabel.append(opacity);palette.append(colors,opacityLabel);panel.append(palette,row);document.body.append(panel);
- function openColors(mode){const info=window.boardSelectionInfo();if(!info)return;if(mode==='fill'&&!info.closed)return;const same=!palette.classList.contains('hidden')&&colorMode===mode;colorMode=mode;palette.classList.toggle('hidden',same);none.hidden=mode!=='fill';opacityLabel.hidden=mode!=='fill';custom.value=(mode==='fill'?info.fillColor:info.borderColor)||'#ffffff';opacity.value=String(Math.round(info.fillOpacity*100));fill.setAttribute('aria-expanded',String(!same&&mode==='fill'));border.setAttribute('aria-expanded',String(!same&&mode==='border'));}
- function update(){const info=window.boardSelectionInfo(),visible=!!info&&!document.body.classList.contains('activity-not-board')&&!document.body.classList.contains('split-mode');panel.classList.toggle('hidden',!visible);fill.disabled=!info?.closed||!!info?.locked;edit.style.display=info?.kind==='sticky'?'':'none';lock.setAttribute('aria-label',info?.locked?'Unlock object':'Lock object');lock.querySelector('small').textContent=info?.locked?'Unlock':'Lock';lock.querySelector('span').textContent=info?.locked?'🔓':'🔒';for(const b of row.querySelectorAll('button'))if(b!==lock&&b!==fill)b.disabled=!!info?.locked;if(!visible){closePalette();return}const bar=bottomBar.getBoundingClientRect(),anchor=select.getBoundingClientRect();panel.style.bottom=Math.max(4,innerHeight-bar.top+4)+'px';const width=panel.getBoundingClientRect().width;panel.style.left=Math.max(8,Math.min(anchor.left+anchor.width/2-width/2,innerWidth-width-8))+'px'}
+ function openColors(mode){const info=window.boardSelectionInfo();if(!info)return;if(mode==='fill'&&!info.closed)return;const same=!palette.classList.contains('hidden')&&colorMode===mode;colorMode=mode;palette.classList.toggle('hidden',same);none.hidden=mode!=='fill';opacityLabel.hidden=mode!=='fill';custom.value=(mode==='fill'?info.fillColor:info.borderColor)||'#ffffff';opacity.value=String(Math.round(info.fillOpacity*100));fill.setAttribute('aria-expanded',String(!same&&mode==='fill'));border.setAttribute('aria-expanded',String(!same&&mode==='border'));update()}
+ function update(){const info=window.boardSelectionInfo(),visible=!!info&&!document.body.classList.contains('activity-not-board')&&!document.body.classList.contains('split-mode');panel.classList.toggle('hidden',!visible);fill.disabled=!info?.closed||!!info?.hasLocked;edit.style.display=info?.kind==='sticky'?'':'none';lock.setAttribute('aria-label',info?.locked?'Unlock object':'Lock object');lock.title=info?.locked?'Unlock object':'Lock object';lock.querySelector('small').textContent=info?.locked?'Unlock':'Lock';lock.querySelector('span').innerHTML=icon(info?.locked?'Unlock':'Lock');for(const b of row.querySelectorAll('button'))if(b!==lock&&b!==fill)b.disabled=!!info?.hasLocked;border.disabled=!!info?.hasLocked||info?.kind==='selectionGroup';if(!visible){closePalette();return}const r=canvas.getBoundingClientRect(),b=info.bounds,bar=bottomBar.getBoundingClientRect(),box=panel.getBoundingClientRect(),maxBottom=Math.min(r.bottom,bar.top),left=r.left+(b.left+b.right)*r.width/2-box.width/2,above=r.top+b.top*r.height-box.height-14,below=r.top+b.bottom*r.height+18;panel.style.bottom='auto';panel.style.left=Math.max(4,Math.min(left,innerWidth-box.width-4))+'px';panel.style.top=Math.max(4,Math.min(above>=r.top+4?above:below,maxBottom-box.height-4))+'px'}
  document.addEventListener('boardselectionchange',update);window.addEventListener('resize',update);new MutationObserver(update).observe(document.body,{attributes:true,attributeFilter:['class']});update();
 })();
-// Keep history and clear actions next to More, including after rotation.
-(()=>{function place(){if(!moreButton.isConnected)return;moreButton.before(document.querySelector('#undo'),document.querySelector('#redo'),document.querySelector('#clear'))}place();if(phoneLayout.addEventListener)phoneLayout.addEventListener('change',place);else phoneLayout.addListener(place)})();
+// Keep Clear next to Eraser, and the history controls next to More.
+(()=>{function place(){if(!moreButton.isConnected)return;document.querySelector('#eraser')?.after(document.querySelector('#clear'));moreButton.before(document.querySelector('#undo'),document.querySelector('#redo'))}place();if(phoneLayout.addEventListener)phoneLayout.addEventListener('change',place);else phoneLayout.addListener(place)})();
 // Display the activity menu name in Odia.
 (()=>{const b=document.querySelector('#activityMenu');if(!b)return;b.setAttribute('aria-label','ସାଥୀ');b.title='ସାଥୀ';const label=b.querySelector('.dock-tool-name');if(label)label.textContent='ସାଥୀ'})();
+
+// Keep the understated board brand legible on both dark and light surfaces.
+(()=>{const brand=document.querySelector('.board-brand');if(!brand)return;function update(){const rgb=getComputedStyle(canvas).backgroundColor.match(/\d+/g);if(!rgb||rgb.length<3)return;const light=(+rgb[0]*299+ +rgb[1]*587+ +rgb[2]*114)/1000>150;brand.style.color=light?'#596b67':'#c0cbc8'}new MutationObserver(update).observe(canvas,{attributes:true,attributeFilter:['style']});update()})();
 
 // Drag the timer by its header, keeping it within the visible screen.
 (()=>{
@@ -753,7 +760,13 @@
 // Distinct matching pen icons, while keeping the existing tool actions and labels.
 (()=>{
  const paths={pen:'<path d="M12 3 4 11l3 8 5 2 5-2 3-8z"/><path d="M12 3v10m-5 6 3-3m7 3-3-3"/><circle cx="12" cy="15" r="2"/>',marker:'<path d="m5 16 10-10 3 3L8 19l-4 1zM14 7l2-2a2 2 0 0 1 3 3l-2 2"/>',highlighter:'<path d="m5 15 9-9 4 4-9 9H5zM13 7l2-2a2 2 0 0 1 3 0l1 1a2 2 0 0 1 0 3l-2 2M4 21h10"/>',brush:'<path d="M9 15 17 4a2 2 0 0 1 3 3L12 18z"/><path d="M9 15c-3 0-2 4-5 5 4 2 8 0 8-3"/>'};
- typeRow.querySelectorAll('button[data-type]').forEach(b=>{const shape=paths[b.dataset.type];if(shape)b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+shape+'</svg>'});
+ const labels={pen:'Pen',marker:'Marker',highlighter:'Highlighter',brush:'Brush'};
+ typeRow.querySelectorAll('button[data-type]').forEach(b=>{const shape=paths[b.dataset.type];if(shape)b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+shape+'</svg><small aria-hidden="true">'+labels[b.dataset.type]+'</small>'});
+})();
+// Pen palette uses the shared writing settings.
+(()=>{
+ const palette=[['Black','#242d3a'],['Red','#d25343'],['Blue','#4877c3'],['Green','#155c50'],['Yellow','#d49d24'],['Orange','#ef870d'],['Purple','#9665b1'],['Pink','#ec69b4'],['Teal','#06a6a9'],['Brown','#a76a47'],['White','#ffffff']];
+ const custom=colors.querySelector('.custom-palette-icon');colors.querySelectorAll('button').forEach(b=>b.remove());for(const [name,value] of palette){const b=document.createElement('button');b.type='button';b.style.backgroundColor=value;b.setAttribute('aria-label','Use '+name+' ink '+value);b.setAttribute('aria-pressed',String(color.toLowerCase()===value));b.onclick=()=>{color=value;colorInput.value=value;colors.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));selectType(penType)};colors.insertBefore(b,custom||null)}
 })();
 // More outline shapes share the existing drawing, selection and undo behavior.
 (()=>{

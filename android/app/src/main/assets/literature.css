@@ -158,7 +158,7 @@
 #lessons .pathasala-section-card>span{display:flex;align-items:center;width:24px;height:24px;border-radius:6px}
 #lessons .pathasala-section-card svg{width:22px;height:22px}
 #lessons .pathasala-section-card strong{font-size:15px;line-height:1.4}
-#lessons .pathasala-book-sections{align-self:flex-start;margin-top:12px}
+#lessons .pathasala-book-sections{align-self:center;margin:0}
 #lessons .pathasala-book-sections h2{margin-bottom:8px}
 @media(max-width:700px){#literatureHub{--lit-sidebar:clamp(112px,24vw,150px)}#literatureHub .lit-chapter-content{padding:8px}#literatureHub .lit-grid,#literatureHub .lit-chapter-content .lit-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#literatureHub .lit-card{padding:8px;gap:3px 6px}}
 @media(max-width:500px){#literatureHub .lit-grid,#literatureHub .lit-chapter-content .lit-grid{grid-template-columns:1fr}}
@@ -194,3 +194,9 @@
 #literatureHub .lit-footer,#literatureHub.lit-in-workspace .lit-footer{display:none}
 #literatureHub.lit-storage-warning .lit-footer{display:block;position:fixed;inset:auto 8px 8px;z-index:4;width:auto;min-height:0;padding:0;border:0;background:transparent}
 #literatureHub.lit-storage-warning .lit-footer .lit-save-error{display:block;position:static;max-width:100%;padding:8px;white-space:normal;background:#fff4df;border:1px solid #ca963c;border-radius:8px}
+/* Keep navigation reachable at the bottom of a classroom display. */
+#literatureHub .lit-bottom-controls{display:flex;align-items:center;gap:6px;flex:none;min-height:52px;box-sizing:border-box;padding:2px max(8px,env(safe-area-inset-right)) calc(2px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));border-top:1px solid #d7ded3;background:#fffdf7}
+#literatureHub .lit-bottom-controls #litBack,#literatureHub .lit-bottom-controls #litClose{width:48px;min-width:48px;height:48px;min-height:48px;padding:0;font-size:24px;line-height:1}
+#literatureHub .lit-bottom-controls #litClose{margin-left:auto}
+#literatureHub .lit-bottom-controls #litChapterToggle{height:48px;min-height:48px}
+#literatureHub .lit-bottom-controls #litChapterToggle[hidden]{display:none!important}

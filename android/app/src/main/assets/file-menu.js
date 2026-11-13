@@ -39,6 +39,14 @@
   items.Template.onclick=()=>{close();templateDialog.showModal()};items.Settings.onclick=()=>{close();settingsDialog.showModal()};
  // Real app preferences are stored independently of the board-style palette.
  const settingsDialog=document.createElement('dialog');settingsDialog.className='board-app-settings';settingsDialog.setAttribute('aria-labelledby','board-app-settings-title');settingsDialog.innerHTML='<h2 id="board-app-settings-title">Settings</h2><label class="setting-row"><span><strong>Wide touch eraser</strong><small>Use a broad touch to erase on the writing board</small></span><input type="checkbox" data-setting="wide"></label><label class="setting-row"><span><strong>Stroke preview</strong><small>Show the size preview beside pen and eraser sliders</small></span><input type="checkbox" data-setting="preview"></label><p class="settings-note">Board pages and writing preferences are saved on this device.</p><button type="button" class="settings-close">Done</button>';document.body.append(settingsDialog);
+ // Pen behavior uses the same preferences as the drawing engine.
+ for(const [key,title,description] of [['smooth','Smooth Writing','Smooth ink paths while writing'],['pressure','Pressure Sensitive','Use pressure from a supported stylus']]){
+  const row=document.createElement('label');row.className='setting-row';
+  const text=document.createElement('span'),heading=document.createElement('strong'),detail=document.createElement('small');heading.textContent=title;detail.textContent=description;text.append(heading,detail);
+  const input=document.createElement('input');input.type='checkbox';input.dataset.penSetting=key;input.setAttribute('aria-label',title);input.checked=!!window.boardPenSettings[key];
+  input.addEventListener('change',()=>{window.boardPenSettings[key]=input.checked;try{localStorage.setItem('odia-pen-behavior',JSON.stringify(window.boardPenSettings))}catch{notify('Could not save pen preferences on this device.',true)}});
+  row.append(text,input);settingsDialog.querySelector('.settings-note').before(row);
+ }
  const wide=settingsDialog.querySelector('[data-setting="wide"]'),preview=settingsDialog.querySelector('[data-setting="preview"]');let preferences={wide:true,preview:true};try{const stored=JSON.parse(localStorage.getItem('odia-app-settings')||'{}');if(typeof stored.wide==='boolean')preferences.wide=stored.wide;if(typeof stored.preview==='boolean')preferences.preview=stored.preview}catch{}
  function applySettings(){wide.checked=preferences.wide;preview.checked=preferences.preview;window.wideTouchEraserEnabled=preferences.wide;document.body.classList.toggle('hide-stroke-previews',!preferences.preview)}
  function saveSettings(){preferences={wide:wide.checked,preview:preview.checked};applySettings();try{localStorage.setItem('odia-app-settings',JSON.stringify(preferences))}catch{notify('Could not save settings on this device.',true)}}
