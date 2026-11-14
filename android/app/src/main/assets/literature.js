@@ -81,7 +81,9 @@
  function chapters(mode=workspaceMode){
   workspaceMode=mode;rootBody.classList.remove('lit-workspace');
   setScreen('chapters',(mode==='quiz'?'Quiz':'Activity')+' · ପାଠ ବାଛନ୍ତୁ');
-  body.innerHTML='<div class="lit-empty"><div class="lit-empty-icon">'+svg(mode==='quiz'?'quiz':'book')+'</div><h2>ପାଠ ବାଛନ୍ତୁ</h2><p class="lit-muted">ଉପରେ ଥିବା ☰ ପାଠ ବଟନ୍‌ରୁ ପାଠ ବାଛି ତାହାର '+(mode==='quiz'?'କୁଇଜ୍':'କାର୍ଯ୍ୟକଳାପ')+' ଖୋଲନ୍ତୁ।</p></div>';button('☰ ପାଠ ତାଲିକା ଖୋଲନ୍ତୁ',()=>setChapterDrawer(true),body,'lit-primary').id='litChooseChapter';
+  body.innerHTML='<div class="lit-chapter-summary"><p class="lit-muted">ପାଠ ବାଛନ୍ତୁ</p></div><div class="lit-grid" id="litAvailableChapters"></div>';
+  const choice=button('',()=>{const chapterLink=$('#litOpenChapter');if(chapterLink)chapterLink.setAttribute('aria-current','true');if(workspaceMode==='quiz')quiz();else chapter();},$('#litAvailableChapters'),'lit-card');
+  choice.id='litChooseChapter';choice.setAttribute('aria-label','ପାଠ ୧ · ଜନ୍ମଭୂମି');choice.innerHTML=svg('book')+'<small>ପାଠ ୧</small><strong>ଜନ୍ମଭୂମି</strong>';
  }
 
  function chapter(){setScreen('chapter','ଜନ୍ମଭୂମି');body.innerHTML='<div class="lit-chapter-summary"><h2>କାର୍ଯ୍ୟକଳାପ</h2><p class="lit-progress">ଅଭ୍ୟାସ: '+saved.completed.length+' / ୬'+(saved.quizBest!==undefined?' · Quiz ଅଭ୍ୟାସ ✓':'')+'</p></div><div class="lit-grid"></div><details class="lit-teacher-notes"><summary>ଶିକ୍ଷକଙ୍କ ପାଇଁ ସୂଚନା</summary><p>କବି: ମଧୁସୂଦନ ରାଓ। ଏଗୁଡ଼ିକ ପାଠ ଆଧାରିତ ନୂଆ ଅଭ୍ୟାସ; ପୁସ୍ତକର ସମସ୍ତ ପ୍ରଶ୍ନର ଉତ୍ତରମାଳା ନୁହେଁ। ଲେଖା ଓ ଆଲୋଚନାକୁ ଶିକ୍ଷକ ସମୀକ୍ଷା କରିବେ।</p></details>';
